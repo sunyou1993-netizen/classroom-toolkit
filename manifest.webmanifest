@@ -1,0 +1,17 @@
+{
+  "name": "수업도우미",
+  "short_name": "수업도우미",
+  "description": "타이머·스톱워치·세계시간·그림판·소음측정기·발표자 선정·피아노·사다리를 한곳에서. 인터넷 없이 동작합니다.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EBF4FF",
+  "theme_color": "#006CFF",
+  "lang": "ko",
+  "icons": [
+    { "src": "./shared/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./shared/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./shared/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
