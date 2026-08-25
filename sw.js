@@ -1,6 +1,6 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-a531ed9363c7';
+const CACHE = 'suup-doumi-da3009f31054';
 const ASSETS = [
   "./README.md",
   "./assets/character11-DZuNsAEY.png",
@@ -15,6 +15,7 @@ const ASSETS = [
   "./assets/시계-DcZ_-H-T.png",
   "./assets/악기-DsovIA_G.png",
   "./assets/판서-CmUIdA4v.png",
+  "./favicon.ico",
   "./fonts/PretendardVariable.woff2",
   "./fonts/fonts.css",
   "./fonts/jetbrains-mono-latin-wght-normal.woff2",
