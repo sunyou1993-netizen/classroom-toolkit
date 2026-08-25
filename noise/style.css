@@ -1,0 +1,239 @@
+/* 공용 웹폰트 — 인터넷 없이 동작 (파일은 툴킷 루트의 /fonts/) */
+@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
+@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
+@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
+@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-rounded: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --brand-main: #0052E0;
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Custom Glassmorphism Card Style */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 74, 224, 0.05);
+}
+
+/* Rounded font values */
+.font-rounded {
+  font-family: var(--font-rounded);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Custom Keyframe Animations for Outward Ripple Rings WITH Rich Glow */
+@keyframes ripple-1 {
+  0% {
+    transform: scale(0.97);
+    opacity: 0.95;
+    box-shadow: 0 0 20px rgba(0, 82, 224, 0.5);
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+    box-shadow: 0 0 50px rgba(0, 82, 224, 0);
+  }
+}
+
+@keyframes ripple-2 {
+  0% {
+    transform: scale(0.97);
+    opacity: 0.85;
+    box-shadow: 0 0 20px rgba(3, 169, 244, 0.45);
+  }
+  100% {
+    transform: scale(1.38);
+    opacity: 0;
+    box-shadow: 0 0 65px rgba(3, 169, 244, 0);
+  }
+}
+
+.animate-ripple-1 {
+  animation: ripple-1 2.0s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.animate-ripple-2 {
+  animation: ripple-2 2.0s cubic-bezier(0.25, 1, 0.5, 1) 0.5s infinite;
+}
+
+/* Liquid Organic Radial Mesh Flow for Measuring State */
+@keyframes liquid-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-mint-blue {
+  background: radial-gradient(circle at 15% 25%, rgba(16, 185, 129, 0.95), transparent 70%),
+              radial-gradient(circle at 85% 75%, rgba(0, 82, 224, 0.95), transparent 70%),
+              linear-gradient(135deg, #006CFF 20%, #03A9F4 80%);
+  background-size: 260% 260%;
+  animation: liquid-flow 4.2s ease-in-out infinite;
+}
+
+/* Breathing overlay scale */
+@keyframes breath {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.12;
+  }
+}
+
+.animate-breath {
+  animation: breath 2s ease-in-out infinite;
+}
+
+/* Traffic light housing vertical cylinder styling - 3D Clean Modern Off-White Casing with Deeper Shadow */
+.traffic-housing {
+  background: rgba(255, 255, 255, 0.95);
+  border: 4px solid #f1f5f9;
+  box-shadow: 
+    0 10px 32px rgba(0, 48, 180, 0.16),
+    0 4px 10px rgba(0, 0, 0, 0.04),
+    inset 0 4px 12px rgba(255, 255, 255, 1.0),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Custom styles for sensitivity range slider thumb to make it larger and highly tactile */
+#sensitivity-slider {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#sensitivity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: #0052E0;
+  cursor: pointer;
+  border: 4px solid #ffffff;
+  box-shadow: 
+    0 6px 14px rgba(0, 82, 224, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease;
+}
+
+#sensitivity-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #0041B2;
+}
+
+#sensitivity-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+  background: #003180;
+}
+
+#sensitivity-slider::-moz-range-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: #0052E0;
+  cursor: pointer;
+  border: 4px solid #ffffff;
+  box-shadow: 
+    0 6px 14px rgba(0, 82, 224, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease;
+}
+
+#sensitivity-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  background: #0041B2;
+}
+
+#sensitivity-slider::-moz-range-thumb:active {
+  transform: scale(0.95);
+  background: #003180;
+}
+
+/* Hide scrollbars on modern devices */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Modern voice active soundwave pulse bar animation mapping */
+/* Periodic breathing: dots (0-20%) -> expand & undulate (20-75%) -> shrink to dots (75-100%) */
+@keyframes dynamicwave-1 {
+  0%, 20% { height: 8px; }
+  35% { height: 38px; }
+  50% { height: 16px; }
+  65% { height: 32px; }
+  75%, 100% { height: 8px; }
+}
+@keyframes dynamicwave-2 {
+  0%, 20% { height: 8px; }
+  35% { height: 52px; }
+  50% { height: 20px; }
+  65% { height: 44px; }
+  75%, 100% { height: 8px; }
+}
+@keyframes dynamicwave-3 {
+  0%, 20% { height: 8px; }
+  35% { height: 28px; }
+  50% { height: 12px; }
+  65% { height: 24px; }
+  75%, 100% { height: 8px; }
+}
+@keyframes dynamicwave-4 {
+  0%, 20% { height: 8px; }
+  35% { height: 44px; }
+  50% { height: 18px; }
+  65% { height: 36px; }
+  75%, 100% { height: 8px; }
+}
+@keyframes dynamicwave-5 {
+  0%, 20% { height: 8px; }
+  35% { height: 22px; }
+  50% { height: 10px; }
+  65% { height: 18px; }
+  75%, 100% { height: 8px; }
+}
+
+.animate-voicebar-1 {
+  animation: dynamicwave-1 2.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+.animate-voicebar-2 {
+  animation: dynamicwave-2 2.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 0.05s;
+}
+.animate-voicebar-3 {
+  animation: dynamicwave-3 2.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 0.1s;
+}
+.animate-voicebar-4 {
+  animation: dynamicwave-4 2.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 0.15s;
+}
+.animate-voicebar-5 {
+  animation: dynamicwave-5 2.8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation-delay: 0.2s;
+}
