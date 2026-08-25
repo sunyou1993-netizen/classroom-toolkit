@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>세계시간 - 실시간 세계 일주 시계</title>
+    <style>
+      body, button, input, textarea, select, div, span, h1, h2, h3, h4, h5, h6, p, a, li, ul {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+      }
+    </style>
+    <!-- Leaflet Free Map Integration -->
+  <script type="module" crossorigin src="./assets/index-C4NYHq7h.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CP8yQiqI.css">
+
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#006CFF">
+  <script>
+    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+      });
+    }
+  </script>
+</head>
+  <body class="h-screen w-screen bg-[#EBF4FF] flex flex-col items-center justify-center m-0 p-0 overflow-hidden font-sans antialiased text-[#1F2E45]">
+    
+    <!-- Responsive frame display controller (Widescreen Only) - Hidden by request -->
+    <div id="frame_controller" class="hidden items-center gap-3 mb-4 bg-white/70 backdrop-blur-sm px-4 py-2 rounded-full border border-blue-100 shadow-sm text-xs text-slate-600 z-10 transition-all hover:bg-white select-none">
+      <svg class="w-3.5 h-3.5 text-[#006CFF] animate-spin" style="animation-duration: 25s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <span>해상도: <strong>1080 x 1920 (9:16 세로형) 키오스크 스크린</strong></span>
+      <div class="h-3 w-px bg-slate-200"></div>
+      <button 
+        id="toggle_frame_btn"
+        class="text-[#006CFF] font-semibold hover:underline cursor-pointer"
+      >
+        전체 화면으로 보기
+      </button>
+    </div>
+
+    <!-- Main Container Wrapper: Scaled beautifully to fill screen height preserving the same portrait aspect ratio with no frame/border -->
+    <div
+      id="phone_mockup"
+      class="h-screen w-full md:w-auto md:aspect-[9/16] max-h-screen max-w-full overflow-hidden transition-all duration-300 relative bg-[#EBF4FF] flex flex-col shadow-none border-none rounded-none"
+    >
+      
+      <!-- 1. Header component - Title "세계시간" + "닫기" -->
+      <div id="header_section" class="h-[120px] flex items-center justify-between px-5 bg-[#EBF4FF] border-b border-blue-50/20 flex-none select-none">
+        <div class="flex items-center gap-3">
+          <div>
+            <h1 
+              id="header_title_logo" 
+              class="text-[52px] font-semibold tracking-tight text-slate-700 leading-none select-none"
+            >
+              세계시간
+            </h1>
+          </div>
+        </div>
+        
+        <button
+          id="close_btn"
+          onclick="handleCloseBtnClick(event)"
+          class="px-8 h-[88px] flex items-center justify-center bg-white border border-slate-200 hover:border-slate-300 text-[36px] font-semibold text-slate-700 rounded-2xl shadow-xs transition active:scale-95 cursor-pointer leading-none"
+        >
+          닫기
+        </button>
+      </div>
+
+      <!-- 2. Character Image immediately below headers with Integrated Search at the Bottom (Height doubled) -->
+      <div id="char_banner" class="relative px-5 py-1.5 flex flex-col items-center select-none flex-none">
+        <div class="w-full relative h-[440px] md:h-[480px] flex flex-col justify-between rounded-2xl bg-[#E3F2FF] border border-blue-50/80 shadow-[0_4px_24px_rgba(0,108,255,0.03)] z-30">
+          
+          <!-- The Image inside the banner - fully filling the banner area edge-to-edge -->
+          <div class="absolute inset-x-0 top-0 bottom-[56px] flex items-center justify-center overflow-hidden bg-[#E3F2FF] rounded-t-2xl">
+            <img
+              src="./assets/travel-B7GNZuE7.png"
+              alt="3D Bear Explorer"
+              class="w-full h-full object-cover object-center transition duration-300 hover:scale-102"
+            />
+          </div>
+
+          <!-- Empty space filler for layout flow to push the search to bottom -->
+          <div class="flex-1 min-h-0"></div>
+
+          <!-- Smart Search Filter Dropdown Overlay & Search form placed seamlessly inside the unified cloud background -->
+          <div class="relative w-full z-30 px-3.5 pb-4 pt-0 flex-none bg-[#E3F2FF]">
+            <form id="search_form" class="relative flex items-center" autocomplete="off">
+              <div class="absolute left-5 text-slate-400">
+                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              <input
+                id="search_input"
+                type="text"
+                placeholder="도시명을 입력하세요 (예: 서울, Tokyo...)"
+                class="w-full pl-16 pr-44 h-28 bg-white border border-[#006CFF]/15 rounded-2xl text-[29px] focus:outline-none focus:ring-2 focus:ring-[#006CFF] focus:border-transparent shadow-xs text-slate-800 placeholder-slate-400 font-medium"
+              />
+              <button
+                type="submit"
+                class="absolute right-3 px-6 h-22 bg-[#006CFF] hover:bg-blue-600 text-[33px] font-medium rounded-xl shadow-xs flex items-center gap-2 transition-all active:scale-95 cursor-pointer text-white"
+              >
+                <span>검색</span>
+                <svg class="w-8 h-8 stroke-[3]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </button>
+            </form>
+
+            <!-- Smart Search Filter Dropdown Overlay -->
+            <div id="suggestions_backdrop" class="fixed inset-0 z-40 hidden"></div>
+            <div
+              id="suggestions_dropdown"
+              class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-blue-50 overflow-hidden z-50 divide-y divide-slate-100 max-h-[500px] overflow-y-auto hidden"
+            >
+              <div class="bg-slate-50/80 px-5 py-3 text-[18px] font-bold text-slate-400 tracking-wider">
+                추천 도시 목록
+              </div>
+              <ul id="suggestions_list" class="m-0 p-0 list-none divide-y divide-slate-100"></ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 4. Grid Clocks (Up to 6 clocks) - Fills exact remaining space without scrollbar! -->
+      <div id="grid_container" class="px-5 flex-1 min-h-0 select-none pb-12">
+        <div id="clock_grid" class="grid grid-cols-2 grid-rows-3 h-full gap-5 md:gap-7">
+          <!-- Dynamically generated through main.ts -->
+        </div>
+      </div>
+
+      <!-- 6. Dynamic Detail Explorer Modal Drawer overlay -->
+      <div id="modal_backdrop" class="absolute inset-0 bg-slate-900/60 z-40 hidden opacity-0 transition-opacity duration-300"></div>
+      
+      <div
+        id="detail_modal"
+        class="absolute bottom-0 left-0 right-0 bg-[#F4F9FF] rounded-t-[32px] shadow-2xl border-t border-[#006CFF]/15 z-50 p-5 pb-6 max-h-[92%] overflow-y-auto no-scrollbar transform translate-y-full transition-all duration-300 hidden"
+      >
+        <!-- Drag handle header bar -->
+        <div id="modal_close_handle" class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-3.5 cursor-pointer"></div>
+        
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2.5">
+            <div>
+              <div id="modal_country_en" class="text-[20px] text-[#006CFF] font-extrabold uppercase tracking-wider"></div>
+            </div>
+          </div>
+          <button
+            id="modal_close_btn"
+            class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-full transition cursor-pointer"
+          >
+            <svg class="w-6 h-6 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Main content blocks in clean 3-panel vertical stack -->
+        <div class="flex flex-col gap-4 pb-1">
+          <!-- Card 1: Main Clock and Progress timeline -->
+          <div id="modal_time_card" class="p-4 md:p-5 rounded-[24px] bg-white border border-blue-50/80 shadow-[0_4px_20px_rgba(0,108,255,0.02)] flex flex-col justify-center gap-5 relative text-slate-800">
+            <!-- Flag + City name -->
+            <div class="flex items-center gap-3">
+              <span id="modal_flag" class="text-[44px] leading-none select-none filter drop-shadow-xs"></span>
+              <h2 id="modal_title" class="text-[34px] md:text-[38px] font-black text-slate-800 tracking-tight leading-none"></h2>
+            </div>
+
+            <!-- Dynamic Live Clock -->
+            <h1 id="modal_time" class="text-[64px] md:text-[76px] font-semibold font-mono tracking-tight text-[#157FC1] leading-none my-1 select-all"></h1>
+
+            <!-- Date string and UTC offset indicator -->
+            <div class="flex flex-col gap-1 text-[17px] md:text-[18px] text-slate-500 font-semibold leading-tight">
+              <span id="modal_date"></span>
+              <span id="modal_utc_offset" class="text-slate-400 font-bold tracking-wider uppercase text-[14px]"></span>
+            </div>
+          </div>
+
+          <!-- Card 2: 세계지도 위치 (World Map - Pacific Centered) -->
+          <div class="bg-white rounded-[24px] p-4 md:p-5 border border-blue-50/80 shadow-[0_4px_20px_rgba(0,108,255,0.02)] flex flex-col justify-between">
+            <div class="text-[15px] text-slate-400 font-extrabold uppercase flex items-center justify-between mb-2 select-none">
+              <span>지도에서 보는 위치</span>
+              <span class="text-[#006CFF] text-[15px] font-bold" id="modal_map_location_text"></span>
+            </div>
+            
+            <!-- stylized map graphics container (Aspect ratio 1.8/1 on mobile for extra space-efficiency) -->
+            <div class="relative w-full aspect-[1.8/1] md:aspect-[2.3/1] bg-[#F1F5F9] rounded-2xl overflow-hidden border border-slate-200">
+              <!-- Div for mounting Leaflet Map -->
+              <div id="modal_free_map" class="w-full h-full"></div>
+            </div>
+          </div>
+
+          <!-- Card 3: Standard comparative timezone tracker -->
+          <div class="bg-white rounded-[24px] p-4 md:p-5 border border-blue-50/80 shadow-[0_4px_24px_rgba(0,108,255,0.03)] flex flex-col justify-between">
+            <div class="text-[15px] text-slate-400 font-bold mb-3 uppercase flex items-center justify-between select-none">
+              <span>한국 시간 (서울) 대비 시차 비교</span>
+              <span id="modal_time_diff_badge" class="font-extrabold text-[#006CFF] bg-[#006CFF]/5 px-2.5 py-0.5 rounded-lg text-[14px]"></span>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between text-[16px] md:text-[18px] bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span class="font-bold text-slate-600">🇰🇷 내 위치 (서울)</span>
+                <span id="modal_seoul_time" class="font-mono font-bold text-slate-700"></span>
+              </div>
+              <div class="flex items-center justify-between text-[16px] md:text-[18px] bg-[#EBF4FF] p-3 rounded-2xl border border-blue-100/30">
+                <span id="modal_target_label" class="font-bold text-[#157FC1]"></span>
+                <span id="modal_target_time" class="font-mono font-black text-[#157FC1]"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. City Picker Modal Popup in Center -->
+      <div id="add_city_modal_backdrop" class="absolute inset-0 bg-slate-900/60 z-50 hidden opacity-0 transition-opacity duration-300"></div>
+      
+      <div
+        id="add_city_modal"
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-h-[80%] bg-[#F4F9FF] rounded-[32px] shadow-2xl border border-[#006CFF]/15 z-50 p-6 flex flex-col transform scale-95 opacity-0 transition-all duration-300 hidden"
+      >
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-4 flex-none">
+          <h2 class="text-[36px] font-black tracking-tight text-slate-800">도시 추가</h2>
+          <button
+            id="add_city_modal_close_btn"
+            class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-full transition cursor-pointer"
+          >
+            <svg class="w-8 h-8 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative flex items-center mb-4 flex-none">
+          <div class="absolute left-4 text-slate-400">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <input
+            id="add_city_modal_search"
+            type="text"
+            autocomplete="off"
+            placeholder="도시명 또는 국가명 검색..."
+            class="w-full pl-12 pr-4 h-16 bg-white border border-slate-200 rounded-2xl text-[24px] focus:outline-none focus:ring-2 focus:ring-[#006CFF] focus:border-transparent text-slate-800 placeholder-slate-400 font-semibold"
+          />
+        </div>
+
+        <!-- Autocomplete Suggestions (Inline relative element under search input) -->
+        <div
+          id="add_city_modal_suggestions"
+          class="flex-1 overflow-y-auto bg-white rounded-2xl border border-slate-200/80 overflow-hidden divide-y divide-slate-100 max-h-[350px] overflow-y-auto z-40 hidden mb-4 text-left"
+        >
+          <ul id="add_city_modal_suggestions_list" class="m-0 p-0 list-none divide-y divide-slate-100 text-left"></ul>
+        </div>
+
+        <!-- Scrollable Country/City Grouped List -->
+        <div
+          id="add_city_modal_list"
+          class="flex-1 overflow-y-auto pr-1 space-y-4 no-scrollbar text-left"
+        >
+          <!-- Filled dynamically from TS/JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Script loading -->
+  </body>
+</html>
