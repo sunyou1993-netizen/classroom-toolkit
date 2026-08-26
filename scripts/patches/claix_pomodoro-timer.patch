@@ -1,0 +1,30 @@
+diff --git a/index.html b/index.html
+index e25b0a0..60b0735 100644
+--- a/index.html
++++ b/index.html
+@@ -4,8 +4,12 @@
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+     <title>Focus Bear Timer</title>
+-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+     <style>
++/* 공용 웹폰트 — 인터넷 없이 동작 (파일은 툴킷 루트의 /fonts/) */
++@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
++@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+         :root {
+             --bg-color: #EDF4FF;
+             --white: #FFFFFF;
+diff --git a/vite.config.ts b/vite.config.ts
+index 35ee384..437ce08 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -1,6 +1,7 @@
+ import {defineConfig} from 'vite';
+ 
+ export default defineConfig({
++  base: './',
+   server: {
+     port: 3000,
+     host: '0.0.0.0',

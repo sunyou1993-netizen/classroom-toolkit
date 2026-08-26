@@ -1,0 +1,30 @@
+diff --git a/src/index.css b/src/index.css
+index 9402787..5a9dd09 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -3,8 +3,11 @@
+  * SPDX-License-Identifier: Apache-2.0
+  */
+ 
+-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Nanum+Pen+Script&display=swap');
++/* 공용 웹폰트 — 인터넷 없이 동작 (파일은 툴킷 루트의 /fonts/) */
++@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
++@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+ @import "tailwindcss";
+ 
+ @theme {
+diff --git a/vite.config.ts b/vite.config.ts
+index fc23e76..2dbb4e2 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -5,6 +5,7 @@ import {defineConfig} from 'vite';
+ 
+ export default defineConfig(() => {
+   return {
++    base: './',
+     plugins: [react(), tailwindcss()],
+     resolve: {
+       alias: {

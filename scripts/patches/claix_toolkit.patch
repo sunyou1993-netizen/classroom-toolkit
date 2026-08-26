@@ -1,0 +1,203 @@
+diff --git a/css/style.css b/css/style.css
+index adbd0c1..bdc3218 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -6,8 +6,11 @@
+   --color-bg-pastel: #EBF4FF;
+ }
+ 
+-/* Pretendard Web Font CDN */
+-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css");
++/* 공용 웹폰트 — 인터넷 없이 동작 (파일은 툴킷 루트의 /fonts/) */
++@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
++@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+ 
+ body {
+   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+diff --git a/index.html b/index.html
+index 3c19b1d..dcda79d 100644
+--- a/index.html
++++ b/index.html
+@@ -154,7 +154,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">타이머</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-pomodoro-timer-g7ph.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-[#006CFF] hover:bg-blue-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-blue-500/15">
++              <button onclick="goToService('./timer/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-[#006CFF] hover:bg-blue-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-blue-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-[#006CFF]" onclick="closeTool()">닫기</button>
+@@ -202,7 +202,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">뽀모도로 타이머</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-pomodoro-timer-tk2v.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-red-500 hover:bg-red-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-red-500/15">
++              <button onclick="goToService('./pomodoro/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-red-500 hover:bg-red-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-red-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-red-500" onclick="closeTool()">닫기</button>
+@@ -255,7 +255,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">스톱워치</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-stopwatch2-la7h.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-emerald-500/15">
++              <button onclick="goToService('./stopwatch/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-emerald-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-emerald-500" onclick="closeTool()">닫기</button>
+@@ -305,7 +305,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">세계시간</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-worldtime3-shtk.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-indigo-500/15">
++              <button onclick="goToService('./worldclock/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-indigo-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-indigo-500" onclick="closeTool()">닫기</button>
+@@ -574,7 +574,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">발표자 선정</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-wheelgame-pmii.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-orange-500/15">
++              <button onclick="goToService('./picker/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-[20px] active:scale-95 transition shadow-lg shadow-orange-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-orange-500" onclick="closeTool()">닫기</button>
+@@ -666,7 +666,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">스마트 피아노</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-piano-abpk.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-[20px] active:scale-95 transition shadow-lg shadow-violet-500/15">
++              <button onclick="goToService('./instruments/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-[20px] active:scale-95 transition shadow-lg shadow-violet-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-violet-600" onclick="closeTool()">닫기</button>
+@@ -762,7 +762,7 @@
+               <span class="text-[48px] font-semibold text-slate-800 font-sans tracking-tight">사다리</span>
+             </div>
+             <div class="flex items-center gap-6">
+-              <button onclick="goToService('https://claix-ladder-8ly1.vercel.app/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-cyan-600 hover:bg-cyan-700 rounded-[20px] active:scale-95 transition shadow-lg shadow-cyan-500/15">
++              <button onclick="goToService('./ladder/')" class="h-[74px] px-6 flex items-center justify-center gap-2 text-[26px] font-bold text-white bg-cyan-600 hover:bg-cyan-700 rounded-[20px] active:scale-95 transition shadow-lg shadow-cyan-500/15">
+                 <span>서비스 바로가기 ↗</span>
+               </button>
+               <button class="text-[36px] font-semibold text-cyan-600" onclick="closeTool()">닫기</button>
+diff --git a/js/main.js b/js/main.js
+index dba293e..5d3a571 100644
+--- a/js/main.js
++++ b/js/main.js
+@@ -155,19 +155,19 @@ window.openTool = function(toolId) {
+   isClosingTool = false; // Reset close guard lock on navigation
+   // Direct redirect mapping for externalized tools
+   const toolUrls = {
+-    'timer': 'https://claix-pomodoro-timer-g7ph.vercel.app/',
+-    'pomodoro': 'https://claix-pomodoro-timer-tk2v.vercel.app/',
+-    'stopwatch': 'https://claix-stopwatch2-la7h.vercel.app/',
+-    'worldclock': 'https://claix-worldtime3-shtk.vercel.app/',
+-    'paint': 'https://claix-board-nvw9.vercel.app/',
+-    'noise': 'https://claix-piano-3sum.vercel.app/',
+-    'picker': 'https://claix-wheelgame-pmii.vercel.app/',
+-    'instruments': 'https://claix-piano-abpk.vercel.app/',
+-    'ladder': 'https://claix-ladder-8ly1.vercel.app/'
++    'timer': './timer/',
++    'pomodoro': './pomodoro/',
++    'stopwatch': './stopwatch/',
++    'worldclock': './worldclock/',
++    'paint': './paint/',
++    'noise': './noise/',
++    'picker': './picker/',
++    'instruments': './instruments/',
++    'ladder': './ladder/'
+   };
+ 
+   const curHost = window.location.hostname;
+-  const isTargetHost = toolUrls[toolId] && (new URL(toolUrls[toolId])).hostname === curHost;
++  const isTargetHost = false;
+ 
+   // Only redirect if a tool url is mapped and it is NOT the current hostname
+   if (toolUrls[toolId] && !isTargetHost) {
+@@ -261,20 +261,20 @@ window.closeTool = function() {
+ 
+     // Default fallback to the main classroom helper portal
+     if (!targetUrl) {
+-      targetUrl = 'https://claix-toolkit-xzrp.vercel.app/';
++      targetUrl = '/';
+     }
+ 
+     // If targetUrl's hostname ends up being the same as the current host (self-referential loop), reset it to the main toolkit
+     try {
+       const parsedTarget = new URL(targetUrl);
+       if (parsedTarget.hostname === window.location.hostname) {
+-        targetUrl = 'https://claix-toolkit-xzrp.vercel.app/';
++        targetUrl = '/';
+       }
+     } catch (e) {}
+ 
+     // Force return directly to main toolkit for safety unless we have a specific dev preview run.app referrer
+-    if (!targetUrl.includes('run.app')) {
+-      targetUrl = 'https://claix-toolkit-xzrp.vercel.app/';
++    if (false) {
++      targetUrl = '/';
+     }
+ 
+     // Try window.top first to breakout of iframe if we are same-origin/embedded safely, fallback to window.location
+@@ -306,44 +306,8 @@ window.closeTool = function() {
+ };
+ 
+ window.goToService = function(url) {
+-  // Navigate in the same window/frame to preserve referrer and browser history.
+-  // We append multiple back/redirect parameters so that the Vercel sub-app knows exactly how to return to our dev/shared app in case it gets parsed from the query string.
+-  try {
+-    const cleanUrl = window.location.origin + window.location.pathname;
+-    const originUrl = window.location.origin;
+-    const targetUrl = new URL(url);
+-    
+-    // An exhaustive list of parameter keys commonly used for redirection/back-navigation callbacks
+-    // We omit sensitive keys like 'url' or 'host' to avoid clobbering internal target routing parameters
+-    const redirectKeys = [
+-      'redirect', 'redirect_uri', 'redirect_url', 'redirectUrl',
+-      'back', 'back_url', 'backUrl',
+-      'returnUrl', 'return_url', 'return', 'return_to', 'returnTo',
+-      'callback', 'callback_url', 'callbackUrl',
+-      'from', 'parent',
+-      'ret', 'ret_url', 'retUrl', 'retURL',
+-      'exit', 'exit_url', 'exitUrl',
+-      'referrer', 'ref', 'source', 'home', 'homeUrl', 'home_url',
+-      'prev', 'prev_url', 'prevUrl', 'next', 'to'
+-    ];
+-    
+-    redirectKeys.forEach(key => {
+-      // Set to clean fallback URL so sub-apps don't get polluted by old queries
+-      targetUrl.searchParams.set(key, cleanUrl);
+-    });
+-    
+-    // Also provide variations for clean / base / origin configurations in case they only accept simple absolute landing pages
+-    targetUrl.searchParams.set('origin', originUrl);
+-    targetUrl.searchParams.set('domain', originUrl);
+-    targetUrl.searchParams.set('baseUrl', cleanUrl);
+-    targetUrl.searchParams.set('base_url', cleanUrl);
+-    targetUrl.searchParams.set('clean_url', cleanUrl);
+-    
+-    window.location.href = targetUrl.toString();
+-  } catch (e) {
+-    // Fallback if URL object creation fails for some reason
+-    window.location.href = url;
+-  }
++  // 툴킷 전체가 같은 폴더 안에 있으므로 상대경로로 그냥 이동합니다.
++  window.location.href = url;
+ };
+ 
+ 
+diff --git a/vite.config.ts b/vite.config.ts
+index fc23e76..2dbb4e2 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -5,6 +5,7 @@ import {defineConfig} from 'vite';
+ 
+ export default defineConfig(() => {
+   return {
++    base: './',
+     plugins: [react(), tailwindcss()],
+     resolve: {
+       alias: {

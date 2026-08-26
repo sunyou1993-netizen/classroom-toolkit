@@ -1,0 +1,39 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index ab52fd3..facdf52 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -331,7 +331,7 @@ export default function App() {
+           {/* Character */}
+           <div className="absolute left-1/2 top-[64%] -translate-x-1/2 -translate-y-1/2 z-[2] w-[420px] h-[420px]">
+              <motion.img
+-               src="/image222.png"
++               src="./image222.png"
+                alt="Focus Bear"
+                className="w-full h-full object-contain"
+                animate={isRunning ? {
+diff --git a/src/index.css b/src/index.css
+index 3706c00..1b5c085 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -1,4 +1,8 @@
+-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
++/* 공용 웹폰트 — 인터넷 없이 동작 (파일은 툴킷 루트의 /fonts/) */
++@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
++@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
++@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+ @import "tailwindcss";
+ 
+ @theme {
+diff --git a/vite.config.ts b/vite.config.ts
+index 52ac87c..712f789 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -6,6 +6,7 @@ import {defineConfig, loadEnv} from 'vite';
+ export default defineConfig(({mode}) => {
+   const env = loadEnv(mode, '.', '');
+   return {
++    base: './',
+     plugins: [react(), tailwindcss()],
+     define: {
+       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
