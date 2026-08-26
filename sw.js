@@ -1,11 +1,12 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-09dabe8f8521';
+const CACHE = 'suup-doumi-1f7cabda0ce1';
 const ASSETS = [
   "./app.html",
   "./assets/character11-DZuNsAEY.png",
-  "./assets/index-Cxj5pwz2.css",
-  "./assets/index-DdUTrF-V.js",
+  "./assets/hub-bg-Dcf0D4Ho.webp",
+  "./assets/index-DQfoVmUJ.css",
+  "./assets/index-DV9tjrWy.js",
   "./assets/랜덤-DOe117BQ.png",
   "./assets/뽀모돌-CYL_Tn_h.png",
   "./assets/사다리-DZrK4QoX.png",

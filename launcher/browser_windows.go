@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -30,7 +31,21 @@ func openBrowser(url string) *exec.Cmd {
 
 	// 전용 프로필을 쓰면 이 창이 독립된 프로세스가 되어,
 	// 창을 닫는 순간을 우리가 알 수 있습니다(= 서버도 같이 종료).
-	profile := filepath.Join(os.TempDir(), "suup-doumi-profile")
+	// 버전마다 이름을 달리해서, 예전 버전이 띄워 둔 창으로 화면이 넘어가지 않게 합니다.
+	profile := filepath.Join(os.TempDir(), "suup-doumi-profile-"+version)
+
+	// 예전 프로필 폴더는 지워서 임시 폴더가 쌓이지 않게 합니다.
+	if entries, err := os.ReadDir(os.TempDir()); err == nil {
+		for _, e := range entries {
+			n := e.Name()
+			if strings.HasPrefix(n, "suup-doumi-profile") && n != "suup-doumi-profile-"+version {
+				_ = os.RemoveAll(filepath.Join(os.TempDir(), n))
+			}
+		}
+	}
+
+	// 소음측정기가 권한 창 없이 마이크를 쓸 수 있게 미리 허용해 둡니다.
+	seedBrowserProfile(profile, strings.TrimSuffix(url, "/"))
 
 	for _, exe := range candidates {
 		if _, err := os.Stat(exe); err != nil {

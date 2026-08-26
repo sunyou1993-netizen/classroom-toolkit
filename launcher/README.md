@@ -25,6 +25,20 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
 
 `launcher/toolkit/` 는 빌드할 때 만들어지는 복사본이라 저장소에 넣지 않습니다.
 
+
+### 용량 줄이기(선택)
+
+exe 는 20MB 를 넘지 않는 게 좋습니다. 그림 품질은 그대로 두고 파일만 줄입니다.
+
+```bash
+pip install pyoxipng --break-system-packages
+python3 -c "
+import oxipng, glob
+for f in glob.glob('launcher/toolkit/**/*.png', recursive=True):
+    oxipng.optimize(f, level=4, strip=oxipng.StripChunks.safe())
+"
+```
+
 ## 파일
 
 | 파일 | 역할 |

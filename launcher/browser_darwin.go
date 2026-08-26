@@ -10,7 +10,10 @@ import (
 	"time"
 )
 
-const macProfile = "suup-doumi-profile"
+// 브라우저 프로필 폴더. 버전마다 다른 이름을 써서, 예전 프로그램이 띄워 둔
+// 브라우저에 창이 넘어가는 일이 없게 합니다. (그렇게 넘어가면 마이크 권한
+// 주인이 예전 프로그램으로 남아 팝업이 계속 뜹니다.)
+var macProfile = "suup-doumi-profile-" + version
 
 // 맥에서도 크로미움 계열 브라우저를 "앱 모드"로 띄웁니다.
 //
@@ -22,6 +25,7 @@ const macProfile = "suup-doumi-profile"
 func openBrowser(url string) *exec.Cmd {
 	apps := []string{"Google Chrome", "Microsoft Edge"}
 	profile := os.TempDir() + "/" + macProfile
+	seedBrowserProfile(profile, strings.TrimSuffix(url, "/"))
 
 	args := []string{
 		"--app=" + url,
@@ -31,6 +35,21 @@ func openBrowser(url string) *exec.Cmd {
 		"--no-first-run",
 		"--no-default-browser-check",
 		"--use-fake-ui-for-media-stream", // 브라우저 자체 권한 창은 띄우지 않습니다
+	}
+
+	// 예전 버전이 띄워 둔 우리 브라우저 창을 먼저 정리합니다.
+	// 우리 전용 프로필을 쓰는 프로세스만 골라내므로 사용자의 크롬은 건드리지 않습니다.
+	_ = exec.Command("pkill", "-f", "user-data-dir="+os.TempDir()+"/suup-doumi-profile").Run()
+	time.Sleep(600 * time.Millisecond)
+
+	// 예전 프로필 폴더는 지워서 임시 폴더가 쌓이지 않게 합니다.
+	if entries, err := os.ReadDir(os.TempDir()); err == nil {
+		for _, e := range entries {
+			n := e.Name()
+			if strings.HasPrefix(n, "suup-doumi-profile") && n != macProfile {
+				_ = os.RemoveAll(os.TempDir() + "/" + n)
+			}
+		}
 	}
 
 	for _, app := range apps {

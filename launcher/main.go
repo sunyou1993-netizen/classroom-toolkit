@@ -221,6 +221,24 @@ func main() {
 	waitForClose() // 창이 닫힐 때까지(확인할 방법이 없는 환경에서는 그냥 대기)
 }
 
+// 브라우저 프로필에 "이 주소는 마이크를 써도 된다"를 미리 적어 둡니다.
+// 이렇게 해 두면 소음측정기가 권한 창 없이 바로 마이크를 켤 수 있습니다.
+// (형식이 맞지 않아 무시되더라도 문제는 없습니다 — 그때는 측정 버튼을 누를 때 묻습니다.)
+func seedBrowserProfile(profileDir, origin string) {
+	def := filepath.Join(profileDir, "Default")
+	pref := filepath.Join(def, "Preferences")
+	if _, err := os.Stat(pref); err == nil {
+		return // 이미 쓰던 프로필이면 건드리지 않습니다
+	}
+	if os.MkdirAll(def, 0o755) != nil {
+		return
+	}
+	body := `{"profile":{"content_settings":{"exceptions":{` +
+		`"media_stream_mic":{"` + origin + `,*":{"setting":1}},` +
+		`"media_stream_camera":{"` + origin + `,*":{"setting":1}}}}}}`
+	_ = os.WriteFile(pref, []byte(body), 0o644)
+}
+
 // 예전에 등록된 서비스워커를 스스로 해제하고 캐시를 비우는 스크립트입니다.
 const killSwitchSW = `
 self.addEventListener('install', () => self.skipWaiting());
