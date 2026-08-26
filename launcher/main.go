@@ -8,9 +8,11 @@ package main
 import (
 	"embed"
 	"io/fs"
+	"io"
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -20,6 +22,10 @@ import (
 
 //go:embed all:toolkit
 var embedded embed.FS
+
+// 이미 떠 있는 인스턴스를 알아보기 위한 표식입니다.
+const PING = "/__suup-doumi"
+const PONG = "suup-doumi"
 
 // 윈도우 레지스트리를 타지 않도록 확장자별 타입을 직접 정합니다.
 // (레지스트리가 .js 를 text/plain 으로 돌려주면 ES 모듈이 통째로 차단됩니다.)
@@ -53,6 +59,11 @@ var mimeByExt = map[string]string{
 func handler(root fs.FS) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := path.Clean("/" + r.URL.Path)
+		if p == PING {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte(PONG))
+			return
+		}
 		name := strings.TrimPrefix(p, "/")
 
 		// 폴더 주소는 index.html 로 (예: /timer/ -> timer/index.html)
@@ -92,14 +103,51 @@ func listen() (net.Listener, error) {
 	return net.Listen("tcp", "127.0.0.1:0") // 전부 막혔으면 아무 빈 포트나
 }
 
+// 이미 떠 있는 수업도우미가 있는지 확인합니다. 있으면 그 주소를 돌려줍니다.
+func findRunning() string {
+	c := &http.Client{Timeout: 250 * time.Millisecond}
+	for port := 43110; port <= 43130; port++ {
+		base := "http://127.0.0.1:" + strconv.Itoa(port)
+		res, err := c.Get(base + PING)
+		if err != nil {
+			continue
+		}
+		b, _ := io.ReadAll(res.Body)
+		res.Body.Close()
+		if strings.TrimSpace(string(b)) == PONG {
+			return base + "/"
+		}
+	}
+	return ""
+}
+
 func main() {
+	// ── 실행 방식 ────────────────────────────────────────────────
+	// 더블클릭하면 이 프로그램은 곧바로 끝나고, 서버는 뒤에서 따로 돕니다.
+	// 그래야 두 번째로 더블클릭했을 때 macOS 가 "응답하지 않습니다" 를 띄우지 않습니다.
+	if len(os.Args) < 2 || os.Args[1] != "--serve" {
+		if url := findRunning(); url != "" {
+			openBrowser(url) // 이미 돌고 있으면 창만 다시 엽니다
+			return
+		}
+		exe, err := os.Executable()
+		if err != nil {
+			exe = os.Args[0]
+		}
+		cmd := exec.Command(exe, "--serve")
+		detach(cmd)
+		_ = cmd.Start()
+		return
+	}
+
+	// ── 여기부터가 실제 서버 ─────────────────────────────────────
 	root, err := fs.Sub(embedded, "toolkit")
 	if err != nil {
 		os.Exit(1)
 	}
 	ln, err := listen()
 	if err != nil {
-		os.Exit(1)
+		os.Exit(1) // 이미 다른 인스턴스가 잡고 있는 상황
 	}
 	go http.Serve(ln, handler(root))
 
@@ -114,10 +162,14 @@ func main() {
 		time.Sleep(20 * time.Millisecond)
 	}
 
+	started := time.Now()
 	if cmd := openBrowser(url); cmd != nil {
-		cmd.Wait() // 창을 닫으면 여기서 빠져나오고 서버도 함께 끝납니다.
-		return
+		cmd.Wait() // 창을 닫으면 여기서 빠져나옵니다
+		// 이미 실행 중이던 브라우저에 창만 넘기고 곧바로 끝나는 경우가 있습니다.
+		// 그때 서버까지 꺼지면 화면이 비므로, 그런 경우에는 계속 띄워 둡니다.
+		if time.Since(started) > 3*time.Second {
+			return
+		}
 	}
-	// 전용 창을 못 띄웠으면 기본 브라우저로 열고 하루 동안 띄워 둡니다.
 	time.Sleep(12 * time.Hour)
 }

@@ -55,3 +55,8 @@ func openBrowser(url string) *exec.Cmd {
 	_ = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 	return nil
 }
+
+// 백그라운드 프로세스로 떼어냅니다(부모가 끝나도 계속 돌도록).
+func detach(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x00000008} // DETACHED_PROCESS
+}

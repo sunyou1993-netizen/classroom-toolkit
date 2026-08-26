@@ -43,3 +43,23 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
   접근할 수 없고, 윈도우 방화벽 경고도 뜨지 않습니다.
 - **코드 서명이 없습니다.** 처음 실행할 때 SmartScreen 경고가 뜹니다.
   정식 배포 시 회사 인증서로 서명하면 사라집니다.
+
+## 아이콘
+
+로고 원본은 `logo.svg` 입니다. `icotool.py` 로 아래 세 가지를 만듭니다.
+
+| 결과물 | 쓰이는 곳 |
+|---|---|
+| `rsrc_windows_amd64.syso` | 윈도우 exe 아이콘 (같은 폴더에 두면 `go build` 가 자동으로 넣습니다) |
+| `AppIcon.icns` | 맥 앱 아이콘 (`수업도우미.app/Contents/Resources/`) |
+| `favicon.ico` | 웹 툴킷 파비콘 (저장소 루트) |
+
+```bash
+for s in 16 24 32 48 64 128 192 256 512 1024; do rsvg-convert -w $s -h $s logo.svg -o png-bg-$s.png; done
+python3 -c "
+from PIL import Image; import icotool
+imgs=[Image.open(f'png-bg-{s}.png').convert('RGBA') for s in (16,24,32,48,64,128,256)]
+open('favicon.ico','wb').write(icotool.build_ico(imgs))
+open('rsrc_windows_amd64.syso','wb').write(icotool.build_syso(imgs))
+"
+```
