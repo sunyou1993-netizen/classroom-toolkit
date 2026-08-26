@@ -147,6 +147,10 @@ for (const app of targets) {
   }
 }
 
+// 빌드 결과에 중복으로 딸려오는 파일(같은 그림이 두 벌) 정리
+const PRUNE = ['worldclock/travel.png', 'picker/image2342.png', 'picker/image33.png'];
+for (const f of PRUNE) fs.rmSync(path.join(ROOT, f), { force: true });
+
 console.log('\n■ 화면 맞춤 프레임 씌우는 중…');
 execFileSync(process.execPath, [path.join(HERE, 'frame-apps.mjs')], { cwd: ROOT, stdio: 'inherit' });
 

@@ -29,12 +29,27 @@
   window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', fit);
 
-  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  // 닫기 동작이 앱마다 제각각(허브로 이동 / window.close() / history.back())이라
+  // 어떤 방식이든 전부 허브로 모아 줍니다.
+  function goHub() {
+    if (location.pathname !== '/' && location.pathname !== '/index.html') location.href = '/';
+  }
   f.addEventListener('load', function () {
     try {
-      var u = f.contentWindow.location;
-      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+      var w = f.contentWindow;
+      var u = w.location;
+      // 앱이 프레임 안에서 다른 곳으로 갔다면 창 전체를 그리로 옮깁니다.
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; return; }
+      w.close = goHub;                       // 창 닫기 시도 → 허브
+      var back = w.history.back.bind(w.history);
+      w.history.back = function () {         // 뒤로가기 시도 → 갈 곳 없으면 허브
+        if (w.history.length > 1) back(); else goHub();
+      };
     } catch (e) {}
+  });
+  window.addEventListener('message', function (e) {   // 닫기 신호를 보내는 앱도 있습니다
+    var d = e.data;
+    if (d === 'close' || (d && d.type === 'close')) goHub();
   });
 
   if ('serviceWorker' in navigator) {

@@ -1,6 +1,6 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-3b589906e55a';
+const CACHE = 'suup-doumi-c8afe9871bcf';
 const ASSETS = [
   "./app.html",
   "./assets/character11-DZuNsAEY.png",
@@ -51,8 +51,8 @@ const ASSETS = [
   "./noise/style.css",
   "./noise/tailwind.css",
   "./paint/app.html",
-  "./paint/assets/index-CAO4ROHa.js",
-  "./paint/assets/index-CLXRffU1.css",
+  "./paint/assets/index-BXO7XPyu.js",
+  "./paint/assets/index-Dhns_zDJ.css",
   "./paint/index.html",
   "./picker/app.html",
   "./picker/assets/image2342-CgPr5Nk1.png",
@@ -147,8 +147,8 @@ const ASSETS = [
   "./timer/image223.png",
   "./timer/index.html",
   "./worldclock/app.html",
-  "./worldclock/assets/index-C4NYHq7h.js",
-  "./worldclock/assets/index-CP8yQiqI.css",
+  "./worldclock/assets/index-CiHkq2Vq.css",
+  "./worldclock/assets/index-DlxY5pLf.js",
   "./worldclock/assets/travel-B7GNZuE7.png",
   "./worldclock/index.html"
 ];
