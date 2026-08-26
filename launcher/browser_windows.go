@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"syscall"
+	"time"
 )
 
 // 크로미움 계열 브라우저를 "앱 모드"로 띄웁니다.
@@ -63,3 +64,7 @@ func detach(cmd *exec.Cmd) {
 
 // 윈도우에서는 이미지 이름이 같아 자기 자신까지 종료될 수 있어 사용하지 않습니다.
 func killOldInstances() {}
+
+// 윈도우에서는 브라우저가 자식 프로세스라 창 닫힘을 바로 알 수 있습니다.
+// 여기까지 왔다면 확인할 방법이 없는 상황이므로 그냥 띄워 둡니다.
+func waitForClose() { time.Sleep(12 * time.Hour) }

@@ -5,6 +5,7 @@ package main
 import (
 	"os/exec"
 	"syscall"
+	"time"
 )
 
 // 리눅스에서는 서버 동작만 확인할 용도로 씁니다(테스트 전용).
@@ -20,3 +21,5 @@ func detach(cmd *exec.Cmd) {
 func killOldInstances() {
 	_ = exec.Command("pkill", "-f", "suup-doumi --serve").Run()
 }
+
+func waitForClose() { time.Sleep(12 * time.Hour) }

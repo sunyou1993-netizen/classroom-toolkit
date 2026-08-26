@@ -149,12 +149,30 @@ async function setupMicrophone() {
     return;
   }
 
+  // 화면을 열자마자 마이크를 요청하면 권한 팝업이 곧바로 뜹니다.
+  // 이미 허용해 둔 경우에만 조용히 켜고, 아직이라면 사용자가 측정 버튼을
+  // 누를 때 요청합니다(그때 뜨는 팝업은 사용자가 의도한 동작입니다).
   try {
-    // Request initial mic stream to check permission
+    const perm = await navigator.permissions.query({ name: 'microphone' });
+    if (perm.state !== 'granted') {
+      isRealMic = false;
+      // 나중에 권한이 허용되면 그때 자동으로 실제 마이크로 넘어갑니다.
+      perm.onchange = () => {
+        if (perm.state === 'granted' && isPlaying) startRealMicrophoneAnalysis();
+      };
+      return;
+    }
+  } catch (e) {
+    // permissions API 를 쓸 수 없는 브라우저에서는 자동 요청을 하지 않습니다.
+    isRealMic = false;
+    return;
+  }
+
+  try {
+    // 이미 허용된 상태라 팝업 없이 바로 열립니다.
     const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    // If granted, we can switch to real micro model
     tempStream.getTracks().forEach(track => track.stop());
-    
+
     isRealMic = true;
     if (isPlaying) {
       if (simulationIntervalId) {

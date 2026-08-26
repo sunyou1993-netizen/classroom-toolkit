@@ -218,7 +218,7 @@ func main() {
 			return
 		}
 	}
-	time.Sleep(12 * time.Hour)
+	waitForClose() // 창이 닫힐 때까지(확인할 방법이 없는 환경에서는 그냥 대기)
 }
 
 // 예전에 등록된 서비스워커를 스스로 해제하고 캐시를 비우는 스크립트입니다.

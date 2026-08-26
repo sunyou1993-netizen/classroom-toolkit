@@ -103,8 +103,11 @@ for (const d of DIRS) {
   const app = path.join(dir, 'app.html');
   if (!fs.existsSync(index)) { console.warn('건너뜀(없음):', d); continue; }
 
-  // 이미 처리된 폴더는 app.html 을 원본으로 삼아 프레임만 다시 만듭니다.
-  const html = fs.readFileSync(fs.existsSync(app) ? app : index, 'utf8');
+  // index.html 이 (지난번에 만든) 프레임이면 app.html 이 원본입니다.
+  // 새로 빌드해서 index.html 이 진짜 앱으로 바뀌었다면 그쪽이 원본입니다.
+  const cur = fs.readFileSync(index, 'utf8');
+  const isFrame = cur.includes('id="stage"') && cur.includes('./app.html');
+  const html = (isFrame && fs.existsSync(app)) ? fs.readFileSync(app, 'utf8') : cur;
   const title = TITLES[d] || (html.match(/<title>([^<]*)<\/title>/i) || [, '수업도우미'])[1].trim();
   fs.writeFileSync(app, html);
   fs.writeFileSync(index, framePage(title, './app.html'));
