@@ -1,320 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>소음측정기 WebView</title>
-  <link rel="stylesheet" href="./tailwind.css">
-  <!-- Link to our clean, dedicated style file for advanced animations and glassmorphism -->
-  <link rel="stylesheet" href="./style.css">
-
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#006CFF">
-  <script>
-    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-      });
-    }
-  </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>소음측정기</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#E4EBF5; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
+           transform-origin:top left; border:0; display:block; background:#E4EBF5; }
+</style>
 </head>
-<body class="bg-[#EBF4FF] h-screen w-screen overflow-hidden">
+<body>
+<iframe id="stage" src="./app.html" title="소음측정기"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = "app.html";
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - 1080 * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
 
-  <!-- Fullscreen container matching standard mobile Webviews -->
-  <div class="h-screen w-screen bg-[#EBF4FF] relative overflow-hidden flex flex-col justify-between select-none">
+  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  f.addEventListener('load', function () {
+    try {
+      var u = f.contentWindow.location;
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+    } catch (e) {}
+  });
 
-    <!-- ----------------- HEADER STYLING ----------------- -->
-    <div class="w-full flex justify-between items-center px-6 relative z-50 shrink-0" style="height: 120px;">
-      <!-- Combined Left Container for Title -->
-      <div class="flex items-center gap-4">
-        <h1 style="font-size: 52px; font-weight: 600;" class="text-gray-800 tracking-tight leading-none">소음측정기</h1>
-      </div>
-
-      <!-- Close Action Button with 20px rounded border -->
-      <button onclick="parent.postMessage('close', '*'); window.location.href='https://claix-toolkit-xzrp.vercel.app/';" class="bg-white hover:bg-slate-50 border border-gray-200 text-gray-700 shadow-sm hover:shadow active:scale-95 transition-all cursor-pointer flex items-center justify-center" style="font-size: 36px; font-weight: 600; background-color: #ffffff; padding: 12px 30px; line-height: 1; border-radius: 20px;">
-        닫기
-      </button>
-    </div>
-
-    <!-- ----------------- CORE DATA VIEWER BODY (SCROLL-FREE LAYOUT) ----------------- -->
-    <div class="flex-1 flex flex-col justify-start px-4 pb-3 pt-4 gap-2.5 overflow-hidden">
-      
-      <!-- AI MASCOT CARD - 3D Polar bear rendering with speech bubble overlay -->
-      <div class="relative w-full h-[320px] rounded-[24px] overflow-hidden shadow-[0_8px_16px_rgba(0,108,255,0.06)] border border-white/60 shrink-0">
-        <!-- 3D Rendered Banner Background -->
-        <img src="./noise.png" alt="소음측정기 배너" class="absolute inset-0 w-full h-full object-cover pointer-events-none">
-        
-        <!-- Subtle shadow overlay layout gradient -->
-        <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-900/5 to-transparent pointer-events-none"></div>
-
-        <!-- Dynamic Speech Bubble Overlay -->
-        <div id="mascot-bubble" class="absolute right-[115px] top-1/2 -translate-y-1/2 z-10 transition-all duration-500" style="max-width: 416px; width: 62%;">
-          <div class="glass-card p-4 rounded-2xl shadow-xl border border-white/95 bg-white/95 transition-all duration-500 relative">
-            
-            <!-- Speech bubble triangle arrow point -->
-            <div class="absolute left-[-12px] top-[50%] -translate-y-1/2 w-0 h-0 border-t-[8px] border-t-transparent border-r-[12px] border-r-white/95 border-b-[8px] border-b-transparent"></div>
-            
-            <div class="flex items-center gap-1.5 mb-1.5">
-              <span id="bubble-icon" style="font-size: 42px;" class="leading-none">😊</span>
-              <span id="bubble-title" style="font-size: 36px; font-weight: 900;" class="tracking-tight text-[#31B272]">조용해요</span>
-            </div>
-            
-            <p id="bubble-desc" style="font-size: 30px;" class="text-gray-700 font-normal leading-tight truncate">딱 좋은 환경이에요! 👍</p>
-          </div>
-
-          <!-- Decorative Stars -->
-          <div class="absolute -top-3 right-4 text-xs text-yellow-300 opacity-80 animate-pulse">★</div>
-          <div class="absolute -bottom-3 left-2 text-[10px] text-blue-400 opacity-60">✦</div>
-        </div>
-      </div>
-
-      <!-- MAIN CARD: LOGICAL CURRENT DECIBEL MEASUREMENT -->
-      <div style="flex: 1.2 1 auto; min-height: 640px;" class="glass-card rounded-[24px] p-6 relative overflow-hidden flex flex-col justify-between">
-        
-        <!-- Header title of the measurement widget with sensitivity slider -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1 w-full shrink-0">
-          <div class="flex items-center gap-3">
-            <span class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-brand-main shrink-0">
-              <!-- Speaker/Volume Icon -->
-              <svg class="w-6 h-6 text-[#0052E0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-              </svg>
-            </span>
-            <span style="font-size: 34px;" class="font-extrabold text-slate-800 tracking-tight leading-none text-left">현재 소음 수준</span>
-          </div>
-        </div>
-
-        <!-- Current Decibel Indicator (Left) & Vertical Traffic Light Cylinder (Right) -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20 pt-3 pb-6 w-full flex-1 overflow-visible">
-          
-          <!-- Left: Decibel value counters, Badge, and Recommendations -->
-          <div class="flex-1 flex flex-col justify-center items-center sm:items-start pl-1 select-none w-full max-w-[280px] -mt-5 sm:-mt-8">
-            <!-- Large Decibel indicator -->
-            <div class="flex items-baseline gap-3 mt-3 sm:mt-4 mb-1">
-              <span id="db-number" style="font-size: 104px; line-height: 0.85;" class="font-rounded font-extrabold tracking-tighter text-[#1e293b] tabular-nums">36</span>
-              <span style="font-size: 28px;" class="font-extrabold text-[#475569] tracking-tight shrink-0 font-rounded">dB</span>
-            </div>
-
-            <!-- Dynamic sound warning status badge -->
-            <div class="mt-2.5 mb-3 flex select-none">
-              <span id="db-badge" style="font-size: 24px; padding: 10px 24px; gap: 8px;" class="inline-flex items-center rounded-full font-bold shadow-md tracking-tight bg-[#31B272] text-white">
-                <span style="font-size: 28px;">😊</span>
-                <span>좋음</span>
-              </span>
-            </div>
-
-            <!-- Contextual recommendation instructions -->
-            <p id="recommendation-text" style="font-size: 24px; max-width: 380px; line-height: 1.45;" class="font-medium mt-3 text-slate-600 text-center sm:text-left break-keep shrink-0">
-              집중하기 좋은 환경이에요!<br>지금처럼 유지해요 😊
-            </p>
-
-            <!-- Divider & Sensitivity Slider (가벼운 수다 소리가 나요! 밑에 가로줄 및 기능 추가) -->
-            <hr class="w-full border-t border-slate-300 mt-12 mb-8 opacity-50">
-            <div class="w-full flex flex-col gap-5 shrink-0 select-none">
-              <span style="font-size: 24px;" class="font-extrabold text-[#475569] leading-none text-center sm:text-left">
-                민감도 조절 (<span id="sensitivity-val" class="text-[#0052E0] font-black">5</span>)
-              </span>
-              <input type="range" id="sensitivity-slider" min="0" max="10" value="5" class="w-full h-8 bg-slate-200 rounded-2xl appearance-none cursor-pointer accent-[#0052E0]" style="outline: none;">
-            </div>
-          </div>
-
-          <!-- Right side: Traffic Light & Legend Vertical Alignment -->
-          <div class="flex items-center justify-center gap-6 shrink-0 select-none mx-auto">
-            
-            <!-- Vertical Traffic Light Cylinder (Cylinder physical housing) -->
-            <div class="traffic-housing rounded-full flex flex-col items-center justify-between py-10 px-6 shrink-0" style="width: 164px; height: 508px; gap: 28px;">
-               
-              <!-- Red Light (Top) -->
-              <div class="relative">
-                <div id="lamp-red" class="rounded-full flex items-center justify-center transition-all duration-300 relative bg-slate-100 border-[6px] border-slate-200/50 z-0 overflow-visible shadow-inner" style="width: 116px; height: 116px;">
-                  <!-- Sad Face Icon -->
-                  <svg class="text-slate-300 transition-colors duration-300" style="width: 60px; height: 60px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
-                    <line x1="9" y1="9" x2="9.01" y2="9" />
-                    <line x1="15" y1="9" x2="15.01" y2="9" />
-                  </svg>
-                  <span class="ping-ripple hidden absolute -inset-[6px] rounded-full border border-red-400/30 animate-ping opacity-60 pointer-events-none"></span>
-                </div>
-              </div>
-
-              <!-- Yellow Light (Middle) -->
-              <div class="relative">
-                <div id="lamp-yellow" class="rounded-full flex items-center justify-center transition-all duration-300 relative bg-slate-100 border-[6px] border-slate-200/50 z-0 overflow-visible shadow-inner" style="width: 116px; height: 116px;">
-                  <!-- Neutral Face Icon -->
-                  <svg class="text-slate-300 transition-colors duration-300" style="width: 60px; height: 60px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="8" y1="13" x2="16" y2="13" />
-                    <line x1="9" y1="9" x2="9.01" y2="9" />
-                    <line x1="15" y1="9" x2="15.01" y2="9" />
-                  </svg>
-                  <span class="ping-ripple hidden absolute -inset-[6px] rounded-full border border-yellow-400/30 animate-ping opacity-60 pointer-events-none"></span>
-                </div>
-              </div>
-
-              <!-- Green Light (Bottom) -->
-              <div class="relative">
-                <div id="lamp-green" class="rounded-full flex items-center justify-center transition-all duration-300 relative bg-slate-100 border-[6px] border-slate-200/50 z-0 overflow-visible shadow-inner" style="width: 116px; height: 116px;">
-                  <!-- Smile Face Icon -->
-                  <svg class="text-slate-300 transition-colors duration-300" style="width: 60px; height: 60px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                    <line x1="9" y1="9" x2="9.01" y2="9" />
-                    <line x1="15" y1="9" x2="15.01" y2="9" />
-                  </svg>
-                  <span class="ping-ripple hidden absolute -inset-[6px] rounded-full border border-emerald-400/30 animate-ping opacity-60 pointer-events-none"></span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Vertical Legend Rows Aligned to Lamps -->
-            <div class="flex flex-col justify-between py-1 shrink-0" style="height: 508px; width: 280px; gap: 28px;">
-              
-              <!-- Red row (시끄러워요) -->
-              <div id="row-red" class="flex flex-col justify-center rounded-3xl px-6 py-4 transition-all h-[116px] border border-transparent">
-                <span style="font-size: 20px;" class="font-semibold text-slate-600 leading-none">시끄러워요</span>
-                <span style="font-size: 26px;" class="font-extrabold text-red-500 tracking-tight mt-2 leading-none">70 dB 이상</span>
-              </div>
-
-              <!-- Yellow row (보통 소음) -->
-              <div id="row-yellow" class="flex flex-col justify-center rounded-3xl px-6 py-4 transition-all h-[116px] border border-transparent">
-                <span style="font-size: 20px;" class="font-semibold text-slate-600 leading-none">조금 시끄러워요</span>
-                <span style="font-size: 26px;" class="font-extrabold text-amber-500 tracking-tight mt-2 leading-none">50 ~ 70 dB</span>
-              </div>
-
-              <!-- Green row (조용해요) -->
-              <div id="row-green" class="flex flex-col justify-center rounded-3xl px-6 py-4 transition-all h-[116px] border border-transparent bg-emerald-50 border-emerald-100/30">
-                <span style="font-size: 20px;" class="font-semibold text-slate-600 leading-none">조용해요</span>
-                <span style="font-size: 26px;" class="font-extrabold text-[#31B272] tracking-tight mt-2 leading-none">50 dB 미만</span>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- WAVEFORM CHART (실시간 음파) -->
-      <div class="bg-white rounded-[24px] pt-5 pb-4 px-5 relative min-h-[90px] flex flex-col justify-between overflow-hidden border border-slate-100/80 shadow-[0_10px_35px_rgba(0,52,224,0.03)]">
-        <div class="flex justify-between items-center mb-3 px-5">
-          <div class="flex items-center gap-3">
-            <span class="flex items-center justify-center w-10 h-10 rounded-full bg-[#31B272]/10 text-[#31B272] shrink-0">
-              <svg class="w-6 h-6 animate-pulse text-[#31B272]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 13h2l2-9 4 17 4-13 2 5h2" />
-              </svg>
-            </span>
-            <span style="font-size: 34px;" class="font-extrabold text-slate-800 tracking-tight leading-none">실시간 음파</span>
-          </div>
-        </div>
-
-        <!-- Real-Wave Dynamic SVG canvas implementation -->
-        <div class="w-full">
-          <div class="relative w-full aspect-[25/6.4] sm:aspect-[25/5.6] md:aspect-[25/4.8] bg-white p-0 overflow-hidden">
-            <svg viewBox="0 0 720 120" class="w-full h-full text-brand-main">
-              <defs>
-                <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#006CFF" stop-opacity="0.35" />
-                  <stop offset="60%" stop-color="#31B272" stop-opacity="0.15" />
-                  <stop offset="100%" stop-color="#EBF4FF" stop-opacity="0.01" />
-                </linearGradient>
-                <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#31B272" />
-                  <stop offset="50%" stop-color="#006CFF" />
-                  <stop offset="100%" stop-color="#FF6B6B" />
-                </linearGradient>
-              </defs>
-
-              <!-- Threshold Limit Lines -->
-              <!-- 100 dB limit -->
-              <line x1="12" y1="15" x2="708" y2="15" stroke="gray" stroke-width="1" stroke-dasharray="4 4" class="opacity-15"></line>
-              <text x="14" y="24" fill="#cbd5e1" style="font-size: 14px;" class="font-bold font-mono opacity-80">100</text>
-              
-              <!-- 50 dB limit -->
-              <line x1="12" y1="65" x2="708" y2="65" stroke="gray" stroke-width="1" stroke-dasharray="4 4" class="opacity-15"></line>
-              <text x="14" y="74" fill="#94a3b8" style="font-size: 14px;" class="font-bold font-mono opacity-80">50</text>
-              
-              <!-- 0 / 20 dB baseline limit -->
-              <line x1="12" y1="105" x2="708" y2="105" stroke="gray" stroke-width="1" class="opacity-10"></line>
-              <text x="14" y="114" fill="#cbd5e1" style="font-size: 14px;" class="font-bold font-mono opacity-80">0</text>
-
-              <!-- Dynamic Paths computed by app.js -->
-              <path id="svg-wave-fill" d="" fill="url(#waveGradient)"></path>
-              <path id="svg-wave-outline" d="" fill="none" stroke="url(#lineGradient)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path>
-
-              <!-- Leading flashing signal dot -->
-              <g id="svg-wave-pulsing-dot-group" transform="translate(12, 105)">
-                <circle cx="0" cy="0" r="10" fill="#006CFF" class="pulse-core"></circle>
-                <circle cx="0" cy="0" r="20" fill="none" stroke="#006CFF" stroke-width="4" class="pulse-glow animate-ping opacity-40"></circle>
-              </g>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- THREE COLUMNS SUMMARY STATS CARDS -->
-      <div class="grid grid-cols-3 gap-3">
-        <!-- Minimum -->
-        <div class="glass-card rounded-[22px] px-4 py-2 flex flex-row items-center justify-center gap-3 text-center h-[96px]">
-          <span style="font-size: 24px;" class="font-bold text-slate-500 leading-none">최소</span>
-          <span class="text-slate-300 font-normal" style="font-size: 24px;">|</span>
-          <div id="stat-min-text" class="font-black text-blue-500 font-rounded text-3xl flex items-baseline gap-1" style="line-height: 1;">
-            32 <span style="font-size: 18px;" class="font-bold text-slate-400">dB</span>
-          </div>
-        </div>
-        <!-- Maximum -->
-        <div class="glass-card rounded-[22px] px-4 py-2 flex flex-row items-center justify-center gap-3 text-center h-[96px]">
-          <span style="font-size: 24px;" class="font-bold text-slate-500 leading-none">최고</span>
-          <span class="text-slate-300 font-normal" style="font-size: 24px;">|</span>
-          <div id="stat-max-text" class="font-black text-red-500 font-rounded text-3xl flex items-baseline gap-1" style="line-height: 1;">
-            58 <span style="font-size: 18px;" class="font-bold text-slate-400">dB</span>
-          </div>
-        </div>
-        <!-- Average -->
-        <div class="glass-card rounded-[22px] px-4 py-2 flex flex-row items-center justify-center gap-3 text-center h-[96px]">
-          <span style="font-size: 24px;" class="font-bold text-slate-500 leading-none">평균</span>
-          <span class="text-slate-300 font-normal" style="font-size: 24px;">|</span>
-          <div id="stat-avg-text" class="font-black text-brand-main font-rounded text-3xl flex items-baseline gap-1" style="line-height: 1;">
-            42 <span style="font-size: 18px;" class="font-bold text-slate-400">dB</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ----------------- FLOATING RECYCLED ACTION FOOTER ----------------- -->
-    <div class="w-full bg-[#EBF4FF] pt-2 pb-6 px-5 flex flex-col items-center gap-1.5 shrink-0 z-50">
-      <div class="relative w-full overflow-visible py-1 flex items-center justify-center">
-        <!-- Pulse animation outward overlays -->
-        <div id="toggle-ripple-1" class="absolute inset-x-0 inset-y-1 bg-[#0052E0]/30 animate-ripple-1 pointer-events-none" style="border-radius: 32px;"></div>
-        <div id="toggle-ripple-2" class="absolute inset-x-0 inset-y-1 bg-[#02b3c2]/25 animate-ripple-2 pointer-events-none" style="border-radius: 32px;"></div>
-
-        <!-- Custom Action Start/Stop Toggle button -->
-        <button id="toggle-btn" class="w-full flex items-center justify-center hover:shadow-lg active:scale-[0.98] transition-all duration-300 relative overflow-hidden animate-gradient-mint-blue text-white shadow-[0_12px_35px_rgba(2,179,194,0.45)] cursor-pointer" style="height: 240px; border-radius: 32px;" data-playing="true">
-          <div class="flex items-center relative z-10 text-white" style="gap: 24px;">
-            <span style="font-size: 52px; font-weight: 600;" class="tracking-tight leading-none shrink-0 border-none">측정 중</span>
-            <!-- Voice Recognition Audio Visualizer (3~5 vertical round bars) -->
-            <div class="flex items-center gap-[9px] select-none text-white shrink-0" style="height: 56px; padding-left: 4px;">
-              <span id="vbar-1" class="w-[8px] rounded-full bg-white transition-all duration-75" style="height: 12px; min-height: 8px;"></span>
-              <span id="vbar-2" class="w-[8px] rounded-full bg-white transition-all duration-75" style="height: 12px; min-height: 8px;"></span>
-              <span id="vbar-3" class="w-[8px] rounded-full bg-white transition-all duration-75" style="height: 12px; min-height: 8px;"></span>
-              <span id="vbar-4" class="w-[8px] rounded-full bg-white transition-all duration-75" style="height: 12px; min-height: 8px;"></span>
-              <span id="vbar-5" class="w-[8px] rounded-full bg-white transition-all duration-75" style="height: 12px; min-height: 8px;"></span>
-            </div>
-          </div>
-          <span class="absolute inset-0 bg-white/10 animate-breath pointer-events-none z-[1]"></span>
-        </button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Dynamic controller logic linking microphone listener with live visualization -->
-  <script src="./app.js" defer></script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
 </body>
 </html>

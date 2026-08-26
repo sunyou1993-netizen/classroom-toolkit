@@ -1,135 +1,47 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>사다리타기 - 스마트 사이니지</title>
-    <!-- Connect clean separate stylesheet -->
-    <script type="module" crossorigin src="./assets/index-Cpmt0EVM.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-GuPj4nOJ.css">
-  
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#006CFF">
-  <script>
-    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-      });
-    }
-  </script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>사다리 타기</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#E4EBF5; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
+           transform-origin:top left; border:0; display:block; background:#E4EBF5; }
+</style>
 </head>
-  <body>
-    <!-- 1080x1920 Kiosk/Signage Fixed Scale Canvas -->
-    <div id="signage-canvas" class="flex flex-col justify-between">
-      
-      <!-- 120px Height Header -->
-      <header class="signage-header">
-        <div class="flex items-center gap-[24px] justify-start flex-1">
-          <div class="header-title">사다리 타기</div>
-        </div>
-        <button id="btn-header-close" class="close-button font-semibold">
-          닫기
-        </button>
-      </header>
+<body>
+<iframe id="stage" src="./app.html" title="사다리 타기"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = "app.html";
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - 1080 * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
 
-      <!-- Main Contents Area (48px Left/Right Margin, 24px Card Gap) -->
-      <main class="main-content">
-        
-        <!-- Card 1: Setup & Stepper Options (Radius 32px, Padding 32px) -->
-        <div id="setup-card" class="signage-card h-[380px] flex flex-col justify-between relative">
-          <div class="flex justify-between items-start">
-            <div class="flex flex-col gap-[8px]">
-              <h1 class="text-[40px] font-bold text-zinc-900 tracking-tight leading-tight">사다리 타기 인원 설정</h1>
-              <p class="text-[26px] text-zinc-500 font-medium">참여 인원 수를 설정해보세요.<br><span class="text-blue-500 font-semibold">(최대 10명까지 참여할 수 있어요!)</span></p>
-            </div>
-            <!-- Character Bear Illustration placed absolutely with increased size and stuck to the bottom with negative bottom offset -->
-            <div class="absolute right-[40px] bottom-[-32px] w-[424px] h-[353px] z-0">
-              <img src="./assets/image231-BAiGMIFN.png" alt="3D Bear" class="w-full h-full object-contain" referrerPolicy="no-referrer" />
-            </div>
-          </div>
+  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  f.addEventListener('load', function () {
+    try {
+      var u = f.contentWindow.location;
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+    } catch (e) {}
+  });
 
-          <!-- Bottom Control Form inside Card 1 (Wraps only Player Stepper, aligned to the left matching the text start) -->
-          <div class="bg-slate-50 rounded-2xl py-[16px] px-[32px] flex items-center gap-[24px] relative z-20 w-fit ml-0 mr-auto shadow-xs">
-            <!-- Stepper Container for Players -->
-            <div class="flex items-center gap-[24px]">
-              <span class="text-[28px] font-bold text-slate-700">참가자 수</span>
-              <div class="flex items-center gap-[16px] bg-white rounded-full px-[12px] py-[6px] shadow-sm">
-                <button id="btn-decrease-players" class="stepper-btn font-extrabold text-slate-600">-</button>
-                <span id="player-count-value" class="text-[32px] font-extrabold text-slate-800 w-[48px] text-center">5</span>
-                <button id="btn-increase-players" class="stepper-btn font-extrabold text-slate-600">+</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2: Interactive Input & Ladder Stage (Radius 32px, Padding 32px) -->
-        <div id="input-area-card" class="signage-card flex-1 flex flex-col justify-between pb-[64px]">
-          
-          <!-- Section Heading and resets (Restyled to keep heading clean and center) -->
-          <div class="flex justify-between items-center mb-[12px]">
-            <span class="text-[40px] font-bold text-zinc-900">사다리 입력</span>
-          </div>
-
-          <!-- Notification Tip block inside Card 2 -->
-          <div class="bg-[#EDF5FF] rounded-2xl p-[24px] flex items-center gap-[20px] shadow-xs">
-            <div class="w-[64px] h-[64px] bg-blue-500 rounded-full flex items-center justify-center text-white shrink-0 shadow-md">
-              <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-            </div>
-            <p class="text-[23px] text-zinc-700 font-medium leading-[1.4] tracking-tight">
-              위칸에는 <strong class="text-blue-600 font-semibold">이름</strong>을, 아래칸에는 <strong class="text-green-600 font-semibold">결과</strong>를 입력하세요.<br>
-              입력이 완료되면 <strong class="text-slate-800">시작하기</strong> 버튼을 눌러 결과를 확인해 보세요!
-            </p>
-          </div>
-
-          <!-- The Physical Canvas Area - Dynamic Render Stage from /js/main.js -->
-          <div id="ladder-area" class="relative flex-1 w-full mt-[56px] mb-[12px] flex flex-col justify-between">
-            <!-- Appended automatically via engine -->
-          </div>
-          
-        </div>
-      </main>
-
-      <!-- 240px Height Large Touch CTA Controls Area (48px Margins) -->
-      <footer class="bottom-cta-container">
-        <!-- 240px tall buttons with large 52px typography -->
-        <button id="bottom-btn-reset" class="cta-button cta-button-secondary font-bold">
-          <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-[12px]">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-          초기화
-        </button>
-        <button id="bottom-btn-show-all" class="cta-button cta-button-secondary font-bold" disabled>
-          <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-[12px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          결과 전체 보기
-        </button>
-        <button id="bottom-btn-start" class="cta-button cta-button-primary font-bold">
-          <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-[12px]"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-          시작하기
-        </button>
-      </footer>
-
-      <!-- Result Modal dialog overlay (hidden by default) -->
-      <div id="result-overlay" class="result-overlay">
-        <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none" style="z-index: 5;"></canvas>
-        <div class="result-card relative" style="z-index: 10;">
-          <div class="flex justify-between items-center border-b-2 border-slate-100 pb-8">
-            <h2 id="result-modal-title" class="text-[48px] font-black text-slate-800">사다리 타기 결과</h2>
-            <button id="result-modal-close" class="text-[52px] text-zinc-400 hover:text-zinc-600 font-light cursor-pointer">&times;</button>
-          </div>
-          <div id="result-modal-content" class="my-6">
-            <!-- Dynamic pairs filled via JS -->
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Connect separate clean vanilla Javascript applet engine -->
-  </body>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
+</body>
 </html>

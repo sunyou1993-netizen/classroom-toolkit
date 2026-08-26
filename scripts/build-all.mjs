@@ -147,6 +147,9 @@ for (const app of targets) {
   }
 }
 
+console.log('\n■ 화면 맞춤 프레임 씌우는 중…');
+execFileSync(process.execPath, [path.join(HERE, 'frame-apps.mjs')], { cwd: ROOT, stdio: 'inherit' });
+
 console.log('\n■ 서비스워커 다시 만드는 중…');
 execFileSync(process.execPath, [path.join(HERE, 'make-sw.mjs')], { cwd: ROOT, stdio: 'inherit' });
 

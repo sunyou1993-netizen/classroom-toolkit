@@ -1,25 +1,47 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-    <script type="module" crossorigin src="./assets/index-9ey447Go.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-LixKbbkp.css">
-  
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#006CFF">
-  <script>
-    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-      });
-    }
-  </script>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>타이머</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#E4EBF5; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
+           transform-origin:top left; border:0; display:block; background:#E4EBF5; }
+</style>
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>
+<body>
+<iframe id="stage" src="./app.html" title="타이머"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = "app.html";
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - 1080 * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
 
+  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  f.addEventListener('load', function () {
+    try {
+      var u = f.contentWindow.location;
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+    } catch (e) {}
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

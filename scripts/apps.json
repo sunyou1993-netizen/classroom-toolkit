@@ -11,7 +11,7 @@
     { "repo": "claix_board",          "out": "paint",        "name": "그림판" },
     { "repo": "claix_noise",          "out": "noise",        "name": "소음측정기" },
     { "repo": "claix_wheelgame",      "out": "picker",       "name": "발표자선정",
-      "copies": [["image2342.png", "css/image2342.png"], ["image2342.png", "public/image2342.png"], ["image33.png", "public/image33.png"]] },
+      "copies": [["image2342.png", "css/image2342.png"]] },
     { "repo": "claix_piano",          "out": "instruments",  "name": "피아노" },
     { "repo": "claix_ladder",         "out": "ladder",       "name": "사다리타기",
       "moves": [

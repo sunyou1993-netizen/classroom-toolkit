@@ -1,213 +1,47 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>스톱워치 키오스크</title>
-    <!-- CSS Style Connection -->
-    <script type="module" crossorigin src="./assets/index-BmgKoYmN.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CRwaGTGP.css">
-  
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#006CFF">
-  <script>
-    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-      });
-    }
-  </script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>스톱워치</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#E4EBF5; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
+           transform-origin:top left; border:0; display:block; background:#E4EBF5; }
+</style>
 </head>
-  <body class="bg-[#D4E4F5] text-slate-800 antialiased selection:bg-blue-100 select-none">
-    
-    <!-- 1080x1920 Fixed Signage Canvas Wrapper -->
-    <div id="signage-canvas" class="relative">
-      
-      <!-- HEADER LAYER (Height matches 120px, responsive, layout text matches specs) -->
-      <header class="w-full h-[120px] flex items-center justify-between mt-0 pt-0 mb-4 border-b border-blue-50/50 pb-4">
-        <!-- Title Group -->
-        <div class="flex items-center gap-6">
-          <h1 class="text-[52px] font-semibold text-slate-800 tracking-tight">스톱워치</h1>
-        </div>
-        
-        <!-- Close Button (Closed font scaled to 36px) -->
-        <button id="close-app-btn" class="px-8 py-4 bg-white hover:bg-slate-50 transition-colors border border-white/80 rounded-2xl shadow-sm text-[36px] font-semibold text-slate-600 active:scale-95">
-          닫기
-        </button>
-      </header>
+<body>
+<iframe id="stage" src="./app.html" title="스톱워치"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = "app.html";
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - 1080 * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
 
-      <!-- MAIN AREA CONTENTS -->
-      <main class="w-full flex-1 flex flex-col justify-start overflow-hidden">
-        
-        <!-- TIME DISPLAY TIMER (High visible, no overlay) -->
-        <section class="w-full text-center mt-6 flex items-center justify-center">
-          <h2 id="stopwatch-display" class="text-[132px] font-black tracking-tighter font-mono text-slate-600 leading-none transition-all duration-300">
-            00:00.00
-          </h2>
-        </section>
+  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  f.addEventListener('load', function () {
+    try {
+      var u = f.contentWindow.location;
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+    } catch (e) {}
+  });
 
-        <!-- CHARACTER & SPEECH BALLOON LAYER (Lowered position) -->
-        <section class="relative w-full flex flex-col items-center mt-20 mb-2">
-          <!-- Ambient glowing background indicator -->
-          <div id="speech-glow" class="absolute inset-0 max-w-[420px] mx-auto bg-[#006CFF] blur-[60px] rounded-full pointer-events-none z-0 opacity-0 transition-opacity duration-500"></div>
-
-          <!-- Floating visual background helpers (Stars) -->
-          <div class="absolute top-12 left-16 animate-float-slow">
-            <svg class="w-12 h-12 text-yellow-400 fill-yellow-400 opacity-60" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-          </div>
-          <div class="absolute top-24 right-16 animate-float-fast">
-            <svg class="w-14 h-14 text-blue-300 fill-blue-300 opacity-80" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-          </div>
-
-          <!-- Speech bubble layout -->
-          <div class="relative z-10 bg-white/95 px-10 py-6 rounded-[36px] shadow-2xl border border-blue-50/50 text-center min-w-[420px] max-w-[500px] mb-8 glass-bubble">
-            <p id="speech-text" class="text-[26px] font-extrabold whitespace-pre-line leading-relaxed text-slate-600">
-              준비됐나요?<br>시작 버튼을 눌러보세요!
-            </p>
-            <!-- Speech Arrow -->
-            <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 bg-white rotate-45 border-r border-b border-blue-50/50"></div>
-          </div>
-
-          <!-- Big Bear Character Image sourced safely from assets -->
-          <div class="relative z-0 pointer-events-none select-none">
-            <img 
-              id="bear-character"
-              src="./assets/image999.png" 
-              alt="Bear Character" 
-              class="w-[360px] h-[360px] object-contain drop-shadow-xl"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-        </section>
-
-        <!-- LAP SPLIT RECORD CARD (Lowered position, anchored towards bottom, 10% taller) -->
-        <section class="w-full flex-1 flex flex-col justify-end mt-auto mb-[28px]">
-          <div class="w-full flex flex-col glass-panel p-8 h-[594px] max-h-[616px]">
-            <!-- Header elements of Laps Box -->
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-              <div class="flex items-center gap-4">
-                <!-- Icon scaled down 30% as requested -->
-                <div class="p-3 bg-blue-50 rounded-xl">
-                  <svg class="w-7 h-7 text-blue-500 fill-blue-500/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-                    <line x1="4" x2="4" y1="22" y2="15"/>
-                  </svg>
-                </div>
-                <h3 class="font-bold text-[34px] text-slate-800">랩 기록</h3>
-              </div>
-              
-              <!-- View Laps records button -->
-              <button id="view-records-btn" class="text-[24px] font-bold text-[#006CFF] hover:text-blue-600 active:scale-95 transition-all py-2 px-5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100/50">
-                기록 전체보기
-              </button>
-            </div>
-
-            <!-- List box with custom overflow scrollbar -->
-            <div id="laps-container" class="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar flex flex-col justify-start">
-              <!-- Default empty text when list is clear -->
-              <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-300 py-12">
-                <svg class="w-20 h-20 mb-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="8" h="4" x="8" y="2" rx="1" ry="1"/>
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  <path d="m9 14 2 2 4-4"/>
-                </svg>
-                <p class="text-[24px] font-medium">기록된 랩이 없습니다.</p>
-              </div>
-
-              <!-- Interactively inserted lap metrics list -->
-              <div id="laps-list" class="space-y-4 hidden pb-4"></div>
-            </div>
-          </div>
-        </section>
-
-      </main>
-
-      <!-- BOTTOM CONTROL PANEL CTA (Height: 240px, Button gap: 20px, Ratio 1:1:2) -->
-      <footer class="w-full h-[240px] grid grid-cols-[1fr_1fr_2fr] items-center gap-[20px] pointer-events-auto">
-        <!-- Reset Button (Ratio 1) -->
-        <button id="reset-btn" class="flex flex-col items-center justify-center gap-4 bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-600 disabled:opacity-50 h-full rounded-[32px] border border-white border-2 shadow-2xl shadow-blue-900/5 transition-all duration-150 active:scale-95 select-none" disabled>
-          <svg class="w-14 h-14 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-          <span class="text-[52px] font-medium tracking-tight leading-none">초기화</span>
-        </button>
-
-        <!-- Lap Button (Ratio 1) -->
-        <button id="lap-btn" class="flex flex-col items-center justify-center gap-4 bg-white hover:bg-slate-50 text-slate-400 hover:text-slate-600 disabled:opacity-50 h-full rounded-[32px] border border-white border-2 shadow-2xl shadow-blue-900/5 transition-all duration-150 active:scale-95 select-none" disabled>
-          <svg class="w-14 h-14 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-            <line x1="4" x2="4" y1="22" y2="15"/>
-          </svg>
-          <span class="text-[52px] font-medium tracking-tight leading-none">랩</span>
-        </button>
-
-        <!-- Start/Stop Toggle Action (Ratio 2) -->
-        <button id="start-stop-btn" class="flex flex-col items-center justify-center gap-4 text-white h-full rounded-[32px] shadow-2xl transition-all duration-150 border-none select-none">
-          <!-- Interactive SVG/Label injected dynamically -->
-        </button>
-      </footer>
-
-      <!-- FULL RECORDS MODAL -->
-      <div id="records-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-12 transition-opacity duration-300">
-        <!-- Modal content card (Height set to 1500px) -->
-        <div class="bg-white rounded-[48px] w-[900px] h-[1500px] max-h-[92%] shadow-2xl flex flex-col p-10 border border-slate-100 transform translate-y-6 scale-95 transition-transform duration-300">
-          
-          <!-- Modal Header -->
-          <div class="flex items-center justify-between pb-6 border-b border-slate-100 mb-8">
-            <div class="flex items-center gap-4">
-              <span class="p-4 bg-blue-50 rounded-2xl">
-                <svg class="w-10 h-10 text-blue-500 fill-blue-500/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-                  <line x1="4" x2="4" y1="22" y2="15"/>
-                </svg>
-              </span>
-              <h2 class="text-[44px] font-extrabold text-slate-800">전체 기록 목록</h2>
-            </div>
-            
-            <button id="close-modal-btn" class="p-3 hover:bg-slate-100 active:scale-95 rounded-full transition-all flex items-center justify-center">
-              <svg class="w-[52px] h-[52px] text-slate-400 hover:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Modal Body with Scroll -->
-          <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col">
-            <!-- Modal empty state inside -->
-            <div id="modal-empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-300 py-12">
-              <svg class="w-24 h-24 mb-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="8" h="4" x="8" y="2" rx="1" ry="1"/>
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                <path d="m9 14 2 2 4-4"/>
-              </svg>
-              <p class="text-[32px] font-medium text-slate-400">기록된 랩이 없습니다.</p>
-            </div>
-
-            <!-- Modal list target element -->
-            <div id="modal-laps-list" class="space-y-4 pb-4 hidden"></div>
-          </div>
-
-          <!-- Modal Footer -->
-          <div class="pt-8 border-t border-slate-100 mt-6 flex items-center justify-center gap-6">
-            <button id="modal-clear-laps-btn" class="flex-1 py-6 bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-[24px] text-[32px] font-bold active:scale-95 transition-all">
-              전체 삭제
-            </button>
-            <button id="modal-confirm-btn" class="flex-2 py-6 bg-[#006CFF] hover:bg-blue-600 text-white rounded-[24px] text-[32px] font-bold shadow-lg shadow-blue-200 active:scale-95 transition-all">
-              확인
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- JS Logic Connection -->
-  </body>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
+</body>
 </html>

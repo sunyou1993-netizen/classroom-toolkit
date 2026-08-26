@@ -1,280 +1,47 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>스마트 피아노 키오스크</title>
-    <!-- Connect all files properly -->
-    <!-- Load Lucide icons for ultra-sharp SVG graphics -->
-    <script src="/shared/lucide.min.js"></script>
-  <script type="module" crossorigin src="./assets/index-rRh4Pgjt.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CZl-8_Nx.css">
-
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#006CFF">
-  <script>
-    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-      });
-    }
-  </script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>피아노 연주</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#E4EBF5; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
+           transform-origin:top left; border:0; display:block; background:#E4EBF5; }
+</style>
 </head>
-  <body>
-    <div id="signage-outer">
-      <!-- 1080x1920 fixed portrait canvas -->
-      <main id="signage-app">
-        <!-- Header: Height 120px -->
-        <header id="app-header">
-          <div class="header-left">
-            <span class="header-title">피아노 연주</span>
-          </div>
-          <div class="header-right">
-            <button class="header-link-btn" id="header-btn-settings">
-              <span>닫기</span>
-            </button>
-          </div>
-        </header>
+<body>
+<iframe id="stage" src="./app.html" title="피아노 연주"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = "app.html";
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - 1080 * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
 
-        <!-- Card Gap 24px -->
-        <div class="gap-24"></div>
+  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  f.addEventListener('load', function () {
+    try {
+      var u = f.contentWindow.location;
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+    } catch (e) {}
+  });
 
-        <!-- Card 1: Mascot and Timer (Radius 32px, Padding 32px) -->
-        <section class="signage-card" id="card-mascot">
-          <div class="mascot-left-pane">
-            <div class="mascot-meta-row">
-              <h1 class="song-title">작은 별</h1>
-            </div>
-            
-            <div class="mascot-status-row">
-              <div class="status-item">
-                <span class="status-label">난이도</span>
-                <span class="difficulty-stars" id="mascot-difficulty-stars">★★☆☆☆</span>
-              </div>
-              <div class="status-divider"></div>
-              <div class="status-item">
-                <span class="status-label">남은 시간</span>
-                <span class="timer-digits" id="timer-digits">01:25</span>
-              </div>
-            </div>
-
-            <!-- Start/Pause Action Button -->
-            <button class="play-action-btn" id="pause-btn-top" title="정지/이어하기">
-              <i data-lucide="play"></i>
-              <span>시작하기</span>
-            </button>
-          </div>
-
-          <div class="mascot-image-wrapper">
-            <!-- Decorative floating stars and musical notes - SVG vectors to eliminate any native black outlining -->
-            <svg class="deco-star yellow-s1" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21z"/></svg>
-            <svg class="deco-star blue-s1" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21z"/></svg>
-            <svg class="deco-note note-1" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2v13.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V6h5V2h-7z"/></svg>
-            <svg class="deco-note note-2" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 3H8v12.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h8v5.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V3z"/></svg>
-            <img class="mascot-img" src="./assets/character_piano.png" alt="스마트 피아노 곰 캐릭터" referrerPolicy="no-referrer" />
-          </div>
-        </section>
-
-        <!-- Card Gap 24px -->
-        <div class="gap-24"></div>
-
-        <!-- Card 3: Music Score Stave Board -->
-        <section class="signage-card" id="card-score">
-          <div class="score-header">
-            <div class="score-title">
-              <i data-lucide="music"></i>
-              <span>악보</span>
-            </div>
-            <div class="score-header-actions">
-              <button class="score-select-btn" id="start-btn-main">
-                <i data-lucide="list-music"></i>
-                <span>악보 선택</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="staff-container">
-            <!-- 5 standard notation staff lines -->
-            <div class="staff-lines">
-              <div class="staff-line"></div>
-              <div class="staff-line"></div>
-              <div class="staff-line"></div>
-              <div class="staff-line"></div>
-              <div class="staff-line"></div>
-            </div>
-            <!-- Treble Clef -->
-            <div class="staff-clef">𝄞</div>
-            <!-- Interactive Sheet Notes -->
-            <div class="sheet-notes-wrapper" id="sheet-notes-wrapper">
-              <!-- Generated Dynamically via main.js -->
-            </div>
-            <!-- Sweep indicator line -->
-            <div class="score-play-head" id="score-sweep-line"></div>
-          </div>
-        </section>
-
-        <!-- Card Gap 24px -->
-        <div class="gap-24"></div>
-
-        <!-- Unified Interactive Visualizer and Piano Synthesizer Container -->
-        <div class="piano-unified-wrapper">
-          <!-- Card 4: Falling Notes Visualizer (Piano Tiles Game Board) -->
-          <section class="signage-card" id="card-board">
-            <canvas id="confetti-canvas" class="confetti-canvas-overlay"></canvas>
-            <div class="board-lanes" id="board-lanes">
-              <!-- Render borders and glowing segments dynamically -->
-              <div class="board-hit-line"></div>
-            </div>
-            <!-- Spark floating visual badge -->
-            <div class="hit-effect-wrapper" id="perfect-badge-effect">
-              <div class="perfect-badge">
-                <span class="bubble-sparkle sp1">✦</span>
-                <span class="bubble-sparkle sp2">✦</span>
-                <span class="bubble-sparkle sp3">✦</span>
-                <span class="bubble-text">+ PERFECT! +</span>
-              </div>
-            </div>
-
-            <!-- Floating Result Cover Overlay: Now sits directly inside the melody falling notes visualizer card -->
-            <div class="bottom-cta-container" id="cta-cover">
-              <div class="score-completed-alert" id="completed-score-alert">
-                <div class="alert-text-container">
-                  <div class="alert-row-top">
-                    <i data-lucide="trophy"></i> 완주 달성 성공!
-                  </div>
-                  <div class="alert-row-bottom">
-                    정확도 100% • 420점
-                  </div>
-                </div>
-              </div>
-              <div class="bottom-cta-grid">
-                <button class="bottom-cta-btn bottom-cta-btn-secondary" id="cta-btn-retry">다시 하기</button>
-                <button class="bottom-cta-btn bottom-cta-btn-primary" id="cta-btn-next">다음 곡</button>
-              </div>
-            </div>
-          </section>
-
-          <!-- Card 5: Interactive Piano Keyboard Component -->
-          <section id="piano-keyboard">
-            <!-- Render 10 white and 7 black keys mathematically in main.js -->
-          </section>
-        </div>
-
-        <!-- Card Gap 24px -->
-        <div class="gap-24"></div>
-
-        <!-- Card 2: Accuracy & Start Progress -->
-        <section class="signage-card" id="card-accuracy">
-          <!-- Accuracy circle -->
-          <div class="stat-group">
-            <div class="ring-progress-wrapper">
-              <svg width="90" height="90" viewBox="0 0 90 90">
-                <!-- Trace circle -->
-                <circle cx="45" cy="45" r="38" stroke="#f0f4fc" stroke-width="8" fill="transparent" />
-                <!-- Active circle -->
-                <circle id="accuracy-svg-ring" cx="45" cy="45" r="38" stroke="#006CFF" stroke-width="8" fill="transparent"
-                  stroke-dasharray="238.76" stroke-dashoffset="7.16" stroke-linecap="round" transform="rotate(-90 45 45)"
-                  style="transition: stroke-dashoffset 0.3s ease;" />
-              </svg>
-              <div class="ring-text">97%</div>
-            </div>
-            <div class="stat-label-box">
-              <span class="stat-title">정확도</span>
-              <span class="stat-val-text">97%</span>
-            </div>
-          </div>
-
-          <div class="stat-vertical-divider"></div>
-
-          <!-- Progress -->
-          <div class="bar-progress-wrapper">
-            <div class="bar-progress-header">
-              <span class="bar-progress-label">진행도</span>
-              <span class="bar-progress-text" id="measure-progress-text">2/3 <span>마디</span></span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="measure-fill-bar" style="width: 66%;"></div>
-            </div>
-          </div>
-
-          <div class="stat-vertical-divider"></div>
-
-          <!-- Accompaniment Volume Controls -->
-          <div class="backing-volume-wrapper">
-            <div class="backing-volume-header">
-              <span class="backing-volume-label">반주 소리</span>
-              <span class="backing-volume-text" id="backing-volume-percent">80%</span>
-            </div>
-            <div class="backing-volume-slider-box">
-              <i data-lucide="volume-1" style="color: #8c9cb6; width: 18px; height: 18px;"></i>
-              <input type="range" id="backing-volume-range" class="volume-slider" min="0" max="100" value="80">
-              <i data-lucide="volume-2" style="color: #006CFF; width: 18px; height: 18px;"></i>
-            </div>
-          </div>
-        </section>
-
-        <!-- Dialog Backdrop element for Dimmed effect -->
-        <div class="dialog-backdrop" id="dialog-backdrop"></div>
-
-        <!-- Songs Selection overlay Modal Dialog -->
-        <div class="overlay-dialog" id="dialog-songs">
-          <div class="dialog-header">
-            <span class="dialog-title">연습곡 악보 선택</span>
-            <div class="dialog-close-icon" id="close-dialog-songs">
-              <i data-lucide="x"></i>
-            </div>
-          </div>
-          <div class="dialog-content">
-            <!-- Dynamic Category Tab Menu -->
-            <div class="song-category-tabs" id="song-category-tabs">
-              <button class="category-tab active" data-category="all">전체</button>
-              <button class="category-tab" data-category="클래식">클래식</button>
-              <button class="category-tab" data-category="동요">동요</button>
-              <button class="category-tab" data-category="가곡/민요">가곡/민요</button>
-            </div>
-            
-            <div class="song-selector-list" id="song-selector-list">
-              <!-- Render song collection dynamically -->
-            </div>
-          </div>
-        </div>
-
-        <!-- System options setup dialog panel -->
-        <div class="overlay-dialog" id="dialog-settings">
-          <div class="dialog-header">
-            <span class="dialog-title">설정</span>
-            <div class="dialog-close-icon" id="close-dialog-settings">
-              <i data-lucide="x"></i>
-            </div>
-          </div>
-          <div class="dialog-content">
-            <div class="option-row">
-              <span class="option-label">자동 가이드 모드 (데모 연주)</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-midi-assist">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="option-row">
-              <span class="option-label">피아노 건반 사운드 출력</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-sound" checked>
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="option-row">
-              <span class="option-label">배경 멜로디 같이 재생</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-backing-melody" checked>
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <!-- Script connection -->
-  </body>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
+</body>
 </html>

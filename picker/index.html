@@ -1,234 +1,47 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>랜덤 돌림판 - 세련된 사이니지 보드</title>
-    <!-- Connect clean typography and signage styles -->
-    <script type="module" crossorigin src="./assets/index-DsCMtcaw.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-FvUXDqSi.css">
-  
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#006CFF">
-  <script>
-    // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-      });
-    }
-  </script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>발표자 선정</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#E4EBF5; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
+           transform-origin:top left; border:0; display:block; background:#E4EBF5; }
+</style>
 </head>
-  <body>
-    <!-- Centering viewport container to host 1080x1920 on any display size -->
-    <div id="viewport-wrapper">
-      <div id="app-container">
-        
-        <!-- Header Section (Height: 120px) -->
-        <header class="signage-header">
-          <button id="back-home-trigger" class="header-left">
-            <h1 class="header-title">발표자 선정</h1>
-          </button>
-          <div class="header-right">
-            <button id="close-app-trigger" class="header-close-btn">닫기</button>
-          </div>
-        </header>
+<body>
+<iframe id="stage" src="./app.html" title="발표자 선정"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = "app.html";
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - 1080 * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - 1920 * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
 
-        <!-- Vertical Container with 24px Card Gap -->
-        <div class="card-gap-container">
-          
-          <!-- Large White Signage Card (Mascot + Roulette Wheel) -->
-          <main class="signage-card wheel-card">
-            
-            <div class="wheel-header-block">
-              <!-- Beautiful Participant Adjuster Card (Image visual replica) -->
-              <div class="participant-count-modal">
-                <div class="count-modal-left">
-                  <svg class="user-icon" viewBox="0 0 24 24" fill="none" stroke="#006CFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                  <span class="count-modal-label">참가자 수</span>
-                </div>
-                
-                <div class="count-modal-center">
-                  <button class="count-btn count-minus-btn" id="participant-decrement-btn" aria-label="Decrease participants">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </button>
-                  <span class="count-value-display" id="participant-count-value">5</span>
-                  <button class="count-btn count-plus-btn" id="participant-increment-btn" aria-label="Increase participants">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </button>
-                </div>
-                
-                <div class="count-modal-right">
-                  <span class="count-modal-max-label">최대 20명</span>
-                </div>
-              </div>
+  // 앱 안에서 다른 곳으로 이동하면(예: 닫기 -> 허브) 프레임 안이 아니라 창 전체를 옮깁니다.
+  f.addEventListener('load', function () {
+    try {
+      var u = f.contentWindow.location;
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; }
+    } catch (e) {}
+  });
 
-              <!-- Main Title -->
-              <div class="wheel-title-section">
-                <h2 class="wheel-main-title">랜덤 돌림판</h2>
-                
-                <p class="wheel-sub-title" id="wheel-status-subtitle">이름표를 눌러 입력한 후 시작하기 버튼을 누르세요!</p>
-
-                <!-- Elegant Inline Winner Celebration Banner (Hidden by default) placed under subtitle -->
-                <div id="winner-banner-wrapper" class="winner-banner-container hidden">
-                  <div class="winner-banner-bubble">
-                    <button id="close-banner-btn" class="banner-close-btn" title="축하 닫기">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
-                    <!-- Line 1: Celebration Header -->
-                    <div class="banner-row-1">
-                      <span class="banner-sparkle">🎉</span>
-                      <span class="banner-title-text">축하합니다!</span>
-                      <span class="banner-sparkle">🎉</span>
-                    </div>
-                    <!-- Line 2: Winner Announcement in one solid line -->
-                    <div class="banner-row-2">
-                      <span class="banner-winner-text">발표자는</span>
-                      <span class="banner-winner-name" id="inline-winner-name">우승자</span>
-                      <span class="banner-winner-suffix">님 입니다!</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Spinning Wheel Frame -->
-            <div class="roulette-viewport">
-              <!-- High Performance Canvas Fireworks behind the wheel -->
-              <canvas id="fireworks-canvas"></canvas>
-              
-              <!-- Direct Pin element pointing down at top center -->
-              <div class="roulette-pin">
-                <svg viewBox="0 0 100 120" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Styled PIN needle teardrop in #006CFF -->
-                  <path d="M50 110 C80 80, 85 50, 85 35 C85 15, 69 0, 50 0 C31 0, 15 15, 15 35 C15 50, 20 80, 50 110 Z" fill="#006CFF"></path>
-                  <circle cx="50" cy="35" r="18" fill="#FFFFFF"></circle>
-                  <circle cx="50" cy="35" r="10" fill="#006CFF"></circle>
-                </svg>
-              </div>
-
-              <!-- Wheel container containing dynamically generated canvas -->
-              <div class="wheel-outer-ring" id="wheel-outer-ring">
-                <canvas id="roulette-canvas" width="920" height="920"></canvas>
-              </div>
-
-              <!-- Center 시작하기 Spin Button inside wheel (from design) -->
-              <button id="spin-button" class="wheel-center-start-btn">
-                <svg viewBox="0 0 200 200" width="143" height="143" xmlns="http://www.w3.org/2000/svg" class="start-btn-svg">
-                  <defs>
-                    <linearGradient id="star-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#3B82F6" />
-                      <stop offset="100%" stop-color="#1D4ED8" />
-                    </linearGradient>
-                  </defs>
-                  <!-- Beautiful Glowing Star inside center start button -->
-                  <polygon points="100,30 118,72 164,72 127,100 141,146 100,118 59,146 73,100 36,72 82,72" fill="url(#star-blue-grad)" />
-                </svg>
-                <span class="start-btn-text">시작하기</span>
-              </button>
-
-              <!-- Polar Bear Character in bottom left overlaying the wheel (Design Request) -->
-              <div class="wheel-character-polar-bear">
-                <img src="./assets/image33-CK9JRsBq.png" alt="Polar Bear helper" referrerpolicy="no-referrer" />
-              </div>
-
-            </div>
-
-            <!-- Wheel support stand removed per user request -->
-
-          </main>
-
-        </div>
-
-      </div>
-    </div>
-
-    <!-- OVERLAYS SECTION -->
-    
-    <!-- 1. Participant Manager Modal (옵션 설정 / 참여자 관리) -->
-    <div id="participants-overlay" class="overlay-backdrop">
-      <div class="signage-modal">
-        <div class="modal-header">
-          <h3 class="modal-title-text">참여자 목록 관리</h3>
-          <button class="modal-close-icon" onclick="closeOverlay('participants-overlay')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-
-        <div class="modal-content participant-editor-container">
-          <p class="editor-head-desc">
-            돌림판에 참여할 사람들의 이름을 추가하거나 제외할 수 있습니다.<br>
-            이름 옆의 <strong>삭제(×)</strong> 버튼을 누르면 목록에서 즉시 삭제됩니다.
-          </p>
-
-          <!-- Input Row for adding items -->
-          <div class="touch-input-wrapper">
-            <input type="text" id="new-name-input" class="large-signage-input" placeholder="새로운 이름 입력..." max-length="10" />
-            <button class="add-name-btn" onclick="addParticipant()">추가</button>
-          </div>
-
-          <!-- Flow of current names -->
-          <div class="current-names-flow" id="current-names-flow">
-            <!-- Dynamically populated via javascript -->
-          </div>
-
-          <!-- Quick Helpers Preset -->
-          <div class="quick-helpers-block">
-            <span class="quick-helpers-label">💡 원터치 간편 추가</span>
-            <div class="quick-presets-row" id="quick-presets-row">
-              <!-- Preset names -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Confirm CTA -->
-        <div class="modal-bottom-cta">
-          <button class="modal-cta-btn modal-cta-primary" onclick="closeOverlay('participants-overlay')">설정 완료</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1.5. Edit Single Name Modal Overlay (replicates pencil editor from image) -->
-    <div id="edit-name-overlay" class="overlay-backdrop">
-      <div class="signage-modal small-modal">
-        <div class="modal-header">
-          <h3 class="modal-title-text">참여자 이름 수정 ✏️</h3>
-          <button class="modal-close-icon" onclick="closeOverlay('edit-name-overlay')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-
-        <div class="modal-content participant-editor-container" style="padding: 40px 0;">
-          <p class="editor-head-desc" style="text-align: center; margin-bottom: 24px;">이름을 수정하여 등록해 주세요.</p>
-          <div class="touch-input-wrapper">
-            <input type="text" id="edit-name-input" class="large-signage-input" placeholder="이름 입력..." max-length="10" />
-          </div>
-        </div>
-
-        <div class="modal-bottom-cta">
-          <button class="modal-cta-btn modal-cta-secondary" onclick="closeOverlay('edit-name-overlay')">취소</button>
-          <button class="modal-cta-btn modal-cta-primary" id="save-name-btn">변경하기</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mount main system Javascript bundle -->
-  </body>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    });
+  }
+</script>
+</body>
 </html>
