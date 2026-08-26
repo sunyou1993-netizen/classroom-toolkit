@@ -78,6 +78,13 @@ func handler(root fs.FS) http.Handler {
 			w.Write([]byte(version))
 			return
 		}
+		// 새 버전이 뜰 때 예전 버전에게 종료를 요청하는 통로입니다.
+		if p == "/__quit" {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("bye"))
+			go func() { time.Sleep(300 * time.Millisecond); os.Exit(0) }()
+			return
+		}
 		// 이 프로그램 안에서는 오프라인 캐시가 필요 없습니다(이미 전부 내장).
 		// 예전에 등록된 캐시가 남아 있으면 화면이 어긋나므로 스스로 지우게 합니다.
 		if p == "/sw.js" {
@@ -125,8 +132,10 @@ func listen() (net.Listener, error) {
 	return net.Listen("tcp", "127.0.0.1:0") // 전부 막혔으면 아무 빈 포트나
 }
 
-// 이미 떠 있는 수업도우미가 있는지 확인합니다. 있으면 그 주소를 돌려줍니다.
-func findRunning() string {
+// 떠 있는 수업도우미들을 찾습니다.
+//   same   : 나와 같은 버전 (있으면 창만 다시 열면 됩니다)
+//   others : 예전 버전 (종료를 요청합니다)
+func scanInstances() (same string, others []string) {
 	c := &http.Client{Timeout: 250 * time.Millisecond}
 	for port := 43110; port <= 43130; port++ {
 		base := "http://127.0.0.1:" + strconv.Itoa(port)
@@ -136,11 +145,14 @@ func findRunning() string {
 		}
 		b, _ := io.ReadAll(res.Body)
 		res.Body.Close()
-		if strings.TrimSpace(string(b)) == version {
-			return base + "/" // 같은 버전일 때만 재사용합니다
+		body := strings.TrimSpace(string(b))
+		if body == version {
+			same = base + "/"
+		} else if strings.HasPrefix(body, "suup-doumi") {
+			others = append(others, base)
 		}
 	}
-	return ""
+	return
 }
 
 func main() {
@@ -148,10 +160,23 @@ func main() {
 	// 더블클릭하면 이 프로그램은 곧바로 끝나고, 서버는 뒤에서 따로 돕니다.
 	// 그래야 두 번째로 더블클릭했을 때 macOS 가 "응답하지 않습니다" 를 띄우지 않습니다.
 	if len(os.Args) < 2 || os.Args[1] != "--serve" {
-		if url := findRunning(); url != "" {
-			openBrowser(url) // 이미 돌고 있으면 창만 다시 엽니다
+		same, others := scanInstances()
+		if same != "" {
+			openBrowser(same) // 같은 버전이 이미 돌고 있으면 창만 다시 엽니다
 			return
 		}
+		// 예전 버전이 떠 있으면 비켜달라고 요청합니다(응답이 없어도 그냥 진행).
+		if len(others) > 0 {
+			c := &http.Client{Timeout: 400 * time.Millisecond}
+			for _, base := range others {
+				if r, err := c.Get(base + "/__quit"); err == nil {
+					r.Body.Close()
+				}
+			}
+			time.Sleep(700 * time.Millisecond)
+		}
+		killOldInstances() // 응답 없는 예전 버전까지 정리
+
 		exe, err := os.Executable()
 		if err != nil {
 			exe = os.Args[0]

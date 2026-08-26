@@ -60,3 +60,6 @@ func openBrowser(url string) *exec.Cmd {
 func detach(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x00000008} // DETACHED_PROCESS
 }
+
+// 윈도우에서는 이미지 이름이 같아 자기 자신까지 종료될 수 있어 사용하지 않습니다.
+func killOldInstances() {}
