@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -25,7 +26,20 @@ var embedded embed.FS
 
 // 이미 떠 있는 인스턴스를 알아보기 위한 표식입니다.
 const PING = "/__suup-doumi"
-const PONG = "suup-doumi"
+
+// 빌드마다 달라지는 값(sw.js 안의 캐시 버전)을 그대로 씁니다.
+// 예전 버전이 떠 있을 때 그걸 재사용하지 않도록 구분하는 용도입니다.
+var version = func() string {
+	b, err := embedded.ReadFile("toolkit/sw.js")
+	if err != nil {
+		return "unknown"
+	}
+	m := regexp.MustCompile(`suup-doumi-[a-f0-9]+`).Find(b)
+	if m == nil {
+		return "unknown"
+	}
+	return string(m)
+}()
 
 // 윈도우 레지스트리를 타지 않도록 확장자별 타입을 직접 정합니다.
 // (레지스트리가 .js 를 text/plain 으로 돌려주면 ES 모듈이 통째로 차단됩니다.)
@@ -61,7 +75,15 @@ func handler(root fs.FS) http.Handler {
 		p := path.Clean("/" + r.URL.Path)
 		if p == PING {
 			w.Header().Set("Content-Type", "text/plain")
-			w.Write([]byte(PONG))
+			w.Write([]byte(version))
+			return
+		}
+		// 이 프로그램 안에서는 오프라인 캐시가 필요 없습니다(이미 전부 내장).
+		// 예전에 등록된 캐시가 남아 있으면 화면이 어긋나므로 스스로 지우게 합니다.
+		if p == "/sw.js" {
+			w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+			w.Header().Set("Cache-Control", "no-store")
+			w.Write([]byte(killSwitchSW))
 			return
 		}
 		name := strings.TrimPrefix(p, "/")
@@ -114,8 +136,8 @@ func findRunning() string {
 		}
 		b, _ := io.ReadAll(res.Body)
 		res.Body.Close()
-		if strings.TrimSpace(string(b)) == PONG {
-			return base + "/"
+		if strings.TrimSpace(string(b)) == version {
+			return base + "/" // 같은 버전일 때만 재사용합니다
 		}
 	}
 	return ""
@@ -173,3 +195,15 @@ func main() {
 	}
 	time.Sleep(12 * time.Hour)
 }
+
+// 예전에 등록된 서비스워커를 스스로 해제하고 캐시를 비우는 스크립트입니다.
+const killSwitchSW = `
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => {
+  e.waitUntil((async () => {
+    for (const k of await caches.keys()) await caches.delete(k);
+    await self.registration.unregister();
+    for (const c of await self.clients.matchAll({ type: 'window' })) c.navigate(c.url);
+  })());
+});
+`
