@@ -1,6 +1,6 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-76134162aa94';
+const CACHE = 'suup-doumi-918441ebb943';
 const ASSETS = [
   "./assets/character11-DZuNsAEY.png",
   "./assets/index-f3BSwFll.js",
@@ -25,9 +25,10 @@ const ASSETS = [
   "./instruments/assets/index-rRh4Pgjt.js",
   "./instruments/assets/piano_bear_mascot.png",
   "./instruments/index.html",
-  "./ladder/assets/image23-Be4VJwO1.png",
-  "./ladder/assets/index-BDVHNtky.js",
-  "./ladder/assets/index-neQtTHvk.css",
+  "./ladder/assets/image231-BAiGMIFN.png",
+  "./ladder/assets/index-CvaFtnc5.js",
+  "./ladder/assets/index-DVtDJrbj.css",
+  "./ladder/assets/ladder-board-bg-Cix7d0Sh.png",
   "./ladder/char-cat-1.png",
   "./ladder/char-deer-1.png",
   "./ladder/char-dog-1.png",
@@ -127,9 +128,10 @@ const ASSETS = [
   "./shared/icon-512.png",
   "./shared/lucide.min.js",
   "./shared/world-map.svg",
-  "./stopwatch/assets/image_stopwatch.png",
-  "./stopwatch/assets/index-CACmuZMz.js",
-  "./stopwatch/assets/index-CkAdPHSI.css",
+  "./stopwatch/assets/image111-Bp6pEQNO.png",
+  "./stopwatch/assets/image999.png",
+  "./stopwatch/assets/index-BmgKoYmN.js",
+  "./stopwatch/assets/index-CRwaGTGP.css",
   "./stopwatch/index.html",
   "./timer/assets/index-9ey447Go.js",
   "./timer/assets/index-LixKbbkp.css",
