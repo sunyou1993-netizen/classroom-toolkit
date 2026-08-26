@@ -3,6 +3,21 @@
 인터넷·서버 없이 동작하는 수업도우미 전체 묶음입니다.
 이 폴더 하나가 전부이며, 정적 파일만 들어 있습니다.
 
+## 앱을 고쳤을 때 — 다시 만들기
+
+AI Studio 에서 앱을 고치고 GitHub 에 저장했다면, 이 폴더에서:
+
+1. `0. 앱 다시 가져오기` 더블클릭 (2~3분)
+   → 원본 저장소 10개를 최신으로 받아 오프라인 패치를 자동으로 입히고, 빌드해서 이 폴더에 갈아끼웁니다.
+2. GitHub Desktop 에서 Commit → Push origin
+   → 1분쯤 뒤 배포 주소에 반영됩니다.
+
+터미널을 쓰신다면 1번 대신 `node scripts/build-all.mjs` 로 같은 일이 됩니다.
+특정 앱만 다시 만들려면 `node scripts/build-all.mjs ladder stopwatch` 처럼 뒤에 이름을 붙이세요.
+
+오프라인 패치의 실제 내용은 `scripts/patches/*.patch` 에 들어 있고,
+어떤 저장소가 어느 폴더로 들어가는지는 `scripts/apps.json` 에 적혀 있습니다.
+
 ## 구성
 
 ```
