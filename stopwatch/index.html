@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>스톱워치 키오스크</title>
     <!-- CSS Style Connection -->
-    <script type="module" crossorigin src="./assets/index-CACmuZMz.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CkAdPHSI.css">
+    <script type="module" crossorigin src="./assets/index-BmgKoYmN.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CRwaGTGP.css">
   
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#006CFF">
@@ -42,13 +42,13 @@
         
         <!-- TIME DISPLAY TIMER (High visible, no overlay) -->
         <section class="w-full text-center mt-6 flex items-center justify-center">
-          <h2 id="stopwatch-display" class="text-[154px] font-black tracking-tighter font-mono text-slate-600 leading-none transition-all duration-300">
+          <h2 id="stopwatch-display" class="text-[132px] font-black tracking-tighter font-mono text-slate-600 leading-none transition-all duration-300">
             00:00.00
           </h2>
         </section>
 
-        <!-- CHARACTER & SPEECH BALLOON LAYER (Adjusted gaps to prevent overlap) -->
-        <section class="relative w-full flex flex-col items-center mt-10 mb-4">
+        <!-- CHARACTER & SPEECH BALLOON LAYER (Lowered position) -->
+        <section class="relative w-full flex flex-col items-center mt-20 mb-2">
           <!-- Ambient glowing background indicator -->
           <div id="speech-glow" class="absolute inset-0 max-w-[420px] mx-auto bg-[#006CFF] blur-[60px] rounded-full pointer-events-none z-0 opacity-0 transition-opacity duration-500"></div>
 
@@ -77,7 +77,7 @@
           <div class="relative z-0 pointer-events-none select-none">
             <img 
               id="bear-character"
-              src="./assets/image_stopwatch.png" 
+              src="./assets/image999.png" 
               alt="Bear Character" 
               class="w-[360px] h-[360px] object-contain drop-shadow-xl"
               referrerPolicy="no-referrer"
@@ -85,9 +85,9 @@
           </div>
         </section>
 
-        <!-- LAP SPLIT RECORD CARD (Inner padding: 32px, Radius: 32px, custom shadow) -->
-        <section class="w-full flex-1 mb-[20px]">
-          <div class="w-full h-full flex flex-col glass-panel p-8 max-h-[710px] min-h-[680px]">
+        <!-- LAP SPLIT RECORD CARD (Lowered position, anchored towards bottom, 10% taller) -->
+        <section class="w-full flex-1 flex flex-col justify-end mt-auto mb-[28px]">
+          <div class="w-full flex flex-col glass-panel p-8 h-[594px] max-h-[616px]">
             <!-- Header elements of Laps Box -->
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
               <div class="flex items-center gap-4">
@@ -155,8 +155,8 @@
 
       <!-- FULL RECORDS MODAL -->
       <div id="records-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-12 transition-opacity duration-300">
-        <!-- Modal content card -->
-        <div class="bg-white rounded-[48px] w-[900px] h-[1300px] max-h-[85%] shadow-2xl flex flex-col p-10 border border-slate-100 transform scale-95 transition-transform duration-300">
+        <!-- Modal content card (Height set to 1500px) -->
+        <div class="bg-white rounded-[48px] w-[900px] h-[1500px] max-h-[92%] shadow-2xl flex flex-col p-10 border border-slate-100 transform translate-y-6 scale-95 transition-transform duration-300">
           
           <!-- Modal Header -->
           <div class="flex items-center justify-between pb-6 border-b border-slate-100 mb-8">
