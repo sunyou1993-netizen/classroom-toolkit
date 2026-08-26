@@ -22,10 +22,34 @@ index eecbe14..48e73b0 100644
    background-position: center bottom;
    background-repeat: no-repeat;
 diff --git a/js/main.js b/js/main.js
-index 207409a..71ca770 100644
+index 207409a..942d9d9 100644
 --- a/js/main.js
 +++ b/js/main.js
-@@ -19,16 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
+@@ -4,6 +4,23 @@
+  */
+ 
+ document.addEventListener('DOMContentLoaded', () => {
++  // --- 화면 맞춤 ---
++  // 이 화면은 1080x1920 세로 사이니지 기준으로 만들어져 있습니다.
++  // 창 크기가 다르면 가로·세로를 같은 비율로 줄여 통째로 보이게 합니다.
++  function handleViewportRescale() {
++    const canvas = document.getElementById('signage-canvas');
++    if (!canvas) return;
++    const s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
++    canvas.style.transformOrigin = 'top left';
++    canvas.style.transform = 'scale(' + s + ')';
++    canvas.style.position = 'absolute';
++    canvas.style.left = ((window.innerWidth - 1080 * s) / 2) + 'px';
++    canvas.style.top = ((window.innerHeight - 1920 * s) / 2) + 'px';
++    document.body.style.overflow = 'hidden';
++  }
++  handleViewportRescale();
++  window.addEventListener('resize', handleViewportRescale);
++
+   // --- STATE ---
+   let playerCount = 5;
+   let resultCount = 1;
+@@ -19,16 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
    let matches = {}; // Map of playerIndex -> resultIndex
    // --- 참가자 캐릭터(동물 아이콘) ---
    const CHARACTERS = [

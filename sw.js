@@ -1,10 +1,10 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-a1cbe50b6d57';
+const CACHE = 'suup-doumi-417acc710d13';
 const ASSETS = [
   "./assets/character11-DZuNsAEY.png",
-  "./assets/index-f3BSwFll.js",
-  "./assets/index-x4yf08m0.css",
+  "./assets/index-B0Js-OFV.js",
+  "./assets/index-Bhq-xalP.css",
   "./assets/랜덤-DOe117BQ.png",
   "./assets/뽀모돌-CYL_Tn_h.png",
   "./assets/사다리-DZrK4QoX.png",
@@ -26,8 +26,8 @@ const ASSETS = [
   "./instruments/assets/piano_bear_mascot.png",
   "./instruments/index.html",
   "./ladder/assets/image231-BAiGMIFN.png",
-  "./ladder/assets/index-CvaFtnc5.js",
-  "./ladder/assets/index-DVtDJrbj.css",
+  "./ladder/assets/index-Cpmt0EVM.js",
+  "./ladder/assets/index-GuPj4nOJ.css",
   "./ladder/assets/ladder-board-bg-Cix7d0Sh.png",
   "./ladder/char-cat-1.png",
   "./ladder/char-deer-1.png",
