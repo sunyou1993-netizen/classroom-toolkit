@@ -5,7 +5,10 @@ import path from 'path';
 import crypto from 'crypto';
 
 const ROOT = process.cwd();
-const SKIP_NAMES = new Set(['sw.js']);
+// 캐시에서 제외 — 앱 실행에 쓰이지 않거나 정적 호스팅이 서빙하지 않는 파일.
+// 하나라도 404가 나면 cache.addAll 전체가 실패하므로 반드시 걸러야 합니다.
+const SKIP_NAMES = new Set(['sw.js', 'README.md', 'LICENSE', '.gitattributes', '.gitignore', '.DS_Store']);
+const SKIP_EXT = new Set(['.map', '.md']);
 const SKIP_DIRS = new Set(['scripts', '.git', 'node_modules']);
 
 function walk(dir, out = []) {
@@ -13,7 +16,7 @@ function walk(dir, out = []) {
     if (e.isDirectory()) {
       if (SKIP_DIRS.has(e.name)) continue;
       walk(path.join(dir, e.name), out);
-    } else if (!SKIP_NAMES.has(e.name) && !e.name.endsWith('.map')) {
+    } else if (!SKIP_NAMES.has(e.name) && !SKIP_EXT.has(path.extname(e.name))) {
       out.push(path.relative(ROOT, path.join(dir, e.name)).split(path.sep).join('/'));
     }
   }
