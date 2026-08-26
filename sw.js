@@ -166,6 +166,8 @@ self.addEventListener('fetch', (e) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  // 프로그램 내려받기 폴더는 캐시하지 않고 그대로 통과시킵니다(용량이 큽니다).
+  if (url.pathname.startsWith('/download/')) return;
 
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
