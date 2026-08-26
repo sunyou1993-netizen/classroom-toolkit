@@ -1,0 +1,31 @@
+{
+  "owner": "sunyou1993-netizen",
+  "hubUrl": "https://claix-toolkit-xzrp.vercel.app/",
+  "apps": [
+    { "repo": "claix_toolkit",        "out": ".",            "name": "허브" },
+    { "repo": "claix_timer",          "out": "timer",        "name": "타이머" },
+    { "repo": "claix_pomodoro-timer", "out": "pomodoro",     "name": "뽀모도로" },
+    { "repo": "claix_stopwatch2",     "out": "stopwatch",    "name": "스톱워치",
+      "moves": [["public/assets/image111.png", "css/image111.png"]] },
+    { "repo": "claix_worldtime3",     "out": "worldclock",   "name": "세계시간" },
+    { "repo": "claix_board",          "out": "paint",        "name": "그림판" },
+    { "repo": "claix_noise",          "out": "noise",        "name": "소음측정기" },
+    { "repo": "claix_wheelgame",      "out": "picker",       "name": "발표자선정",
+      "copies": [["image2342.png", "css/image2342.png"], ["image2342.png", "public/image2342.png"], ["image33.png", "public/image33.png"]] },
+    { "repo": "claix_piano",          "out": "instruments",  "name": "피아노" },
+    { "repo": "claix_ladder",         "out": "ladder",       "name": "사다리타기",
+      "moves": [
+        ["char-cat-1.png", "public/char-cat-1.png"],
+        ["char-deer-1.png", "public/char-deer-1.png"],
+        ["char-dog-1.png", "public/char-dog-1.png"],
+        ["char-fox-1.png", "public/char-fox-1.png"],
+        ["char-koala-1.png", "public/char-koala-1.png"],
+        ["char-lion-1.png", "public/char-lion-1.png"],
+        ["char-panda-1.png", "public/char-panda-1.png"],
+        ["char-pig-1.png", "public/char-pig-1.png"],
+        ["char-rabbit-1.png", "public/char-rabbit-1.png"],
+        ["char-tiger-1.png", "public/char-tiger-1.png"],
+        ["ladder-board-bg.png", "css/ladder-board-bg.png"]
+      ] }
+  ]
+}
