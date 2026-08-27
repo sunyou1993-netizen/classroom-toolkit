@@ -1,5 +1,5 @@
 diff --git a/index.html b/index.html
-index cb773c2..01c9c75 100644
+index cb773c2..00cc932 100644
 --- a/index.html
 +++ b/index.html
 @@ -4,19 +4,7 @@
@@ -32,6 +32,20 @@ index cb773c2..01c9c75 100644
          
          <!-- Subtle shadow overlay layout gradient -->
          <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-900/5 to-transparent pointer-events-none"></div>
+@@ -88,6 +76,13 @@
+           </div>
+         </div>
+ 
++        <!-- 마이크가 실제로 켜지지 않았을 때만 보이는 안내.
++             권한이 없으면 예시 숫자가 나오는데, 그걸 실제 측정값으로 오해하지 않도록 알려 줍니다. -->
++        <button id="mic-notice" type="button" class="w-full items-center justify-center cursor-pointer" style="display:none; font-size:22px; font-weight:700; padding:14px 24px; gap:12px; border-radius:20px; background:#FFF7E6; color:#B45309; border:2px solid #FCD34D; box-shadow:0 2px 8px rgba(180,83,9,.10);">
++          <span style="font-size:26px;">🎤</span>
++          <span id="mic-notice-text">마이크가 꺼져 있어 <b>예시 숫자</b>가 보이고 있어요 · 눌러서 켜기</span>
++        </button>
++
+         <!-- Current Decibel Indicator (Left) & Vertical Traffic Light Cylinder (Right) -->
+         <div class="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20 pt-3 pb-6 w-full flex-1 overflow-visible">
+           
 diff --git a/package-lock.json b/package-lock.json
 new file mode 100644
 index 0000000..88c7988
@@ -4802,10 +4816,21 @@ index 9748aee..eaa485b 100644
    }
  }
 diff --git a/public/app.js b/public/app.js
-index f16a929..8f8b4e5 100644
+index f16a929..d78ee71 100644
 --- a/public/app.js
 +++ b/public/app.js
-@@ -149,12 +149,30 @@ async function setupMicrophone() {
+@@ -57,6 +57,10 @@ function setupUIEvents() {
+     });
+   }
+ 
++  // 마이크 안내를 누르면 그때 권한을 요청합니다(화면 열자마자 묻지 않습니다).
++  const micNotice = document.getElementById('mic-notice');
++  if (micNotice) micNotice.addEventListener('click', requestMicNow);
++
+   const resetStatsBtn = document.getElementById('reset-stats-btn');
+   if (resetStatsBtn) {
+     resetStatsBtn.addEventListener('click', () => {
+@@ -149,12 +153,30 @@ async function setupMicrophone() {
      return;
    }
  
@@ -4839,8 +4864,51 @@ index f16a929..8f8b4e5 100644
      isRealMic = true;
      if (isPlaying) {
        if (simulationIntervalId) {
+@@ -346,6 +368,7 @@ function getStatusConfig(db) {
+ 
+ // Fully-fledged UI rendering step updating all corresponding static DOM elements
+ function updateUI() {
++  updateMicNotice();
+   const config = getStatusConfig(currentDb);
+   
+   // 1. Update Speech Bubble content
+@@ -671,3 +694,34 @@ function drawLiveWavechart() {
+ function drawWavechart() {
+   drawLiveWavechart();
+ }
++
++// ── 마이크 상태 안내 ──────────────────────────────────────────
++// 권한이 없으면 화면에는 예시 숫자가 나옵니다. 그걸 실제 측정값으로
++// 오해하지 않도록, 마이크가 안 켜져 있을 때만 안내를 띄웁니다.
++function updateMicNotice() {
++  const el = document.getElementById('mic-notice');
++  if (!el) return;
++  const on = isRealMic && isPlaying;
++  el.style.display = on ? 'none' : 'flex';
++}
++
++function requestMicNow() {
++  if (!isPlaying) {
++    isPlaying = true;
++    const b = document.getElementById('toggle-btn');
++    if (b) b.dataset.playing = 'true';
++  }
++  startRealMicrophoneAnalysis().then(updateMicNotice).catch(updateMicNotice);
++}
++
++// 다른 화면으로 넘어가면 마이크를 놓아 줍니다.
++// (교실 기기는 하루 종일 켜져 있어서, 안 보는 동안 마이크를 잡고 있을 이유가 없습니다.)
++document.addEventListener('visibilitychange', () => {
++  if (document.hidden) {
++    stopAudioAnalysis();
++  } else if (isPlaying) {
++    if (isRealMic) startRealMicrophoneAnalysis();
++    else startSimulation();
++    updateMicNotice();
++  }
++});
 diff --git a/public/index.html b/public/index.html
-index 9dd6182..241b4ec 100644
+index 9dd6182..c0dde46 100644
 --- a/public/index.html
 +++ b/public/index.html
 @@ -4,19 +4,7 @@
@@ -4873,6 +4941,20 @@ index 9dd6182..241b4ec 100644
          
          <!-- Subtle shadow overlay layout gradient -->
          <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-900/5 to-transparent pointer-events-none"></div>
+@@ -88,6 +76,13 @@
+           </div>
+         </div>
+ 
++        <!-- 마이크가 실제로 켜지지 않았을 때만 보이는 안내.
++             권한이 없으면 예시 숫자가 나오는데, 그걸 실제 측정값으로 오해하지 않도록 알려 줍니다. -->
++        <button id="mic-notice" type="button" class="w-full items-center justify-center cursor-pointer" style="display:none; font-size:22px; font-weight:700; padding:14px 24px; gap:12px; border-radius:20px; background:#FFF7E6; color:#B45309; border:2px solid #FCD34D; box-shadow:0 2px 8px rgba(180,83,9,.10);">
++          <span style="font-size:26px;">🎤</span>
++          <span id="mic-notice-text">마이크가 꺼져 있어 <b>예시 숫자</b>가 보이고 있어요 · 눌러서 켜기</span>
++        </button>
++
+         <!-- Current Decibel Indicator (Left) & Vertical Traffic Light Cylinder (Right) -->
+         <div class="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20 pt-3 pb-6 w-full flex-1 overflow-visible">
+           
 diff --git a/public/style.css b/public/style.css
 index 94ad856..d95ea18 100644
 --- a/public/style.css

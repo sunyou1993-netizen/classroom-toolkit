@@ -12,9 +12,9 @@
   <meta name="theme-color" content="#006CFF">
   <script>
     // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(function () {});
       });
     }
   </script>
@@ -86,6 +86,13 @@
             <span style="font-size: 34px;" class="font-extrabold text-slate-800 tracking-tight leading-none text-left">현재 소음 수준</span>
           </div>
         </div>
+
+        <!-- 마이크가 실제로 켜지지 않았을 때만 보이는 안내.
+             권한이 없으면 예시 숫자가 나오는데, 그걸 실제 측정값으로 오해하지 않도록 알려 줍니다. -->
+        <button id="mic-notice" type="button" class="w-full items-center justify-center cursor-pointer" style="display:none; font-size:22px; font-weight:700; padding:14px 24px; gap:12px; border-radius:20px; background:#FFF7E6; color:#B45309; border:2px solid #FCD34D; box-shadow:0 2px 8px rgba(180,83,9,.10);">
+          <span style="font-size:26px;">🎤</span>
+          <span id="mic-notice-text">마이크가 꺼져 있어 <b>예시 숫자</b>가 보이고 있어요 · 눌러서 켜기</span>
+        </button>
 
         <!-- Current Decibel Indicator (Left) & Vertical Traffic Light Cylinder (Right) -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20 pt-3 pb-6 w-full flex-1 overflow-visible">

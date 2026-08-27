@@ -57,6 +57,10 @@ function setupUIEvents() {
     });
   }
 
+  // 마이크 안내를 누르면 그때 권한을 요청합니다(화면 열자마자 묻지 않습니다).
+  const micNotice = document.getElementById('mic-notice');
+  if (micNotice) micNotice.addEventListener('click', requestMicNow);
+
   const resetStatsBtn = document.getElementById('reset-stats-btn');
   if (resetStatsBtn) {
     resetStatsBtn.addEventListener('click', () => {
@@ -364,6 +368,7 @@ function getStatusConfig(db) {
 
 // Fully-fledged UI rendering step updating all corresponding static DOM elements
 function updateUI() {
+  updateMicNotice();
   const config = getStatusConfig(currentDb);
   
   // 1. Update Speech Bubble content
@@ -689,3 +694,34 @@ function drawLiveWavechart() {
 function drawWavechart() {
   drawLiveWavechart();
 }
+
+// ── 마이크 상태 안내 ──────────────────────────────────────────
+// 권한이 없으면 화면에는 예시 숫자가 나옵니다. 그걸 실제 측정값으로
+// 오해하지 않도록, 마이크가 안 켜져 있을 때만 안내를 띄웁니다.
+function updateMicNotice() {
+  const el = document.getElementById('mic-notice');
+  if (!el) return;
+  const on = isRealMic && isPlaying;
+  el.style.display = on ? 'none' : 'flex';
+}
+
+function requestMicNow() {
+  if (!isPlaying) {
+    isPlaying = true;
+    const b = document.getElementById('toggle-btn');
+    if (b) b.dataset.playing = 'true';
+  }
+  startRealMicrophoneAnalysis().then(updateMicNotice).catch(updateMicNotice);
+}
+
+// 다른 화면으로 넘어가면 마이크를 놓아 줍니다.
+// (교실 기기는 하루 종일 켜져 있어서, 안 보는 동안 마이크를 잡고 있을 이유가 없습니다.)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopAudioAnalysis();
+  } else if (isPlaying) {
+    if (isRealMic) startRealMicrophoneAnalysis();
+    else startSimulation();
+    updateMicNotice();
+  }
+});
