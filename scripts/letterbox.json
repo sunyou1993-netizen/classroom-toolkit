@@ -1,0 +1,52 @@
+{
+  ".": [
+    "#b4d7fb",
+    "#e0edfd",
+    "#fefefe"
+  ],
+  "timer": [
+    "#edf4ff",
+    "#edf4ff",
+    "#edf4ff"
+  ],
+  "pomodoro": [
+    "#edf4ff",
+    "#edf4ff",
+    "#edf4ff"
+  ],
+  "stopwatch": [
+    "#d3e3fa",
+    "#d8e7fb",
+    "#d8e7fb"
+  ],
+  "worldclock": [
+    "#ebf4ff",
+    "#ebf4ff",
+    "#ebf4ff"
+  ],
+  "paint": [
+    "#ebf4ff",
+    "#e9f2fd",
+    "#ffffff"
+  ],
+  "noise": [
+    "#ebf4ff",
+    "#e9f2ff",
+    "#daeefb"
+  ],
+  "picker": [
+    "#c6dbfd",
+    "#f4f5fb",
+    "#c5d8fd"
+  ],
+  "instruments": [
+    "#ebf4ff",
+    "#e8f2fe",
+    "#ebf4ff"
+  ],
+  "ladder": [
+    "#f3f7fc",
+    "#f3f7fc",
+    "#f3f7fc"
+  ]
+}

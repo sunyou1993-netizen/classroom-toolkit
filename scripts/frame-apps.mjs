@@ -18,7 +18,22 @@ import path from 'path';
 
 const ROOT = process.cwd();
 const W = 1080, H = 1920;
-const LETTERBOX = '#E4EBF5';   // 남는 여백 색
+const LETTERBOX = '#E4EBF5';   // 남는 여백 색(기본)
+
+// 창 비율이 1080:1920 과 다르면 좌우(또는 위아래)에 여백이 생깁니다.
+// 각 도구가 실제로 쓰는 배경색을 그 여백에 깔면 여백이 보이지 않습니다.
+// 색은 scripts/letterbox.mjs 가 도구를 직접 그려서 뽑아 둔 값입니다.
+let EDGE = {};
+try {
+  EDGE = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'letterbox.json'), 'utf8'));
+} catch (e) { /* 없으면 기본색 */ }
+
+function backdrop(d) {
+  const c = EDGE[d];
+  if (!Array.isArray(c) || c.length < 3) return LETTERBOX;
+  if (c[0] === c[1] && c[1] === c[2]) return c[0];
+  return `linear-gradient(to bottom, ${c[0]} 0%, ${c[1]} 50%, ${c[2]} 100%)`;
+}
 
 const DIRS = ['.', 'timer', 'pomodoro', 'stopwatch', 'worldclock',
               'paint', 'noise', 'picker', 'instruments', 'ladder'];
@@ -30,7 +45,7 @@ const TITLES = {
   picker: '발표자 선정', instruments: '피아노 연주', ladder: '사다리 타기',
 };
 
-function framePage(title, appPath) {
+function framePage(title, appPath, bg) {
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -41,9 +56,9 @@ function framePage(title, appPath) {
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#006CFF">
 <style>
-  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:${LETTERBOX}; }
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:${bg}; }
   #stage { position:absolute; top:0; left:0; width:${W}px; height:${H}px;
-           transform-origin:top left; border:0; display:block; background:${LETTERBOX}; }
+           transform-origin:top left; border:0; display:block; background:transparent; }
 </style>
 </head>
 <body>
@@ -110,7 +125,7 @@ for (const d of DIRS) {
   const html = (isFrame && fs.existsSync(app)) ? fs.readFileSync(app, 'utf8') : cur;
   const title = TITLES[d] || (html.match(/<title>([^<]*)<\/title>/i) || [, '수업도우미'])[1].trim();
   fs.writeFileSync(app, html);
-  fs.writeFileSync(index, framePage(title, './app.html'));
+  fs.writeFileSync(index, framePage(title, './app.html', backdrop(d)));
   console.log(`${(d === '.' ? '허브' : d).padEnd(12)} → app.html + 프레임  (${title})`);
   done++;
 }
