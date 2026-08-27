@@ -230,5 +230,27 @@
     </div>
 
     <!-- Mount main system Javascript bundle -->
-  </body>
+  <script>
+/* AI보드 웹뷰는 브라우저 기본 alert 창을 띄우지 않는 경우가 있어,
+   안내 문구가 그냥 사라져 버립니다. 화면 안에 잠깐 떠오르는 안내로 바꿉니다. */
+(function () {
+  window.alert = function (msg) {
+    var t = document.getElementById('__toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = '__toast';
+      t.style.cssText = 'position:fixed;left:50%;bottom:160px;transform:translateX(-50%);' +
+        'z-index:99999;background:rgba(15,23,42,.92);color:#fff;padding:28px 48px;' +
+        'border-radius:28px;font-size:38px;font-weight:700;max-width:80%;text-align:center;' +
+        'box-shadow:0 12px 40px rgba(0,0,0,.3);transition:opacity .25s;';
+      document.body.appendChild(t);
+    }
+    t.textContent = String(msg);
+    t.style.opacity = '1';
+    clearTimeout(window.__toastT);
+    window.__toastT = setTimeout(function () { t.style.opacity = '0'; }, 2200);
+  };
+})();
+</script>
+</body>
 </html>

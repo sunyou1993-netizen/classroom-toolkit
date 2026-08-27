@@ -1,0 +1,37 @@
+{
+  ".": [
+    "#afd2fd",
+    "#e0ecfe",
+    "#dfebfe"
+  ],
+  "song": [
+    "#e0ebf9",
+    "#d0e1f6",
+    "#c2d9f4"
+  ],
+  "proverb": [
+    "#f3e0c1",
+    "#ecd9b0",
+    "#7a6936"
+  ],
+  "fourchar": [
+    "#c7e9f5",
+    "#fef9ed",
+    "#90cada"
+  ],
+  "environment": [
+    "#98b550",
+    "#e4ed9c",
+    "#b5d368"
+  ],
+  "safe": [
+    "#a3d9fd",
+    "#e6f3fc",
+    "#fee987"
+  ],
+  "violence": [
+    "#8fcefc",
+    "#fdeec2",
+    "#f29779"
+  ]
+}

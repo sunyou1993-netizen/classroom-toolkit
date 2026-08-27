@@ -35,7 +35,34 @@
     </div>
 
     <!-- Main JS Module -->
-  </body>
+  <script>
+/* 문제를 다 풀고 나면 결과 창이 화면 전체를 덮어서, 아래에 있는
+   "뒤로" 버튼을 누를 수 없었습니다. 결과 창 안에 목록으로 돌아가는
+   버튼을 하나 더 넣어 줍니다. */
+(function () {
+  function goList() {
+    try { (window.top || window).location.href = '../'; }
+    catch (e) { window.location.href = '../'; }
+  }
+  function addBtn() {
+    var dlg = document.querySelector('.result-overlay .result-dialog');
+    if (!dlg || dlg.querySelector('#btn-go-list')) return;
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'width:100%;margin-top:16px;';
+    var b = document.createElement('button');
+    b.id = 'btn-go-list';
+    b.textContent = '목록으로';
+    b.style.cssText = 'height:108px;width:100%;font-size:34px;font-weight:700;' +
+      'border-radius:24px;border:3px solid #cbd5e1;background:#fff;color:#334155;';
+    b.addEventListener('click', goList);
+    wrap.appendChild(b);
+    dlg.appendChild(wrap);
+  }
+  new MutationObserver(addBtn).observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', addBtn);
+})();
+</script>
+</body>
 </html>
 
 

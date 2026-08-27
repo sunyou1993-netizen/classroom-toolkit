@@ -1,21 +1,21 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-23dc9edb7a9e';
+const CACHE = 'suup-doumi-20aa1940642a';
 const ASSETS = [
   "./app.html",
   "./assets/character11-DZuNsAEY.png",
+  "./assets/clock-DcZ_-H-T.png",
   "./assets/hub-bg-Dcf0D4Ho.webp",
   "./assets/index-DQfoVmUJ.css",
   "./assets/index-DV9tjrWy.js",
-  "./assets/랜덤-DOe117BQ.png",
-  "./assets/뽀모돌-CYL_Tn_h.png",
-  "./assets/사다리-DZrK4QoX.png",
-  "./assets/세계시간-CrsZxc5r.png",
-  "./assets/소음-CR8mdZn6.png",
-  "./assets/스톰워치-DZDvzkUZ.png",
-  "./assets/시계-DcZ_-H-T.png",
-  "./assets/악기-DsovIA_G.png",
-  "./assets/판서-CmUIdA4v.png",
+  "./assets/instrument-DsovIA_G.png",
+  "./assets/ladder-DZrK4QoX.png",
+  "./assets/noise-CR8mdZn6.png",
+  "./assets/paint-CmUIdA4v.png",
+  "./assets/pomodoro-CYL_Tn_h.png",
+  "./assets/random-DOe117BQ.png",
+  "./assets/stopwatch-DZDvzkUZ.png",
+  "./assets/worldclock-CrsZxc5r.png",
   "./favicon.ico",
   "./fonts/PretendardVariable.woff2",
   "./fonts/fonts.css",

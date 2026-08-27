@@ -1311,21 +1311,46 @@
         document.querySelectorAll('.pomo-tab').forEach(tab => {
             tab.onclick = () => {
                 if (isRunning) {
-                    if (!confirm('타이머가 진행 중입니다. 다른 모드로 전환하시겠습니까?')) return;
-                    stop();
+                    // 예전에는 브라우저 기본 confirm() 창을 썼습니다.
+                    // AI보드 웹뷰는 이 창을 아예 띄우지 않고 "아니오"로 처리하는 경우가 있어,
+                    // 버튼을 눌러도 아무 일도 일어나지 않았습니다. 화면 안에 직접 그립니다.
+                    askSwitchMode(() => { stop(); applyTab(tab); });
+                    return;
                 }
-                currentMode = tab.dataset.tab;
-                
-                if (currentMode === 'focus') {
-                    timeRemaining = focusTime * 60;
-                } else if (currentMode === 'short_break') {
-                    timeRemaining = shortBreakTime * 60;
-                }
-                
-                syncActiveModeUI();
-                update();
+                applyTab(tab);
             };
         });
+
+        function applyTab(tab) {
+            currentMode = tab.dataset.tab;
+            if (currentMode === 'focus') {
+                timeRemaining = focusTime * 60;
+            } else if (currentMode === 'short_break') {
+                timeRemaining = shortBreakTime * 60;
+            }
+            syncActiveModeUI();
+            update();
+        }
+
+        // 화면 안에서 뜨는 확인창 (1080x1920 기준, 손가락으로 누르기 쉬운 크기)
+        function askSwitchMode(onYes) {
+            if (document.getElementById('ask-switch')) return;
+            const wrap = document.createElement('div');
+            wrap.id = 'ask-switch';
+            wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;';
+            wrap.innerHTML =
+              '<div style="background:#fff;border-radius:40px;padding:56px 48px;width:820px;max-width:88%;box-shadow:0 24px 64px rgba(0,0,0,.25);text-align:center;font-family:inherit;">' +
+              '<div style="font-size:44px;font-weight:800;color:#0f172a;line-height:1.4;">타이머가 진행 중입니다.<br>다른 모드로 바꿀까요?</div>' +
+              '<div style="display:flex;gap:24px;margin-top:48px;">' +
+              '<button id="ask-no" style="flex:1;height:132px;border:3px solid #cbd5e1;background:#fff;color:#475569;border-radius:28px;font-size:40px;font-weight:700;">아니요</button>' +
+              '<button id="ask-yes" style="flex:1;height:132px;border:0;background:#006CFF;color:#fff;border-radius:28px;font-size:40px;font-weight:700;">바꾸기</button>' +
+              '</div></div>';
+            document.body.appendChild(wrap);
+            const close = () => wrap.remove();
+            wrap.querySelector('#ask-no').onclick = close;
+            wrap.querySelector('#ask-yes').onclick = () => { close(); onYes(); };
+            wrap.onclick = (e) => { if (e.target === wrap) close(); };
+        }
 
         // Event bindings for adjustments
         document.getElementById('btn-focus-minus').onclick = () => {

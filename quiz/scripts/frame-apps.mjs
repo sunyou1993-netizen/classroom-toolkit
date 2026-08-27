@@ -1,0 +1,135 @@
+/* 각 도구를 1080x1920 사이니지 화면 그대로 보여주기 위한 처리.
+ *
+ * 왜 필요한가:
+ *   9개 앱은 모두 1080x1920 세로 사이니지 기준으로 만들어져 있고,
+ *   내부에서 100vh / h-screen 같은 "화면 전체" 단위를 씁니다.
+ *   창 크기가 다르면 그 단위가 창 크기를 따라가면서 레이아웃이 어긋납니다.
+ *
+ * 어떻게 해결하나:
+ *   실제 앱을 index.html -> app.html 로 옮기고,
+ *   새 index.html 이 app.html 을 정확히 1080x1920 짜리 프레임에 담아
+ *   창 크기에 맞춰 같은 비율로 축소해 보여줍니다.
+ *   프레임 안에서는 화면이 진짜 1080x1920 이므로 vh/vw 가 전부 제대로 계산됩니다.
+ *
+ * 사용법: node scripts/frame-apps.mjs   (툴킷 루트에서)
+ */
+import fs from 'fs';
+import path from 'path';
+
+const ROOT = process.cwd();
+const W = 1080, H = 1920;
+const LETTERBOX = '#E4EBF5';   // 남는 여백 색(기본)
+
+// 창 비율이 1080:1920 과 다르면 좌우(또는 위아래)에 여백이 생깁니다.
+// 각 도구가 실제로 쓰는 배경색을 그 여백에 깔면 여백이 보이지 않습니다.
+// 색은 scripts/letterbox.mjs 가 도구를 직접 그려서 뽑아 둔 값입니다.
+let EDGE = {};
+try {
+  EDGE = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts', 'letterbox.json'), 'utf8'));
+} catch (e) { /* 없으면 기본색 */ }
+
+function backdrop(d) {
+  const c = EDGE[d];
+  if (!Array.isArray(c) || c.length < 3) return LETTERBOX;
+  if (c[0] === c[1] && c[1] === c[2]) return c[0];
+  return `linear-gradient(to bottom, ${c[0]} 0%, ${c[1]} 50%, ${c[2]} 100%)`;
+}
+
+const DIRS = ['.', 'song', 'proverb', 'fourchar', 'environment', 'safe', 'violence'];
+
+// 창 제목. 앱 자체 제목이 영어 기본값인 경우가 있어 여기서 정해 줍니다.
+const TITLES = {
+  '.': '무엇을 맞춰볼까요?', song: '교가 맞추기', proverb: '속담 맞추기',
+  fourchar: '사자성어 맞추기', environment: '환경 퀴즈', safe: '안전 퀴즈',
+  violence: '학교폭력 예방 퀴즈',
+};
+
+function framePage(title, appPath, bg, isRoot) {
+  const home = isRoot ? null : '../';   // 목록은 갈 곳이 없습니다
+  // 서비스워커(오프라인 저장)는 목록 페이지에서 한 번만 등록합니다.
+  // 하위 퀴즈 폴더에서 등록하면 범위가 어긋나 실패합니다.
+  const sw = isRoot ? `
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function () {});
+    });
+  }
+` : '';
+  return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>${title}</title>
+<meta name="theme-color" content="#006CFF">
+<style>
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:${bg}; }
+  #stage { position:absolute; top:0; left:0; width:${W}px; height:${H}px;
+           transform-origin:top left; border:0; display:block; background:transparent; }
+</style>
+</head>
+<body>
+<iframe id="stage" src="${appPath}" title="${title}"
+        allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
+<script>
+  var APP = ${JSON.stringify(appPath.replace('./', ''))};
+  var HOME = ${JSON.stringify(home)};
+  var f = document.getElementById('stage');
+  function fit() {
+    var s = Math.min(window.innerWidth / ${W}, window.innerHeight / ${H});
+    f.style.transform = 'scale(' + s + ')';
+    f.style.left = ((window.innerWidth  - ${W} * s) / 2) + 'px';
+    f.style.top  = ((window.innerHeight - ${H} * s) / 2) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+
+  // 닫기 동작이 앱마다 제각각(허브로 이동 / window.close() / history.back())이라
+  // 어떤 방식이든 전부 허브로 모아 줍니다.
+  function goHub() {
+    // 목록 화면에서는 이미 제자리이므로 아무것도 하지 않습니다.
+    if (HOME) location.href = HOME;
+  }
+  f.addEventListener('load', function () {
+    try {
+      var w = f.contentWindow;
+      var u = w.location;
+      // 앱이 프레임 안에서 다른 곳으로 갔다면 창 전체를 그리로 옮깁니다.
+      if (!u.pathname.endsWith(APP)) { window.location.href = u.href; return; }
+      w.close = goHub;                       // 창 닫기 시도 → 허브
+      var back = w.history.back.bind(w.history);
+      w.history.back = function () {         // 뒤로가기 시도 → 갈 곳 없으면 허브
+        if (w.history.length > 1) back(); else goHub();
+      };
+    } catch (e) {}
+  });
+  window.addEventListener('message', function (e) {   // 닫기 신호를 보내는 앱도 있습니다
+    var d = e.data;
+    if (d === 'close' || (d && d.type === 'close')) goHub();
+  });
+${sw}</script>
+</body>
+</html>
+`;
+}
+
+let done = 0;
+for (const d of DIRS) {
+  const dir = path.join(ROOT, d);
+  const index = path.join(dir, 'index.html');
+  const app = path.join(dir, 'app.html');
+  if (!fs.existsSync(index)) { console.warn('건너뜀(없음):', d); continue; }
+
+  // index.html 이 (지난번에 만든) 프레임이면 app.html 이 원본입니다.
+  // 새로 빌드해서 index.html 이 진짜 앱으로 바뀌었다면 그쪽이 원본입니다.
+  const cur = fs.readFileSync(index, 'utf8');
+  const isFrame = cur.includes('id="stage"') && cur.includes('./app.html');
+  const html = (isFrame && fs.existsSync(app)) ? fs.readFileSync(app, 'utf8') : cur;
+  const title = TITLES[d] || (html.match(/<title>([^<]*)<\/title>/i) || [, '수업도우미'])[1].trim();
+  fs.writeFileSync(app, html);
+  fs.writeFileSync(index, framePage(title, './app.html', backdrop(d), d === '.'));
+  console.log(`${(d === '.' ? '허브' : d).padEnd(12)} → app.html + 프레임  (${title})`);
+  done++;
+}
+console.log(`\n${done}개 처리 완료`);
