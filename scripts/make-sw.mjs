@@ -27,7 +27,8 @@ const files = walk(ROOT).sort().map(f => './' + f);
 const h = crypto.createHash('sha256');
 h.update(fs.readFileSync(path.join(ROOT, 'scripts/sw-template.js')));   // 캐시 코드가 바뀌어도 버전이 올라가도록
 for (const f of files) { h.update(f); h.update(fs.readFileSync(f.slice(2))); }
-const version = 'suup-doumi-' + h.digest('hex').slice(0, 12);
+const NAME = process.env.SW_NAME || 'suup-doumi';
+const version = NAME + '-' + h.digest('hex').slice(0, 12);
 
 const tpl = fs.readFileSync(path.join(ROOT, 'scripts/sw-template.js'), 'utf8');
 fs.writeFileSync(path.join(ROOT, 'sw.js'),

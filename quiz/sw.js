@@ -1,6 +1,6 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-8e5c9486e8d0';
+const CACHE = 'suup-quiz-6805024a7471';
 const ASSETS = [
   "./app.html",
   "./assets/index-BH_A0YdW.css",
@@ -101,10 +101,16 @@ self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
 
+// 같은 주소에 다른 화면(예: /quiz/)이 함께 있을 수 있습니다.
+// 예전 캐시를 지울 때 "내 것"만 지워야 서로의 오프라인 캐시를 없애지 않습니다.
+const MINE = CACHE.replace(/-[a-f0-9]+$/, '-');
+
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(
+        keys.filter((k) => k.startsWith(MINE) && k !== CACHE).map((k) => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
   );
 });
