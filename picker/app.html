@@ -252,5 +252,18 @@
   };
 })();
 </script>
+<style id="kiosk-guard">
+  * { -webkit-tap-highlight-color: transparent; }
+  html, body { touch-action: manipulation; overscroll-behavior: none; }
+  body { -webkit-user-select: none; user-select: none; }
+  input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
+</style>
+<script data-kiosk-guard>
+  /* 길게 누르기 메뉴와 두 손가락 확대만 막습니다.
+     앱이 가진 기능은 그대로 두고, 브라우저 기본 동작만 취소합니다. */
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); }, true);
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
+</script>
 </body>
 </html>

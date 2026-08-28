@@ -59,11 +59,14 @@ function framePage(title, appPath, bg, isRoot) {
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>${title}</title>
 <meta name="theme-color" content="#006CFF">
 <style>
-  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:${bg}; }
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:${bg};
+               touch-action:manipulation; overscroll-behavior:none;
+               -webkit-user-select:none; user-select:none;
+               -webkit-tap-highlight-color:transparent; }
   #stage { position:absolute; top:0; left:0; width:${W}px; height:${H}px;
            transform-origin:top left; border:0; display:block; background:transparent; }
 </style>

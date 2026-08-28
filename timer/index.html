@@ -2,13 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>타이머</title>
 <link rel="icon" href="/favicon.ico">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#006CFF">
 <style>
-  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#edf4ff; }
+  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#edf4ff;
+               touch-action:manipulation; overscroll-behavior:none;
+               -webkit-user-select:none; user-select:none;
+               -webkit-tap-highlight-color:transparent; }
   #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
            transform-origin:top left; border:0; display:block; background:transparent; }
 </style>
