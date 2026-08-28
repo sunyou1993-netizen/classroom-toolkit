@@ -1,6 +1,6 @@
 /* 퀴즈 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-quiz-7cc7d6af050a';
+const CACHE = 'suup-quiz-19a6c333a9ab';
 const ASSETS = [
   "./app.html",
   "./assets/index-BH_A0YdW.css",
@@ -18,14 +18,6 @@ const ASSETS = [
   "./fonts/LICENSE.txt",
   "./fonts/PretendardVariable.woff2",
   "./fonts/fonts.css",
-  "./fonts/gaegu-korean-400-normal.woff2",
-  "./fonts/gaegu-korean-700-normal.woff2",
-  "./fonts/gaegu-latin-400-normal.woff2",
-  "./fonts/gaegu-latin-700-normal.woff2",
-  "./fonts/gowun-dodum-korean-400-normal.woff2",
-  "./fonts/gowun-dodum-latin-400-normal.woff2",
-  "./fonts/jua-korean-400-normal.woff2",
-  "./fonts/jua-latin-400-normal.woff2",
   "./fourchar/app.html",
   "./fourchar/assets/index-BaNGOn0w.css",
   "./fourchar/assets/index-t6nwc6NF.js",

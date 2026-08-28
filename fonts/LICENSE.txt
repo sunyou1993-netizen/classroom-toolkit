@@ -1,18 +1,10 @@
 이 폴더의 글꼴 파일에 대한 라이선스 안내
 
-아래 글꼴들은 SIL Open Font License 1.1 에 따라 함께 배포됩니다.
+이 사이트의 모든 글자는 Pretendard 하나만 사용합니다.
 글꼴 파일은 원본 그대로이며 수정하지 않았습니다.
 
 ■ Pretendard (PretendardVariable.woff2)
    Copyright (c) 2021, Kil Hyung-jin (https://github.com/orioncactus/pretendard),
-   SIL Open Font License, Version 1.1
-
-■ Outfit (outfit-latin-wght-normal.woff2)
-   Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
-   SIL Open Font License, Version 1.1
-
-■ JetBrains Mono (jetbrains-mono-latin-wght-normal.woff2)
-   Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) JetBrainsMono-Italic[wght].ttf: Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
    SIL Open Font License, Version 1.1
 
 

@@ -5,21 +5,3 @@
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;
   src:url("./PretendardVariable.woff2") format("woff2-variations");}
 
-@font-face{font-family:"Gaegu";font-weight:400;font-style:normal;font-display:swap;
-  src:url("./gaegu-korean-400-normal.woff2") format("woff2");unicode-range:U+AC00-D7A3,U+1100-11FF,U+3130-318F;}
-@font-face{font-family:"Gaegu";font-weight:400;font-style:normal;font-display:swap;
-  src:url("./gaegu-latin-400-normal.woff2") format("woff2");}
-@font-face{font-family:"Gaegu";font-weight:700;font-style:normal;font-display:swap;
-  src:url("./gaegu-korean-700-normal.woff2") format("woff2");unicode-range:U+AC00-D7A3,U+1100-11FF,U+3130-318F;}
-@font-face{font-family:"Gaegu";font-weight:700;font-style:normal;font-display:swap;
-  src:url("./gaegu-latin-700-normal.woff2") format("woff2");}
-
-@font-face{font-family:"Gowun Dodum";font-weight:400;font-style:normal;font-display:swap;
-  src:url("./gowun-dodum-korean-400-normal.woff2") format("woff2");unicode-range:U+AC00-D7A3,U+1100-11FF,U+3130-318F;}
-@font-face{font-family:"Gowun Dodum";font-weight:400;font-style:normal;font-display:swap;
-  src:url("./gowun-dodum-latin-400-normal.woff2") format("woff2");}
-
-@font-face{font-family:"Jua";font-weight:400;font-style:normal;font-display:swap;
-  src:url("./jua-korean-400-normal.woff2") format("woff2");unicode-range:U+AC00-D7A3,U+1100-11FF,U+3130-318F;}
-@font-face{font-family:"Jua";font-weight:400;font-style:normal;font-display:swap;
-  src:url("./jua-latin-400-normal.woff2") format("woff2");}

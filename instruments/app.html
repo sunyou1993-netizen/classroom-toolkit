@@ -289,5 +289,28 @@
   document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
   document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
 </script>
+<style id="font-pretendard">
+  /* 글꼴 파일을 이 화면에 직접 연결합니다(빠져 있던 화면이 있었습니다) */
+  @font-face {
+    font-family: "Pretendard";
+    font-weight: 45 920;
+    font-style: normal;
+    font-display: swap;
+    src: url("../fonts/PretendardVariable.woff2") format("woff2-variations");
+  }
+  /* 앱마다 제각각이던 글꼴 변수도 전부 Pretendard 로 */
+  :root {
+    --font-sans: "Pretendard", sans-serif !important;
+    --font-mono: "Pretendard", monospace !important;
+    --font-rounded: "Pretendard", sans-serif !important;
+    --font-display: "Pretendard", sans-serif !important;
+  }
+  /* 모든 글자를 Pretendard 로. 이모지는 자동으로 시스템 이모지로 넘어갑니다. */
+  *, *::before, *::after {
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
+  }
+  /* 숫자가 바뀔 때 자리폭이 흔들리지 않게 (타이머·스톱워치) */
+  body { font-variant-numeric: tabular-nums; }
+</style>
 </body>
 </html>
