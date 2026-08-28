@@ -45,15 +45,18 @@ const TITLES = {
   picker: '발표자 선정', instruments: '피아노 연주', ladder: '사다리 타기',
 };
 
-function framePage(title, appPath, bg) {
+function framePage(title, appPath, bg, isRoot) {
+  // 사이트를 어느 폴더에 두어도 되도록 "지금 문서 기준" 주소를 씁니다.
+  const up = isRoot ? './' : '../';
+  const home = isRoot ? null : '../';   // 허브에서는 갈 곳이 없습니다
   return `<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>${title}</title>
-<link rel="icon" href="/favicon.ico">
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="${up}favicon.ico">
+<link rel="manifest" href="${up}manifest.webmanifest">
 <meta name="theme-color" content="#006CFF">
 <style>
   html, body { margin:0; padding:0; height:100%; overflow:hidden; background:${bg};
@@ -69,6 +72,7 @@ function framePage(title, appPath, bg) {
         allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
 <script>
   var APP = ${JSON.stringify(appPath.replace('./', ''))};
+  var HOME = ${JSON.stringify(home)};
   var f = document.getElementById('stage');
   function fit() {
     var s = Math.min(window.innerWidth / ${W}, window.innerHeight / ${H});
@@ -83,7 +87,8 @@ function framePage(title, appPath, bg) {
   // 닫기 동작이 앱마다 제각각(허브로 이동 / window.close() / history.back())이라
   // 어떤 방식이든 전부 허브로 모아 줍니다.
   function goHub() {
-    if (location.pathname !== '/' && location.pathname !== '/index.html') location.href = '/';
+    // 허브 화면에서는 이미 제자리이므로 아무것도 하지 않습니다.
+    if (HOME) location.href = HOME;
   }
   f.addEventListener('load', function () {
     try {
@@ -105,7 +110,7 @@ function framePage(title, appPath, bg) {
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+      navigator.serviceWorker.register('${up}sw.js', { scope: '${up}' }).catch(function () {});
     });
   }
 </script>
@@ -128,7 +133,7 @@ for (const d of DIRS) {
   const html = (isFrame && fs.existsSync(app)) ? fs.readFileSync(app, 'utf8') : cur;
   const title = TITLES[d] || (html.match(/<title>([^<]*)<\/title>/i) || [, '수업도우미'])[1].trim();
   fs.writeFileSync(app, html);
-  fs.writeFileSync(index, framePage(title, './app.html', backdrop(d)));
+  fs.writeFileSync(index, framePage(title, './app.html', backdrop(d), d === '.'));
   console.log(`${(d === '.' ? '허브' : d).padEnd(12)} → app.html + 프레임  (${title})`);
   done++;
 }

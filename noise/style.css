@@ -1,8 +1,8 @@
 /* 공용 웹폰트 — 툴킷 안에서는 /fonts/ 로컬 파일로 인터넷 없이 동작하고, 바깥 인터넷으로 나가는 주소는 하나도 없습니다. */
-@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
-@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
-@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
-@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("../fonts/PretendardVariable.woff2") format("woff2-variations");}
+@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("../fonts/PretendardVariable.woff2") format("woff2-variations");}
+@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("../fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
+@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("../fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
 
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;

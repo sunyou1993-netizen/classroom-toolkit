@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>스톱워치</title>
-<link rel="icon" href="/favicon.ico">
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="../favicon.ico">
+<link rel="manifest" href="../manifest.webmanifest">
 <meta name="theme-color" content="#006CFF">
 <style>
   html, body { margin:0; padding:0; height:100%; overflow:hidden; background:linear-gradient(to bottom, #d3e3fa 0%, #d8e7fb 50%, #d8e7fb 100%);
@@ -21,6 +21,7 @@
         allow="microphone; camera; autoplay; fullscreen; clipboard-write"></iframe>
 <script>
   var APP = "app.html";
+  var HOME = "../";
   var f = document.getElementById('stage');
   function fit() {
     var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
@@ -35,7 +36,8 @@
   // 닫기 동작이 앱마다 제각각(허브로 이동 / window.close() / history.back())이라
   // 어떤 방식이든 전부 허브로 모아 줍니다.
   function goHub() {
-    if (location.pathname !== '/' && location.pathname !== '/index.html') location.href = '/';
+    // 허브 화면에서는 이미 제자리이므로 아무것도 하지 않습니다.
+    if (HOME) location.href = HOME;
   }
   f.addEventListener('load', function () {
     try {
@@ -57,7 +59,7 @@
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+      navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(function () {});
     });
   }
 </script>

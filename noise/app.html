@@ -8,13 +8,13 @@
   <!-- Link to our clean, dedicated style file for advanced animations and glassmorphism -->
   <link rel="stylesheet" href="./style.css">
 
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="manifest" href="../manifest.webmanifest">
   <meta name="theme-color" content="#006CFF">
   <script>
     // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(function () {});
+        navigator.serviceWorker.register("../sw.js", { scope: "/" }).catch(function () {});
       });
     }
   </script>
@@ -32,7 +32,7 @@
       </div>
 
       <!-- Close Action Button with 20px rounded border -->
-      <button onclick="parent.postMessage('close', '*'); window.location.href='/';" class="bg-white hover:bg-slate-50 border border-gray-200 text-gray-700 shadow-sm hover:shadow active:scale-95 transition-all cursor-pointer flex items-center justify-center" style="font-size: 36px; font-weight: 600; background-color: #ffffff; padding: 12px 30px; line-height: 1; border-radius: 20px;">
+      <button onclick="parent.postMessage('close', '*'); window.location.href='../';" class="bg-white hover:bg-slate-50 border border-gray-200 text-gray-700 shadow-sm hover:shadow active:scale-95 transition-all cursor-pointer flex items-center justify-center" style="font-size: 36px; font-weight: 600; background-color: #ffffff; padding: 12px 30px; line-height: 1; border-radius: 20px;">
         닫기
       </button>
     </div>

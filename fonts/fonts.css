@@ -4,26 +4,26 @@
   font-weight: 45 920;
   font-style: normal;
   font-display: swap;
-  src: url("/fonts/PretendardVariable.woff2") format("woff2-variations");
+  src: url("./PretendardVariable.woff2") format("woff2-variations");
 }
 @font-face {
   font-family: "Pretendard Variable";
   font-weight: 45 920;
   font-style: normal;
   font-display: swap;
-  src: url("/fonts/PretendardVariable.woff2") format("woff2-variations");
+  src: url("./PretendardVariable.woff2") format("woff2-variations");
 }
 @font-face {
   font-family: "Outfit";
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-  src: url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");
+  src: url("./outfit-latin-wght-normal.woff2") format("woff2-variations");
 }
 @font-face {
   font-family: "JetBrains Mono";
   font-weight: 100 800;
   font-style: normal;
   font-display: swap;
-  src: url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  src: url("./jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
 }

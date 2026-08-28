@@ -6,10 +6,10 @@
     <title>Focus Bear Timer</title>
     <style>
 /* 공용 웹폰트 — 인터넷 없이 동작 (파일은 툴킷 루트의 /fonts/) */
-@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
-@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("/fonts/PretendardVariable.woff2") format("woff2-variations");}
-@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("/fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
-@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
+@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:url("../fonts/PretendardVariable.woff2") format("woff2-variations");}
+@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;src:url("../fonts/PretendardVariable.woff2") format("woff2-variations");}
+@font-face{font-family:"Outfit";font-weight:100 900;font-style:normal;font-display:swap;src:url("../fonts/outfit-latin-wght-normal.woff2") format("woff2-variations");}
+@font-face{font-family:"JetBrains Mono";font-weight:100 800;font-style:normal;font-display:swap;src:url("../fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");}
         :root {
             --bg-color: #EDF4FF;
             --white: #FFFFFF;
@@ -819,13 +819,13 @@
         }
     </style>
 
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="manifest" href="../manifest.webmanifest">
   <meta name="theme-color" content="#006CFF">
   <script>
     // 오프라인 캐시 등록 — 한 번 열어두면 인터넷 없이도 동작합니다.
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+        navigator.serviceWorker.register('../sw.js', { scope: '/' }).catch(function () {});
       });
     }
   </script>
