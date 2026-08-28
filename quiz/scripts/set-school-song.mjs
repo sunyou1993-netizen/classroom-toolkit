@@ -102,5 +102,28 @@ for (const f of 파일들) {
   바뀜++;
 }
 if (!바뀜) { console.error('교가 데이터를 찾지 못했습니다.'); process.exit(1); }
+
+/* 목록에서 교가 카드 켜기 / 끄기
+ *
+ * 교가는 학교마다 다릅니다. 우리 학교 교가를 넣기 전에는 목록에 보이지 않게 해서,
+ * 다른 학교 교가가 그대로 나가는 일이 없도록 합니다.
+ * 이 스크립트를 돌리면(= 우리 학교 교가를 넣으면) 자동으로 다시 켜집니다.
+ */
+const 카드 = '{id:"school",title:"교가",desc:"우리 학교 노래를 불러봐요",iconBg:"#E0F2FE",iconImg:d.image1680,url:"./song/app.html",questions:[]},';
+const 목록파일 = fs.readdirSync(path.join(ROOT, 'assets')).filter((n) => n.endsWith('.js'))
+  .map((n) => path.join(ROOT, 'assets', n));
+const 켜기 = process.env.SCHOOL_SONG !== 'off';
+for (const f of 목록파일) {
+  const s = fs.readFileSync(f, 'utf8');
+  const 있음 = s.includes('id:"school"');
+  if (켜기 && !있음 && s.includes('y=[{id:"sokdam"')) {
+    fs.writeFileSync(f, s.replace('y=[{id:"sokdam"', 'y=[' + 카드 + '{id:"sokdam"'));
+    console.log('  ✓ 목록에 교가 카드를 켰습니다');
+  } else if (!켜기 && 있음) {
+    fs.writeFileSync(f, s.replace(카드, ''));
+    console.log('  ✓ 목록에서 교가 카드를 껐습니다');
+  }
+}
+
 console.log(`\n${설정.schoolName} 교가로 바꿨습니다 · ${verses.length}절 · ${verses.reduce((n,v)=>n+v.lines.length,0)}줄`);
 console.log('이어서 node scripts/make-sw.mjs 를 실행해 주세요.');
