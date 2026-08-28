@@ -1,6 +1,6 @@
 /* 퀴즈 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-quiz-19a6c333a9ab';
+const CACHE = 'suup-quiz-b914048cb936';
 const ASSETS = [
   "./app.html",
   "./assets/index-BH_A0YdW.css",
