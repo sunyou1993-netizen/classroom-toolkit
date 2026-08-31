@@ -1,0 +1,726 @@
+<title>문항 근거 자료</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --ground:#F6F8F7; --surface:#FFFFFF; --ink:#16211E; --muted:#5C6A66;
+    --line:#DEE4E1; --line-soft:#EDF1EF; --accent:#0F6455;
+    --green:#2C7A4B; --green-bg:#EAF3ED;
+    --amber:#9A5E14; --amber-bg:#F7EFE3;
+    --indigo:#3A55A0; --indigo-bg:#EAEEF7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:#0D1412; --surface:#151E1B; --ink:#E7EDEA; --muted:#94A49E;
+      --line:#26322E; --line-soft:#1D2724; --accent:#54C2A6;
+      --green:#6FCB92; --green-bg:#16261D;
+      --amber:#D9A45E; --amber-bg:#251E13;
+      --indigo:#8AA3E6; --indigo-bg:#161C2C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#0D1412; --surface:#151E1B; --ink:#E7EDEA; --muted:#94A49E;
+    --line:#26322E; --line-soft:#1D2724; --accent:#54C2A6;
+    --green:#6FCB92; --green-bg:#16261D;
+    --amber:#D9A45E; --amber-bg:#251E13;
+    --indigo:#8AA3E6; --indigo-bg:#161C2C;
+  }
+
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    font-weight:400; line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:56rem; margin:0 auto; padding:clamp(2rem,5vw,4.5rem) clamp(1.1rem,4vw,2.5rem) 5rem; }
+
+  .eyebrow {
+    font-family:"IBM Plex Mono",monospace; font-size:.72rem; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 .9rem;
+  }
+  h1 {
+    font-family:"Nanum Myeongjo",serif; font-weight:800;
+    font-size:clamp(1.9rem,5vw,2.9rem); line-height:1.25; letter-spacing:-.01em;
+    margin:0 0 1rem; text-wrap:balance;
+  }
+  .lede { margin:0; max-width:38em; color:var(--muted); font-size:1.02rem; }
+
+  .stats {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:.6rem;
+    overflow:hidden; margin:2.4rem 0 0;
+  }
+  .stat { background:var(--surface); padding:1.1rem 1.2rem; }
+  .stat b {
+    display:block; font-family:"IBM Plex Mono",monospace; font-size:1.75rem;
+    font-weight:600; font-variant-numeric:tabular-nums; line-height:1.2; color:var(--accent);
+  }
+  .stat span { display:block; font-size:.82rem; color:var(--muted); margin-top:.15rem; }
+
+  .note {
+    margin:2.4rem 0 0; padding:1.15rem 1.3rem; background:var(--surface);
+    border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:.4rem;
+  }
+  .note h3 { margin:0 0 .5rem; font-size:.95rem; font-weight:600; }
+  .note p { margin:0; font-size:.92rem; color:var(--muted); }
+  .note p + p { margin-top:.6rem; }
+
+  .domain { margin-top:3.6rem; }
+  .domain-head {
+    display:flex; justify-content:space-between; align-items:flex-end; gap:1.5rem;
+    padding-bottom:.8rem; border-bottom:2px solid var(--dc);
+  }
+  .domain.green { --dc:var(--green); --dcbg:var(--green-bg); }
+  .domain.amber { --dc:var(--amber); --dcbg:var(--amber-bg); }
+  .domain.indigo { --dc:var(--indigo); --dcbg:var(--indigo-bg); }
+  .domain h2 {
+    font-family:"Nanum Myeongjo",serif; font-weight:700; font-size:1.6rem;
+    margin:0; color:var(--dc); letter-spacing:-.01em;
+  }
+  .sub { margin:.25rem 0 0; font-size:.85rem; color:var(--muted); }
+  .tally { margin:0; text-align:right; white-space:nowrap; }
+  .tally b {
+    font-family:"IBM Plex Mono",monospace; font-size:1.5rem; font-weight:600;
+    font-variant-numeric:tabular-nums; color:var(--ink);
+  }
+  .tally span { font-size:.85rem; color:var(--muted); margin-left:.2rem; }
+  .tally em { display:block; font-style:normal; font-size:.78rem; color:var(--muted); }
+
+  .orgs { margin:1rem 0 0; font-size:.86rem; color:var(--muted); line-height:2; }
+  .orgs b { font-family:"IBM Plex Mono",monospace; color:var(--dc); font-variant-numeric:tabular-nums; }
+
+  .docs { list-style:none; margin:1.3rem 0 0; padding:0; display:flex; flex-direction:column; gap:1px;
+           background:var(--line); border:1px solid var(--line); border-radius:.5rem; overflow:hidden; }
+  .doc { display:flex; gap:1rem; align-items:flex-start; background:var(--surface); padding:.9rem 1.1rem; }
+  .count {
+    flex:none; min-width:2.1rem; height:1.55rem; padding:0 .45rem; border-radius:.3rem;
+    background:var(--dcbg); color:var(--dc);
+    font-family:"IBM Plex Mono",monospace; font-size:.85rem; font-weight:600;
+    font-variant-numeric:tabular-nums; display:inline-flex; align-items:center; justify-content:center;
+    margin-top:.15rem;
+  }
+  .doc-body { min-width:0; }
+  .org { margin:0; font-size:.76rem; font-weight:500; color:var(--muted); letter-spacing:.01em; }
+  .title { margin:.1rem 0 0; font-size:.95rem; line-height:1.55; }
+  .title a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); }
+  .title a:hover, .title a:focus-visible { color:var(--dc); border-bottom-color:var(--dc); }
+  a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:2px; }
+
+  .tail { margin-top:3.6rem; padding-top:2rem; border-top:1px solid var(--line); }
+  .tail h2 { font-family:"Nanum Myeongjo",serif; font-weight:700; font-size:1.25rem; margin:0 0 1rem; }
+  .tail h3 { font-size:.95rem; font-weight:600; margin:1.6rem 0 .4rem; }
+  .tail p, .tail li { color:var(--muted); font-size:.92rem; }
+  .tail p { margin:0; max-width:40em; }
+  .tail ul { margin:.4rem 0 0; padding-left:1.1rem; }
+  .tail li { margin:.25rem 0; }
+  .tail code {
+    font-family:"IBM Plex Mono",monospace; font-size:.85em;
+    background:var(--line-soft); padding:.12em .4em; border-radius:.25em; color:var(--ink);
+  }
+  @media (max-width:34rem) {
+    .domain-head { flex-direction:column; align-items:flex-start; gap:.6rem; }
+    .tally { text-align:left; }
+  }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">수업도우미 · 간단교육 퀴즈</p>
+  <h1>문항 근거 자료</h1>
+  <p class="lede">교실 화면에 나가는 O/X 문항 238개가 각각 어느 기관의 어느 문서에 근거하는지 정리했습니다.
+    학교나 교육청에서 근거를 물을 때 이 표를 그대로 보여주시면 됩니다.</p>
+
+  <div class="stats">
+    <div class="stat"><b>238</b><span>문항</span></div>
+    <div class="stat"><b>70</b><span>근거 문서</span></div>
+    <div class="stat"><b>17</b><span>기관</span></div>
+    <div class="stat"><b>0</b><span>원문 인용</span></div>
+  </div>
+
+  <div class="note">
+    <h3>기관 문장을 그대로 옮긴 문항은 없습니다</h3>
+    <p>공공기관 자료도 저작물입니다. 확인 결과 <b>공공누리 제1유형(상업적 이용 허용)으로 공개된 자료는 없었고</b>,
+      정책브리핑은 제4유형(상업적 이용 금지)으로 표시되어 있었습니다.</p>
+    <p>그래서 기준과 수치만 근거로 삼고, 문항과 해설은 모두 초등학생 눈높이로 새로 썼습니다.
+      아래 문서들은 <b>내용의 근거</b>이지 인용 출처가 아닙니다.</p>
+  </div>
+
+  <div class="note">
+    <h3>2026년 8월 · 전수 재검증을 마쳤습니다</h3>
+    <p>문항을 만든 것과 별개로, 인용한 문서를 처음부터 다시 열어 대조했습니다.
+      <b>238문항 전부</b>, <b>인용 URL 전부</b>를 실제로 열어 그 문서에 그 내용이 있는지 확인했습니다.</p>
+    <p>그 결과 <b>사실이 틀린 문항 1건</b>과 <b>인용한 문서에 그 내용이 없는 문항 3건</b>을 찾아 아래와 같이 처리했습니다.
+      검증에서 지적됐지만 원문을 직접 확인해 보니 원래가 맞았던 2건은 그대로 두었습니다.</p>
+    <ul>
+      <li><b>삭제</b> — 학교폭력 “따돌림은 상대가 고통을 느끼게 만드는 모든 행위”.
+        법의 따돌림 정의에 있는 세 요건(2명 이상 · 지속적·반복적 · 신체적·심리적 공격)이 빠져 사실이 틀렸고,
+        같은 퀴즈의 다른 문항과 어긋났습니다.</li>
+      <li><b>삭제</b> — 학교폭력 “웃으며 구경만 하는 것도”. 인용한 사안처리 가이드북에 없는 내용이었고,
+        대신할 기관 공식 문서를 찾지 못했습니다.</li>
+      <li><b>출처 교체</b> — 학교폭력 “사실이라도 명예훼손이 될 수 있다”를
+        청소년 대상 인터넷 명예훼손 안내(정보통신망법 제70조제1항)로 옮겼습니다.</li>
+      <li><b>문항 교체</b> — 안전 “횡단보도에서 손들기”. 인용한 법제처 페이지에 없는 내용이라,
+        같은 페이지에 실제로 적혀 있는 “횡단보도·지하도·육교가 있으면 그곳으로 건너기”로 바꿨습니다.</li>
+      <li><b>링크 현행화</b> — 환경 35문항이 걸고 있던 분리배출 지침 링크가 2022년 옛 판이었습니다.
+        현행(기후에너지환경부훈령 제18호, 2026.1.1. 시행)으로 바꾸고 기관명도 맞췄습니다.</li>
+      <li><b>링크 안정화</b> — 세션이 끊기면 첫 화면으로 튕기던 생활법령정보 링크 23개에
+        바로 열리는 딥링크 주소를 붙였습니다.</li>
+    </ul>
+    <p><b>그대로 둔 것</b> — ① 환경 “2000년 이후 연 2.5ppm”은 기상청 보도자료 원문이 그렇게 적고 있어 원래가 맞습니다.
+      ② 푸른나무재단 링크는 직접 열어 보니 정상이며 상담전화 1588-9128이 그대로 실려 있습니다.</p>
+  </div>
+
+    <section class="domain green" id="green">
+      <header class="domain-head">
+        <div>
+          <h2>환경</h2>
+          <p class="sub">분리배출·자원순환·기후</p>
+        </div>
+        <p class="tally"><b>81</b><span>문항</span><em>15개 문서</em></p>
+      </header>
+      <p class="orgs">기후에너지환경부 <b>42</b> · 대한민국 정책브리핑(문화체육관광부 운영) <b>11</b> · 기후에너지환경부 대구지방환경청 <b>6</b> · 한국에너지공단 <b>6</b> · 한국환경산업기술원 <b>6</b> · 기상청 <b>5</b> · 한국환경보전원 탄소중립 정책포털 <b>5</b></p>
+      <ol class="docs">
+        <li class="doc">
+          <span class="count" aria-label="35문항">35</span>
+          <div class="doc-body">
+            <p class="org">기후에너지환경부</p>
+            <p class="title"><a href="https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000272746&amp;chrClsCd=010201" target="_blank" rel="noopener">재활용가능자원의 분리수거 등에 관한 지침 [별표] 분리수거대상 재활용가능자원의 품목 및 분리배출요령 (기후에너지환경부훈령 제18호, 2026.1.1. 시행)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">대한민국 정책브리핑(문화체육관광부 운영)</p>
+            <p class="title"><a href="https://www.korea.kr/news/policyNewsView.do?newsId=148942053" target="_blank" rel="noopener">올바른 분리배출의 기준, 네 가지</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">기후에너지환경부 대구지방환경청</p>
+            <p class="title"><a href="https://mcee.go.kr/daegu/web/board/read.do?boardCategoryId=572&amp;boardId=192674&amp;boardMasterId=167&amp;menuId=728" target="_blank" rel="noopener">음식물쓰레기 이렇게 버리세요!</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">한국환경산업기술원</p>
+            <p class="title"><a href="https://www.cpoint.or.kr/netzero/site/cntnts/CNTNTS_001.do" target="_blank" rel="noopener">탄소중립포인트 녹색생활 실천이란?</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">기후에너지환경부</p>
+            <p class="title"><a href="https://mcee.go.kr/home/web/board/read.do?boardId=1398800&amp;boardMasterId=54&amp;menuId=10181" target="_blank" rel="noopener">환경홍보물 - 재활용품 분리배출 안내</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">한국환경보전원 탄소중립 정책포털</p>
+            <p class="title"><a href="https://www.gihoo.or.kr/menu.es?mid=a30101010000" target="_blank" rel="noopener">기후변화 - 온실가스와 온실효과</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">한국에너지공단</p>
+            <p class="title"><a href="https://www.energy.or.kr/front/board/View3.do?boardMngNo=3&amp;boardNo=10024875" target="_blank" rel="noopener">보도자료 - 일상 속 작은 실천이 난방비 절약의 핵심(2025.2.28.)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="3문항">3</span>
+          <div class="doc-body">
+            <p class="org">대한민국 정책브리핑(문화체육관광부 운영)</p>
+            <p class="title"><a href="https://www.korea.kr/news/policyNewsView.do?newsId=148736371" target="_blank" rel="noopener">여름철 전기절약 행동요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">대한민국 정책브리핑(문화체육관광부 운영)</p>
+            <p class="title"><a href="https://www.korea.kr/news/policyNewsView.do?newsId=148881706" target="_blank" rel="noopener">[Q&amp;A] 투명 페트병, 어떻게 분리배출해야 하나</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">기상청</p>
+            <p class="title"><a href="https://www.kma.go.kr/kma/news/press_01.jsp?mode=view&amp;num=1194641" target="_blank" rel="noopener">보도자료 - 2025년 우리나라 이산화탄소 농도, 또 최고치 경신</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">기상청</p>
+            <p class="title"><a href="https://www.kma.go.kr/kids/231.jsp" target="_blank" rel="noopener">어린이 기상교실 - 지구온난화</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">기후에너지환경부</p>
+            <p class="title"><a href="https://mcee.go.kr/home/web/board/read.do?boardId=862840&amp;boardMasterId=713&amp;menuId=10392" target="_blank" rel="noopener">카드뉴스 - &#x27;약 버리는 법&#x27; 약국, 보건소 분리수거함을 이용하세요!</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">한국에너지공단</p>
+            <p class="title"><a href="https://eep.energy.or.kr/business_introduction/effi_summary.aspx" target="_blank" rel="noopener">효율관리제도 - 에너지소비효율등급 표시제도 개요</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">기상청</p>
+            <p class="title"><a href="https://www.kma.go.kr/kma/news/press.jsp?bid=press&amp;mode=view&amp;num=1194622" target="_blank" rel="noopener">보도자료 - 2025년, 다양한 이상기후로 확인된 &#x27;기후위기의 시대&#x27;</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">한국환경보전원 탄소중립 정책포털</p>
+            <p class="title"><a href="https://www.gihoo.or.kr/menu.es?mid=a30101030000" target="_blank" rel="noopener">우리나라 기후변화</a></p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="domain amber" id="amber">
+      <header class="domain-head">
+        <div>
+          <h2>안전</h2>
+          <p class="sub">교통·화재·응급처치·재난</p>
+        </div>
+        <p class="tally"><b>85</b><span>문항</span><em>29개 문서</em></p>
+      </header>
+      <p class="orgs">행정안전부 <b>45</b> · 법제처 <b>22</b> · 식품의약품안전처 <b>7</b> · 대한심폐소생협회 <b>5</b> · 질병관리청 <b>5</b> · 법제처(찾기쉬운 생활법령정보) <b>1</b></p>
+      <ol class="docs">
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.safekorea.go.kr/safekorea-kor/em/emergency/emergency_eq2.html" target="_blank" rel="noopener">국민안전24(옛 국민재난안전포털) - 지진 발생 시 국민행동요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/road/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 도로·교통(어린이보호구역 교통안전수칙)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=2&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 가정안전사고의 종류</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">식품의약품안전처</p>
+            <p class="title"><a href="https://www.mfds.go.kr/brd/m_827/view.do?seq=3609" target="_blank" rel="noopener">서울지방식품의약품안전청 - 식중독 예방 6대 요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">대한심폐소생협회</p>
+            <p class="title"><a href="https://www.kacpr.org/page/page.php?category_idx=3&amp;category1_code=1247206302&amp;category2_code=1527742406&amp;page_idx=1118" target="_blank" rel="noopener">심폐소생술 시행방법</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/fire/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 소방·안전(화재 발생 시 요령)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/fire_2/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 소화기 사용법과 화재신고</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/summer/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 여름철 안전(물놀이)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="5문항">5</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=5&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 화재예방을 위한 안전수칙</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.safekorea.go.kr/safekorea-kor/acts/nacts/action-guide.do?category=typhoon&amp;actsHeaderTitle=%ED%83%9C%ED%92%8D&amp;menuSn=4" target="_blank" rel="noopener">국민안전24(옛 국민재난안전포털) - 태풍 국민행동요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/play_2/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 놀이기구(놀이터 안전)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="3문항">3</span>
+          <div class="doc-body">
+            <p class="org">질병관리청</p>
+            <p class="title"><a href="https://health.kdca.go.kr/healthinfo/biz/health/gnrlzHealthInfo/gnrlzHealthInfo/gnrlzHealthInfoView.do?cntnts_sn=6584" target="_blank" rel="noopener">국가건강정보포털 - 화상</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="3문항">3</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.safekorea.go.kr/safekorea-kor/acts/nacts/action-guide.do?category=heatWave&amp;actsHeaderTitle=%ED%8F%AD%EC%97%BC&amp;menuSn=4" target="_blank" rel="noopener">국민안전24(옛 국민재난안전포털) - 폭염 국민행동요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="3문항">3</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.safekorea.go.kr/safekorea-kor/acts/nacts/action-guide.do?category=coldWave&amp;actsHeaderTitle=%ED%95%9C%ED%8C%8C&amp;menuSn=4" target="_blank" rel="noopener">국민안전24(옛 국민재난안전포털) - 한파 국민행동요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">질병관리청</p>
+            <p class="title"><a href="https://health.kdca.go.kr/healthinfo/biz/health/ccvdInfo/cvcdInfo/cprInfoMain.do" target="_blank" rel="noopener">국가건강정보포털 - 심폐소생술(CPR)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">식품의약품안전처</p>
+            <p class="title"><a href="https://www.foodsafetykorea.go.kr/portalmobile/content/detail.do?bbs_no=bbs427&amp;ntctxt_no=1069305" target="_blank" rel="noopener">식품안전나라 - 식중독 예방 3대 요령</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/rescue/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 구조·구급(119 구급신고요령)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=4&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 어린이 물놀이 안전</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=2&amp;cnpClsNo=2" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 어린이통학버스의 안전설비</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/road/screen.do" target="_blank" rel="noopener">안전 배움터 &gt; 도로·교통 &gt; 어린이보호구역 교통안전수칙</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">어린이 생활안전 &gt; 교통안전 &gt; 어린이 보행안전 &gt; 어린이 보행사고 예방을 위한 안전수칙 (도로교통법 제10조제2항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">행정안전부</p>
+            <p class="title"><a href="https://www.mois.go.kr/chd/sub/a06/rescue_3/screen.do" target="_blank" rel="noopener">어린이 안전 배움터 - 구조·구급(심폐소생술)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=2&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 가정의 차량 탑승 시 안전수칙(도로교통법 제49조제1항제7호)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=2&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 가정의 차량 탑승 시 안전수칙(도로교통법 제50조제1항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMainBtr.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=3" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 어린이 생활안전(어린이 보호구역)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMainBtr.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=3&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 어린이 자전거 안전(도로교통법 제11조제3항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMainBtr.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=3&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 어린이 자전거 안전(도로교통법 제13조의2제2항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMainBtr.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=1&amp;cciNo=3&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 어린이 자전거 안전(도로교통법 제13조의2제6항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=690&amp;ccfNo=5&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">찾기쉬운 생활법령정보 - 화재예방을 위한 안전수칙(화상 응급처치)</a></p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="domain indigo" id="indigo">
+      <header class="domain-head">
+        <div>
+          <h2>학교폭력</h2>
+          <p class="sub">예방·신고·회복</p>
+        </div>
+        <p class="tally"><b>72</b><span>문항</span><em>26개 문서</em></p>
+      </header>
+      <p class="orgs">법제처(찾기쉬운 생활법령정보) <b>50</b> · 교육부 <b>15</b> · 방송미디어통신위원회(옛 방송통신위원회)·한국지능정보사회진흥원 <b>3</b> · 교육부(위(Wee) 프로젝트) <b>3</b> · 푸른나무재단 <b>1</b></p>
+      <ol class="docs">
+        <li class="doc">
+          <span class="count" aria-label="17문항">17</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=2" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 이해 &gt; 학교폭력의 유형 및 주요 지원체제</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="8문항">8</span>
+          <div class="doc-body">
+            <p class="org">교육부</p>
+            <p class="title"><a href="https://www.goe.go.kr/resource/old/BBSMSTR_000000030138/BBS_202502140257008950.pdf" target="_blank" rel="noopener">2025 학교폭력 사안처리 가이드북</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="6문항">6</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 이해 &gt; 학교폭력의 개념 (학교폭력예방 및 대책에 관한 법률 제2조제1호)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">교육부</p>
+            <p class="title"><a href="https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/01/4e4fd915-99e8-43d0-b763-3b0bfea0b50b.pdf" target="_blank" rel="noopener">2025년 1차 학교폭력 실태조사(전수조사) 주요 결과표</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=3&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력 신고 및 초기대응 &gt; 학교폭력의 신고 및 고발</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 이해 &gt; 학교폭력의 개념 (학교폭력예방 및 대책에 관한 법률 제2조제1호의3)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="4문항">4</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=4&amp;cciNo=2&amp;cnpClsNo=3" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 해결 &gt; 피해학생에 대한 보호 조치 (학교폭력예방 및 대책에 관한 법률 제16조)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="3문항">3</span>
+          <div class="doc-body">
+            <p class="org">방송미디어통신위원회(옛 방송통신위원회)·한국지능정보사회진흥원</p>
+            <p class="title"><a href="https://www.kmcc.go.kr/user.do?boardId=1113&amp;page=A05030000&amp;dc=K00000200&amp;boardSeq=60294&amp;mode=view" target="_blank" rel="noopener">2023년도 사이버폭력 실태조사 결과 발표(보도자료)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="3문항">3</span>
+          <div class="doc-body">
+            <p class="org">교육부(위(Wee) 프로젝트)</p>
+            <p class="title"><a href="https://www.wee.go.kr/menu?menuKey=eE85uGkNYN" target="_blank" rel="noopener">위(Wee) 프로젝트 소개</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=3&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력 신고 및 초기대응 &gt; 학교폭력의 신고 및 고발 (학교폭력예방 및 대책에 관한 법률 제20조제1항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="2문항">2</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 이해 &gt; 학교폭력의 개념 (학교폭력예방 및 대책에 관한 법률 제2조제1호의2)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=659&amp;ccfNo=6&amp;cciNo=2&amp;cnpClsNo=1" target="_blank" rel="noopener">청소년의 인터넷 이용하기 &gt; 댓글을 다는 경우 &gt; 인터넷 명예훼손에 대처하는 방법 (정보통신망법 제70조제1항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">교육부</p>
+            <p class="title"><a href="https://www.korea.kr/news/policyNewsView.do?newsId=148942634" target="_blank" rel="noopener">초1·2 학폭 심의 전 &#x27;관계회복 프로그램&#x27; 우선 실시 (정책브리핑, 2025.4.30.)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">푸른나무재단</p>
+            <p class="title"><a href="https://btf.or.kr/business/bus01.asp?scrID=0000000108&amp;pageNum=3&amp;subNum=1&amp;ssubNum=1" target="_blank" rel="noopener">푸른나무재단 청소년 전문 상담·지원 안내</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">교육부</p>
+            <p class="title"><a href="https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&amp;boardSeq=103170&amp;lev=0&amp;statusYN=W&amp;s=moe&amp;m=020402&amp;opType=N" target="_blank" rel="noopener">학교 디지털 성폭력 초기 대응을 위한 &#x27;디지털 성폭력 에스오에스(SOS) 가이드&#x27; 발간(보도자료, 2025.4.22.)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=2&amp;cciNo=2&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 사전예방 &gt; 학교폭력 예방교육 실시 (학교폭력예방 및 대책에 관한 법률 제15조)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=3&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력 신고 및 초기대응 &gt; 학교폭력의 신고 및 고발 (학교폭력예방 및 대책에 관한 법률 제20조)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=3&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력 신고 및 초기대응 &gt; 학교폭력의 신고 및 고발 (학교폭력예방 및 대책에 관한 법률 제20조제4항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=3&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력 신고 및 초기대응 &gt; 학교폭력의 신고 및 고발 (학교폭력예방 및 대책에 관한 법률 제20조제5항)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=3&amp;cciNo=1&amp;cnpClsNo=1&amp;menuType=onhunqna" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력 신고 및 초기대응 &gt; 학교폭력의 신고 및 고발 (학교폭력예방 및 대책에 관한 법률 제21조)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=1&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 이해 &gt; 학교폭력의 개념 (학교폭력예방 및 대책에 관한 법률 제2조)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=4&amp;cciNo=2&amp;cnpClsNo=6" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 해결 &gt; 가해학생에 대한 조치 (학교폭력예방 및 대책에 관한 법률 제17조)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=4&amp;cciNo=2&amp;cnpClsNo=6" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 해결 &gt; 가해학생에 대한 조치 (학교폭력예방 및 대책에 관한 법률 제17조제1항제1호)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=4&amp;cciNo=2&amp;cnpClsNo=6" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 해결 &gt; 가해학생에 대한 조치 (학교폭력예방 및 대책에 관한 법률 제17조제1항제2호)</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">법제처(찾기쉬운 생활법령정보)</p>
+            <p class="title"><a href="https://www.easylaw.go.kr/CSP/CnpClsMainBtr.laf?popMenu=ov&amp;csmSeq=1408&amp;ccfNo=4&amp;cciNo=1&amp;cnpClsNo=1" target="_blank" rel="noopener">학교폭력 &gt; 학교폭력의 해결 &gt; 학교장 자체해결</a></p>
+          </div>
+        </li>
+        <li class="doc">
+          <span class="count" aria-label="1문항">1</span>
+          <div class="doc-body">
+            <p class="org">교육부</p>
+            <p class="title"><a href="https://www.moe.go.kr/boardCnts/view.do?boardID=294&amp;boardSeq=76637&amp;lev=0&amp;statusYN=W&amp;s=moe&amp;m=020402&amp;opType=N" target="_blank" rel="noopener">학교폭력 예방교육! 공감과 소통의 &#x27;어울림 프로그램&#x27;과 함께해요 (보도자료, 2019.1.30.)</a></p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+  <div class="tail">
+    <h2>만들 때 지킨 기준</h2>
+    <p>사실이 틀린 문항이 교실에 나가는 것이 가장 큰 위험이라고 보고, 근거를 찾지 못한 내용은 문항으로 만들지 않았습니다.
+      재검증에서도 같은 기준을 적용해, 대신할 근거를 찾지 못한 문항은 고치지 않고 뺐습니다.</p>
+
+    <h3>일부러 뺀 주제</h3>
+    <ul>
+      <li><b>지자체마다 기준이 다른 것</b> — 컵라면 용기, CD, 화분 흙. 지역에 따라 O와 X가 갈립니다.</li>
+      <li><b>시행과 철회가 번복된 규제</b> — 일회용품 관련 항목.</li>
+      <li><b>연도가 박힌 통계</b> — 몇 년 뒤 틀린 문제가 됩니다. 남긴 항목은 시간이 지나도 맞는 문장으로 고쳐 썼습니다.</li>
+    </ul>
+
+    <h3>고치는 방법</h3>
+    <p>문항은 저장소의 <code>quiz/scripts/questions/</code> 폴더에 분야별 파일로 들어 있습니다.
+      내용을 고친 뒤 <code>node scripts/install-questions.mjs</code> 와 <code>node scripts/make-sw.mjs</code> 를
+      차례로 실행하면 화면에 반영되고, 이 근거표도 다시 만들어집니다.</p>
+
+    <h3>다음에 다시 확인해야 할 것</h3>
+    <p>학교폭력예방법이 <b>2027년 1월 1일</b>에 개정 시행됩니다. 2026년 12월 안에 학교폭력 문항의 조문 근거를
+      한 번 더 확인해 주세요. 실태조사 결과를 근거로 한 문항(피해 유형 순위 등)도 해마다 새 조사가 나오면 확인이 필요합니다.</p>
+
+    <h3>이전 문항에서 발견된 것</h3>
+    <p>교체 전 문항 403개를 검수했을 때 47건의 문제가 나왔고, 그중 네 건은 공식 지침과 반대되는 내용이었습니다 —
+      커터칼날을 고철류로 배출, 페트병 뚜껑 분리, 태풍 때 유리창에 신문지 부착, 기도 막힘 응급처치.
+      출처를 남기지 않으면 이런 오류를 발견할 방법이 없다는 것이 이 문서를 만든 이유입니다.</p>
+  </div>
+</div>
