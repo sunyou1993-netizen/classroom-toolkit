@@ -11,6 +11,7 @@ const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
   Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle,
   ExternalHyperlink, PageBreak, Footer, PageNumber, convertMillimetersToTwip,
+  PageOrientation,
 } = require('docx');
 
 const ROOT = process.cwd();
@@ -404,13 +405,91 @@ const 아이들 = [
   글('', { after: 200 }),
 
   H2('함께 보실 자료'),
+  점('이 보고서 부록 — 환경 · 안전 · 학교폭력 문항 전체와 문항별 출처(가로 방향)'),
   점('문항집 엑셀 — 게임마다 시트 하나, 510문항 전체와 문항별 출처 (간단교육_퀴즈_문항집.xlsx)'),
   점('문항집 웹페이지 — 게임별로 나누고 찾기 · 거르기가 되는 화면'),
   점('문항 근거 자료 — 근거 문서 단위로 정리한 표'),
   점('저장소 quiz/scripts/questions/ — 문항 원자료(JSON). 문항마다 근거기관 · 근거문서 · 출처 URL이 붙어 있습니다.'),
 );
 
+/* ── 부록: 문항 전체와 출처 (가로 방향) ─────────────────
+ * 요약표만으로는 "그래서 그 문제가 뭔데"에 답할 수 없습니다.
+ * 문항을 먼저 쓰고 그 뒤에 근거기관·근거문서를 붙입니다.
+ * 세로 A4로는 다섯 칸이 눌리므로 이 부분만 가로로 뽑습니다. */
+const 가로폭 = 14570;   // A4 가로, 좌우 여백 2cm
+
+function 부록표(목록) {
+  // 카테고리(영역)로 묶어 보여 줍니다. 교실에서 가르치는 순서 그대로입니다.
+  const 순서 = [];
+  목록.forEach((x) => { if (!순서.includes(x.영역)) 순서.push(x.영역); });
+
+  const 열폭 = [560, 5000, 560, 2450, 6000];
+  const 조각 = [];
+  for (const 영역 of 순서) {
+    const 안 = 목록.filter((x) => x.영역 === 영역);
+    조각.push(new Paragraph({
+      children: [T(영역, { size: 19, bold: true }), T(`   ${안.length}문항`, { size: 17, color: 회 })],
+      spacing: { before: 240, after: 100 },
+    }));
+    const 줄들 = 안.map((x) => [
+      String(x.id),
+      [P(T(x.q, { size: 17 }), { after: 0, line: 250 })],
+      [P(T(x.ans, { size: 17, bold: true, color: x.ans === 'O' ? 초 : 빨 }), { after: 0 })],
+      [P(T(x.근거기관, { size: 16 }), { after: 0, line: 240 })],
+      [new Paragraph({ children: [링크(x.근거문서, x.출처)], spacing: { after: 0, line: 240 } })],
+    ]);
+    조각.push(new Table({
+      columnWidths: 열폭,
+      width: { size: 가로폭, type: WidthType.DXA },
+      borders: 표테두리,
+      rows: [
+        new TableRow({
+          tableHeader: true,
+          children: ['번호', '문항', '정답', '근거 기관', '근거 문서 (누르면 원문으로)']
+            .map((t, i) => 칸(P(T(t, { bold: true, color: 'FFFFFF', size: 17 }), { after: 0 }),
+                             열폭[i], { fill: 청록 })),
+        }),
+        ...줄들.map((줄, ri) => new TableRow({
+          children: 줄.map((c, i) => 칸(
+            Array.isArray(c) ? c : [P(T(String(c), { size: 17 }), { after: 0 })],
+            열폭[i], { fill: ri % 2 ? 'F7F9F8' : undefined })),
+        })),
+      ],
+    }));
+  }
+  return 조각;
+}
+
+const 부록 = [
+  H1('부록. 문항 전체와 출처'),
+  글(`환경 · 안전 · 학교폭력 ${OX전체.length}문항을 하나도 빠짐없이 실었습니다. ` +
+     '문항을 먼저 읽고, 그 오른쪽에서 어느 기관의 어느 문서에서 왔는지 보시면 됩니다. ' +
+     '문서 이름을 누르면 원문으로 갑니다.', { after: 40 }),
+  글('속담 · 사자성어는 기관 출처가 없어 이 표에 넣지 않았습니다. ' +
+     '두 게임의 문항 전체는 함께 드린 엑셀(간단교육_퀴즈_문항집.xlsx)에 있습니다.',
+     { size: 18, color: 회, after: 200 }),
+
+  H2(`환경 — ${환경.length}문항`),
+  ...부록표(환경),
+  new Paragraph({ children: [new PageBreak()] }),
+  H2(`안전 — ${안전.length}문항`),
+  ...부록표(안전),
+  new Paragraph({ children: [new PageBreak()] }),
+  H2(`학교폭력 — ${학폭.length}문항`),
+  ...부록표(학폭),
+];
+
 /* ── 문서 ─────────────────────────────────────────────── */
+const 쪽번호 = new Footer({
+  children: [new Paragraph({
+    alignment: AlignmentType.CENTER,
+    children: [new TextRun({
+      children: ['간단교육 퀴즈 문항 출처 검토  ·  ', PageNumber.CURRENT, ' / ', PageNumber.TOTAL_PAGES],
+      font: 글꼴, size: 16, color: 회,
+    })],
+  })],
+});
+
 const doc = new Document({
   creator: '김선유',
   title: '간단교육 퀴즈 문항 출처 검토',
@@ -430,18 +509,24 @@ const doc = new Document({
         },
       },
     },
-    footers: {
-      default: new Footer({
-        children: [new Paragraph({
-          alignment: AlignmentType.CENTER,
-          children: [new TextRun({
-            children: ['간단교육 퀴즈 문항 출처 검토  ·  ', PageNumber.CURRENT, ' / ', PageNumber.TOTAL_PAGES],
-            font: 글꼴, size: 16, color: 회,
-          })],
-        })],
-      }),
-    },
+    footers: { default: 쪽번호 },
     children: 아이들,
+  }, {
+    // 부록만 가로 방향입니다. 문항 · 정답 · 근거기관 · 근거문서를 한 줄에 놓으려면 폭이 필요합니다.
+    properties: {
+      page: {
+        size: {
+          width: convertMillimetersToTwip(210), height: convertMillimetersToTwip(297),
+          orientation: PageOrientation.LANDSCAPE,
+        },
+        margin: {
+          top: convertMillimetersToTwip(20), bottom: convertMillimetersToTwip(18),
+          left: convertMillimetersToTwip(20), right: convertMillimetersToTwip(20),
+        },
+      },
+    },
+    footers: { default: 쪽번호 },
+    children: 부록,
   }],
 });
 
