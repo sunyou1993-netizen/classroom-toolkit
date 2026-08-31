@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>환경보호 O/X 퀴즈</title>
+    <title>환경 퀴즈</title>
     <!-- Google Fonts for Chalkboard & UI Aesthetics -->
     <!-- Pretendard WebFont -->
     <!-- Main Style CSS -->
@@ -93,10 +93,22 @@
   }
   /* 모든 글자를 Pretendard 로. 이모지는 자동으로 시스템 이모지로 넘어갑니다. */
   *, *::before, *::after {
-    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
+    font-family: "Pretendard", "Hanja", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif !important;
   }
   /* 숫자가 바뀔 때 자리폭이 흔들리지 않게 (타이머·스톱워치) */
   body { font-variant-numeric: tabular-nums; }
+</style>
+<style id="font-hanja">
+  /* 한자 글꼴 — Pretendard 에 한자가 한 글자도 없어서 따로 담았습니다.
+     Noto Sans CJK KR 에서 실제로 쓰는 한자 387자만 뽑은 파일입니다(SIL 오픈폰트 라이선스). */
+  @font-face {
+    font-family: "Hanja";
+    font-style: normal;
+    font-display: swap;
+    src: url("../fonts/HanjaSubset.woff2") format("woff2");
+    /* 한자 영역만 이 글꼴을 쓰게 해서, 한글은 Pretendard 가 그대로 맡습니다. */
+    unicode-range: U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF;
+  }
 </style>
 </body>
 </html>

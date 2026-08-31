@@ -61,5 +61,17 @@
     });
   }
 </script>
+<style id="font-hanja">
+  /* 한자 글꼴 — Pretendard 에 한자가 한 글자도 없어서 따로 담았습니다.
+     Noto Sans CJK KR 에서 실제로 쓰는 한자 387자만 뽑은 파일입니다(SIL 오픈폰트 라이선스). */
+  @font-face {
+    font-family: "Hanja";
+    font-style: normal;
+    font-display: swap;
+    src: url("./fonts/HanjaSubset.woff2") format("woff2");
+    /* 한자 영역만 이 글꼴을 쓰게 해서, 한글은 Pretendard 가 그대로 맡습니다. */
+    unicode-range: U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF;
+  }
+</style>
 </body>
 </html>

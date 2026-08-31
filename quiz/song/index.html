@@ -13,6 +13,11 @@
   #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
            transform-origin:top left; border:0; display:block; background:transparent; }
 </style>
+<script id="song-guard">
+  /* 교가가 아직 설정되지 않았습니다. 주소로 직접 들어와도 목록으로 돌려보냅니다.
+     scripts/set-school-song.mjs 를 실행하면 이 줄이 저절로 빠집니다. */
+  location.replace('../');
+</script>
 </head>
 <body>
 <iframe id="stage" src="./app.html" title="교가 맞추기"
@@ -55,5 +60,17 @@
     if (d === 'close' || (d && d.type === 'close')) goHub();
   });
 </script>
+<style id="font-hanja">
+  /* 한자 글꼴 — Pretendard 에 한자가 한 글자도 없어서 따로 담았습니다.
+     Noto Sans CJK KR 에서 실제로 쓰는 한자 387자만 뽑은 파일입니다(SIL 오픈폰트 라이선스). */
+  @font-face {
+    font-family: "Hanja";
+    font-style: normal;
+    font-display: swap;
+    src: url("../fonts/HanjaSubset.woff2") format("woff2");
+    /* 한자 영역만 이 글꼴을 쓰게 해서, 한글은 Pretendard 가 그대로 맡습니다. */
+    unicode-range: U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF;
+  }
+</style>
 </body>
 </html>

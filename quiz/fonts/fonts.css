@@ -5,3 +5,9 @@
 @font-face{font-family:"Pretendard Variable";font-weight:45 920;font-style:normal;font-display:swap;
   src:url("./PretendardVariable.woff2") format("woff2-variations");}
 
+
+/* 한자 글꼴 — Pretendard 에 한자가 없어 따로 담았습니다.
+   Noto Sans CJK KR 에서 쓰는 글자만 뽑았습니다(SIL 오픈폰트 라이선스). */
+@font-face{font-family:"Hanja";font-style:normal;font-display:swap;
+  src:url("./HanjaSubset.woff2") format("woff2");
+  unicode-range:U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF;}

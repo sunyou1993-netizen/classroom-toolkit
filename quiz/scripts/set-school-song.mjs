@@ -125,5 +125,49 @@ for (const f of 목록파일) {
   }
 }
 
+/* 후렴 한 줄이 번들 안에 그대로 박혀 있었습니다.
+ * ("아 빛내자 우리 학교 서울 신답초등학교")
+ * verses 배열 밖이라 위에서 갈아 끼워도 남습니다. 따로 바꿉니다. */
+{
+  const 새후렴 = 설정.refrain || `아 빛내자 우리 학교 ${설정.schoolName}`;
+  let 바뀐수 = 0;
+  for (const f of 파일들) {
+    const s = fs.readFileSync(f, 'utf8');
+    const m = s.match(/<span class="refrain-text">"[^"]*"<\/span>/);
+    if (!m) continue;
+    const 새것 = `<span class="refrain-text">"${새후렴}"</span>`;
+    if (m[0] === 새것) continue;
+    fs.writeFileSync(f, s.replace(m[0], 새것));
+    console.log('  ✓ 후렴 교체:', 새후렴);
+    바뀐수++;
+  }
+  if (!바뀐수) console.log('  (후렴 줄을 찾지 못했거나 이미 맞습니다)');
+}
+
+/* 목록에서 카드만 끄면 주소를 아는 사람은 그대로 들어옵니다.
+ * 실제로 /song/ 에 들어가 보니 200으로 열리고 가사가 다 보였습니다.
+ * 카드가 꺼져 있을 때는 화면 자체가 목록으로 돌려보내도록 문지기를 답니다. */
+const 문지기표시 = 'song-guard';
+const 문지기 = `<script id="${문지기표시}">
+  /* 교가가 아직 설정되지 않았습니다. 주소로 직접 들어와도 목록으로 돌려보냅니다.
+     scripts/set-school-song.mjs 를 실행하면 이 줄이 저절로 빠집니다. */
+  location.replace('../');
+</script>
+`;
+for (const 이름 of ['index.html', 'app.html']) {
+  const p = path.join(ROOT, 'song', 이름);
+  if (!fs.existsSync(p)) continue;
+  const s = fs.readFileSync(p, 'utf8');
+  const 달림 = s.includes(문지기표시);
+  if (!켜기 && !달림) {
+    fs.writeFileSync(p, s.replace('</head>', 문지기 + '</head>'));
+    console.log(`  ✓ song/${이름} 에 문지기를 달았습니다 (주소로 들어와도 목록으로)`);
+  } else if (켜기 && 달림) {
+    fs.writeFileSync(p, s.replace(new RegExp(`<script id="${문지기표시}">[\\s\\S]*?<\\/script>\\n?`), ''));
+    console.log(`  ✓ song/${이름} 의 문지기를 뗐습니다`);
+  }
+}
+
 console.log(`\n${설정.schoolName} 교가로 바꿨습니다 · ${verses.length}절 · ${verses.reduce((n,v)=>n+v.lines.length,0)}줄`);
+if (!켜기) console.log('※ 지금은 꺼진 상태입니다. 학교 교가를 넣고 다시 실행하면 켜집니다.');
 console.log('이어서 node scripts/make-sw.mjs 를 실행해 주세요.');
