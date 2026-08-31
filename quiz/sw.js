@@ -1,6 +1,6 @@
 /* 퀴즈 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-9ef58db93f21';
+const CACHE = 'suup-doumi-e5ff16d40c83';
 const ASSETS = [
   "./app.html",
   "./assets/index-BH_A0YdW.css",
@@ -71,6 +71,7 @@ const ASSETS = [
   "./violence/image_x-1.webp",
   "./violence/image_x_2.webp",
   "./violence/index.html",
+  "./간단교육_퀴즈_문항집.xlsx",
   "./문항근거.html",
   "./문항집.html"
 ];
