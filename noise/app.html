@@ -18,6 +18,31 @@
       });
     }
   </script>
+<style id="contrast-bump">
+/* 보조 글자를 한 단계 진하게 (scripts/fix-contrast.mjs)
+   slate-400 은 흰 바탕에서 2.63:1 이라 국제 기준(4.5:1)에 못 미칩니다.
+   같은 계열의 slate-500 으로 한 단계만 내려 4.76:1 을 맞춥니다.
+   배경·테두리는 그대로 두고 글자 색만 바꿉니다. */
+.text-slate-400 { color: #64748B !important; }
+.stat-title,
+.bar-progress-label,
+.backing-volume-label { color: #64748B !important; }   /* 피아노 정확도·진행도·마디·반주 소리 */
+
+/* 타이머의 "다같이 시작해볼까요?" 는 위 utility 를 쓰지 않고 색을 직접 씁니다 */
+[class*="text-slate-400"] { color: #64748B !important; }
+</style>
+<style id="reduced-motion">
+/* 기기에서 '동작 줄이기'를 켠 경우에만 적용됩니다 (scripts/fix-reduced-motion.mjs).
+   켜지 않은 사람에게는 아무 변화도 없습니다. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
 </head>
 <body class="bg-[#EBF4FF] h-screen w-screen overflow-hidden">
 

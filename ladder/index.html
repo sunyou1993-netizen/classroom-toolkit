@@ -15,6 +15,18 @@
   #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
            transform-origin:top left; border:0; display:block; background:transparent; }
 </style>
+<style id="reduced-motion">
+/* 기기에서 '동작 줄이기'를 켠 경우에만 적용됩니다 (scripts/fix-reduced-motion.mjs).
+   켜지 않은 사람에게는 아무 변화도 없습니다. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
 </head>
 <body>
 <iframe id="stage" src="./app.html" title="사다리 타기"
