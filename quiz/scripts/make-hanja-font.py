@@ -97,3 +97,20 @@ for tb in t["cmap"].tables:
 print(f"확인: {len(글자) - len(없음)}/{len(글자)}자 들어감", "✓" if not 없음 else "✗ 빠짐: " + " ".join(없음))
 if 없음:
     sys.exit(1)
+
+# ── 5. 글꼴에 든 글자 목록을 옆에 남깁니다 ─────────────────
+#
+# 왜 필요한가:
+#   실제로 이런 일이 있었습니다. 사자성어의 호환한자(U+F900~FAFF)를
+#   보통 한자로 고친 뒤 이 스크립트를 다시 돌리지 않아서, 글꼴에는
+#   옛 글자만 있고 데이터는 새 글자를 쓰는 상태가 되었습니다.
+#   화면에서는 윈도우에 깔린 다른 글꼴로 대신 그려져 눈에 잘 안 띄지만,
+#   그 9자만 서체가 달라 보이고, 글꼴이 덜어내진 보드에서는 네모로 나옵니다.
+#
+#   woff2 를 열어 보려면 파이썬과 fontTools 가 필요해서, 빌드할 때마다
+#   확인하기 어렵습니다. 그래서 글꼴에 든 글자를 글 파일로 옆에 적어 둡니다.
+#   scripts/check-hanja-font.mjs 가 이 목록과 데이터를 맞대어 봅니다.
+목록길 = os.path.join(os.path.dirname(낼곳), "HanjaSubset.txt")
+with open(목록길, "w", encoding="utf-8") as fh:
+    fh.write("".join(chr(c) for c in sorted(cmap) if 0x3400 <= c <= 0xFAFF))
+print(f"글자 목록도 남김: {os.path.relpath(목록길, ROOT)}")

@@ -96,6 +96,19 @@ else
 fi
 
 echo
+echo "■ 1-3) 한자 글꼴에 빠진 글자가 없는지"
+# 사자성어의 한자를 고치고 글꼴을 다시 만들지 않으면, 그 글자만 보드에서
+# 네모(□)로 나오거나 서체가 달라 보입니다. 눈으로는 잡히지 않아 글자 코드로 봅니다.
+CHECKHANJA="$ROOT/quiz/scripts/check-hanja-font.mjs"
+[ -f "$CHECKHANJA" ] || CHECKHANJA="$ROOT/scripts/check-hanja-font.mjs"
+if [ -f "$CHECKHANJA" ]; then
+  ( cd "$QUIZ" && node "$CHECKHANJA" ) | sed 's/^/   /' || {
+    echo "   → 멈춥니다. python3 scripts/make-hanja-font.py 로 글꼴을 다시 만드세요"; exit 1; }
+else
+  echo "   (검사 스크립트가 없어 건너뜁니다)"
+fi
+
+echo
 echo "■ 2) 그림 파일 용량 줄이기 (pyoxipng 가 있을 때만)"
 if python3 -c "import oxipng" 2>/dev/null; then
   python3 - "$HERE/toolkit" <<'PY'

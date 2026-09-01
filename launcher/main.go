@@ -198,9 +198,6 @@ func main() {
 	}
 
 	// ── 여기부터가 실제 서버 ─────────────────────────────────────
-	// exe 옆의 교가.txt 를 읽습니다. 없으면 교가 퀴즈를 숨깁니다.
-	loadSchoolSong()
-
 	root, err := fs.Sub(embedded, "toolkit")
 	if err != nil {
 		os.Exit(1)
@@ -209,6 +206,14 @@ func main() {
 	if err != nil {
 		os.Exit(1) // 이미 다른 인스턴스가 잡고 있는 상황
 	}
+
+	// exe 옆의 교가.txt 를 읽습니다. 없으면 교가 퀴즈를 숨깁니다.
+	//
+	// 반드시 포트를 잡은 **뒤에** 읽습니다. 먼저 읽으면, 예전 인스턴스가
+	// 포트를 쥐고 있어 이 프로세스가 곧바로 끝나는 경우에도 옆에
+	// "교가를 읽었습니다" 라고 적힌 확인 파일이 남습니다. 그러면 선생님은
+	// 됐다고 믿는데 화면에는 예전 것이 그대로 나옵니다.
+	loadSchoolSong()
 	go http.Serve(ln, handler(root))
 
 	url := "http://" + ln.Addr().String() + "/"

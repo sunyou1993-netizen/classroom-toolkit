@@ -1,6 +1,6 @@
 /* 퀴즈 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-cecf2dd94a63';
+const CACHE = 'suup-doumi-e7e257b45d68';
 const ASSETS = [
   "./app.html",
   "./assets/index-BH_A0YdW.css",
@@ -15,6 +15,7 @@ const ASSETS = [
   "./environment/image_x-1.webp",
   "./environment/image_x_2.webp",
   "./environment/index.html",
+  "./fonts/HanjaSubset.txt",
   "./fonts/HanjaSubset.woff2",
   "./fonts/LICENSE.txt",
   "./fonts/PretendardVariable.woff2",

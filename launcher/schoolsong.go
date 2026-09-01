@@ -64,10 +64,26 @@ func loadSchoolSong() {
 	if dir == "" {
 		return
 	}
+	// 교가 가사는 아무리 길어도 몇 킬로바이트입니다. 실수로 엉뚱한 큰 파일을
+	// '교가.txt' 로 옮겨 놓아도 프로그램이 멈추지 않도록 크기를 제한합니다.
+	const 최대크기 = 1 << 20 // 1MB
 	var raw []byte
 	var found string
 	for _, n := range songFileNames {
-		b, err := os.ReadFile(filepath.Join(dir, n))
+		p := filepath.Join(dir, n)
+		st, err := os.Stat(p)
+		if err != nil {
+			continue
+		}
+		if st.Size() > 최대크기 {
+			found = n
+			songNote = n + " 이 너무 큽니다(" + fmt.Sprintf("%.1fMB", float64(st.Size())/1e6) + ").\n" +
+				"교가 가사 파일이 아닌 것 같습니다. 그동안 교가 퀴즈는 숨깁니다."
+			writeSampleSong(dir)
+			writeSongNote(dir)
+			return
+		}
+		b, err := os.ReadFile(p)
 		if err == nil {
 			raw, found = b, n
 			break
