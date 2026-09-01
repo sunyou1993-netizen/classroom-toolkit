@@ -1,17 +1,25 @@
-/* 교가 퀴즈를 우리 학교 교가로 바꿉니다.
+/* 교가 퀴즈를 학교별 교가로 바꿉니다.
  *
  * 왜 필요한가:
- *   교가 퀴즈에는 특정 학교(서울신답초등학교)의 교가가 그대로 들어 있습니다.
- *   다른 학교에 그대로 배포하면 남의 학교 교가를 가르치게 됩니다.
+ *   교가는 학교마다 다르고, 가사에는 작사·작곡가의 저작권이 있습니다.
+ *   A학교에 배포하는 프로그램에 B학교 교가가 들어 있으면 안 됩니다.
+ *   그래서 학교마다 파일을 따로 두고, 만들 때 하나만 골라 넣습니다.
  *
  * 쓰는 법:
- *   1) scripts/school-song.json 파일을 우리 학교 교가로 고칩니다.
- *   2) node scripts/set-school-song.mjs
- *   3) node scripts/make-sw.mjs  (오프라인 캐시 버전 갱신)
+ *   node scripts/set-school-song.mjs                  ← 어떤 학교가 있는지 보여 줍니다
+ *   node scripts/set-school-song.mjs 서울신답초등학교   ← 그 학교 교가를 넣습니다
+ *   node scripts/set-school-song.mjs 없음              ← 교가를 빼고 카드도 숨깁니다
+ *   node scripts/make-sw.mjs                          ← 그다음 꼭 실행 (오프라인 캐시 갱신)
  *
- * school-song.json 모양:
+ * 학교 파일은 scripts/schools/ 안에 한 학교당 한 개씩 둡니다.
+ *   scripts/schools/서울신답초등학교.json
+ *   scripts/schools/_새학교_양식.json     ← 새 학교를 만들 때 복사해 쓰는 양식
+ *   (이름이 _ 로 시작하는 파일은 학교로 세지 않습니다)
+ *
+ * 학교 파일 모양:
  *   {
  *     "schoolName": "○○초등학교",
+ *     "refrain": "아 빛내자 우리 학교 ○○초등학교",
  *     "verses": [
  *       ["첫째 줄 [빈칸]으로 만들 두 글자", "둘째 줄 ...", ...],   ← 1절
  *       ["...", "..."]                                              ← 2절 (없으면 생략)
@@ -24,12 +32,65 @@ import fs from 'fs';
 import path from 'path';
 
 const ROOT = process.cwd();
-const 설정경로 = path.join(ROOT, 'scripts', 'school-song.json');
-if (!fs.existsSync(설정경로)) {
-  console.error('scripts/school-song.json 이 없습니다. 먼저 만들어 주세요.');
-  process.exit(1);
+const 학교폴더 = path.join(ROOT, 'scripts', 'schools');
+
+/* 어떤 학교 파일들이 있는지 모읍니다 (_ 로 시작하는 것은 양식이라 뺍니다) */
+const 학교목록 = fs.existsSync(학교폴더)
+  ? fs.readdirSync(학교폴더).filter((n) => n.endsWith('.json') && !n.startsWith('_'))
+      .map((n) => n.replace(/\.json$/, ''))
+  : [];
+
+/* 지금 무슨 교가가 들어가 있는지 봅니다 */
+function 지금학교() {
+  try {
+    const f = fs.readdirSync(path.join(ROOT, 'song', 'assets')).find((n) => n.endsWith('.js'));
+    const s = fs.readFileSync(path.join(ROOT, 'song', 'assets', f), 'utf8');
+    const m = s.match(/schoolName:"([^"]*)"/);
+    const 꺼짐 = fs.readFileSync(path.join(ROOT, 'song', 'app.html'), 'utf8').includes('song-guard');
+    return (m ? m[1] : '?') + (꺼짐 ? '  (꺼져 있음 — 목록에 안 보임)' : '');
+  } catch { return '?'; }
 }
-const 설정 = JSON.parse(fs.readFileSync(설정경로, 'utf8'));
+
+const 고른학교 = process.argv[2];
+
+if (!고른학교) {
+  console.log('지금 들어 있는 교가:', 지금학교());
+  console.log('\n고를 수 있는 학교:');
+  if (학교목록.length) 학교목록.forEach((n) => console.log('   ·', n));
+  else console.log('   (아직 없습니다. scripts/schools/_새학교_양식.json 을 복사해서 만드세요)');
+  console.log('\n쓰는 법:');
+  console.log('   node scripts/set-school-song.mjs ' + (학교목록[0] || '○○초등학교'));
+  console.log('   node scripts/set-school-song.mjs 없음          ← 교가 빼기');
+  process.exit(0);
+}
+
+/* '없음' 이면 자리표시자를 넣고 카드를 끕니다 */
+const 끄기 = (고른학교 === '없음' || 고른학교 === 'off');
+let 설정;
+if (끄기) {
+  설정 = {
+    schoolName: '우리 학교',
+    refrain: '아 빛내자 우리 학교 우리 학교',
+    verses: [[
+      '여기에 우리 학교 [교가]를 적어요',
+      '가사를 한 줄씩 [차례]대로 적어요',
+      '대괄호로 두 글자를 [감싸]면 빈칸이 돼요',
+      '대괄호를 안 쓰면 [알아]서 골라 줘요',
+    ]],
+  };
+} else {
+  const 설정경로 = path.join(학교폴더, 고른학교 + '.json');
+  if (!fs.existsSync(설정경로)) {
+    console.error(`scripts/schools/${고른학교}.json 이 없습니다.`);
+    console.error('있는 학교:', 학교목록.join(' / ') || '(없음)');
+    process.exit(1);
+  }
+  설정 = JSON.parse(fs.readFileSync(설정경로, 'utf8'));
+  if (!설정.schoolName || !Array.isArray(설정.verses) || !설정.verses.length) {
+    console.error('학교 파일에 schoolName 또는 verses 가 없습니다:', 설정경로);
+    process.exit(1);
+  }
+}
 
 const 초성표 = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const 초성 = (글자) => {
@@ -112,7 +173,7 @@ if (!바뀜) { console.error('교가 데이터를 찾지 못했습니다.'); pro
 const 카드 = '{id:"school",title:"교가",desc:"우리 학교 노래를 불러봐요",iconBg:"#E0F2FE",iconImg:d.image1680,url:"./song/app.html",questions:[]},';
 const 목록파일 = fs.readdirSync(path.join(ROOT, 'assets')).filter((n) => n.endsWith('.js'))
   .map((n) => path.join(ROOT, 'assets', n));
-const 켜기 = process.env.SCHOOL_SONG !== 'off';
+const 켜기 = !끄기;
 for (const f of 목록파일) {
   const s = fs.readFileSync(f, 'utf8');
   const 있음 = s.includes('id:"school"');
@@ -169,5 +230,10 @@ for (const 이름 of ['index.html', 'app.html']) {
 }
 
 console.log(`\n${설정.schoolName} 교가로 바꿨습니다 · ${verses.length}절 · ${verses.reduce((n,v)=>n+v.lines.length,0)}줄`);
-if (!켜기) console.log('※ 지금은 꺼진 상태입니다. 학교 교가를 넣고 다시 실행하면 켜집니다.');
-console.log('이어서 node scripts/make-sw.mjs 를 실행해 주세요.');
+if (!켜기) {
+  console.log('※ 지금은 꺼진 상태입니다. 목록에 교가 카드가 보이지 않고,');
+  console.log('   주소로 직접 들어가도 목록으로 돌려보냅니다.');
+} else if (설정._허락) {
+  console.log('\n※ ' + 설정._허락);
+}
+console.log('\n이어서 node scripts/make-sw.mjs 를 실행해 주세요.');
