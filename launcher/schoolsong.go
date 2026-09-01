@@ -33,6 +33,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 	"unicode/utf16"
 	"unicode/utf8"
 )
@@ -124,10 +125,17 @@ func exeDir() string {
 }
 
 // 결과를 옆에 적어 둡니다. 선생님이 "됐나 안 됐나"를 열어서 확인할 수 있게.
+//
+// 버전도 같이 적습니다. 나중에 "○○초 보드가 이상해요" 연락이 왔을 때
+// 그 보드에 어느 판이 깔려 있는지 알 방법이 이것뿐입니다.
 func writeSongNote(dir string) {
 	_ = os.WriteFile(filepath.Join(dir, "교가-확인.txt"),
-		[]byte("[수업도우미] 교가 읽기 결과\n\n"+songNote+"\n\n"+
-			"(이 파일은 프로그램이 켜질 때마다 다시 씁니다. 지워도 됩니다.)\n"), 0o644)
+		[]byte("[수업도우미] 확인 파일\n\n"+
+			"버전: "+version+"\n"+
+			"켠 때: "+time.Now().Format("2006-01-02 15:04")+"\n\n"+
+			songNote+"\n\n"+
+			"(이 파일은 프로그램이 켜질 때마다 다시 씁니다. 지워도 됩니다.\n"+
+			" 문제가 생기면 이 파일 내용을 그대로 알려 주세요.)\n"), 0o644)
 }
 
 func writeSampleSong(dir string) {
@@ -175,8 +183,10 @@ const sampleSongText = `# 우리 학교 교가
 /* ── 글자 인코딩 ────────────────────────────────────────── */
 
 // 메모장이 남기는 여러 저장 방식을 받아 줍니다.
-//   · UTF-8 (BOM 있어도 되고 없어도 됨)  ← 권장
-//   · UTF-16 (메모장의 '유니코드' / '유니코드 big endian')
+//
+//	· UTF-8 (BOM 있어도 되고 없어도 됨)  ← 권장
+//	· UTF-16 (메모장의 '유니코드' / '유니코드 big endian')
+//
 // 옛 '완성형(ANSI/CP949)' 으로 저장하면 읽을 수 없어, 다시 저장해 달라고 알립니다.
 func decodeText(b []byte) (string, error) {
 	switch {

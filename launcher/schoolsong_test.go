@@ -10,10 +10,11 @@ import (
 // 글자 하나까지 같은지 확인합니다.
 //
 // 왜 이 시험이 필요한가:
-//   같은 규칙(빈칸 고르기, 초성, 여벌 타일)이 두 곳에 있습니다.
-//     · scripts/set-school-song.mjs  (저장소 안에 미리 넣어 둘 때)
-//     · launcher/schoolsong.go       (exe 옆 교가.txt 를 읽을 때)
-//   한쪽만 고치면 학교마다 화면이 달라집니다. 그래서 결과를 맞대어 봅니다.
+//
+//	같은 규칙(빈칸 고르기, 초성, 여벌 타일)이 두 곳에 있습니다.
+//	  · scripts/set-school-song.mjs  (저장소 안에 미리 넣어 둘 때)
+//	  · launcher/schoolsong.go       (exe 옆 교가.txt 를 읽을 때)
+//	한쪽만 고치면 학교마다 화면이 달라집니다. 그래서 결과를 맞대어 봅니다.
 func TestSongMatchesNodeScript(t *testing.T) {
 	want, err := os.ReadFile("testdata/verses-node-서울신답초등학교.json")
 	if err != nil {

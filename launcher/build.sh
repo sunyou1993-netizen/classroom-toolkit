@@ -33,9 +33,19 @@ mkdir -p "$HERE/toolkit"
     --exclude='download' \
     --exclude='*.command' \
     --exclude='README.md' \
+    --exclude='./수업도우미' --exclude='./수업도우미.exe' --exclude='*.exe' \
     --exclude='*.xlsx' --exclude='*.docx' --exclude='*.pdf' \
     --exclude='문항집.html' --exclude='문항근거.html' --exclude='문항근거.md' \
     . ) | ( cd "$HERE/toolkit" && tar xf - )
+
+# 저번에 만든 실행 파일이 다시 담기면 exe 가 두 배로 불어납니다(22MB → 43MB).
+# 위 --exclude 로 막았지만, 이름이 바뀌어도 걸리도록 여기서 한 번 더 확인합니다.
+BIG=$(find "$HERE/toolkit" -type f -size +5M 2>/dev/null)
+if [ -n "$BIG" ]; then
+  echo "   ✗ 5MB 가 넘는 파일이 들어갔습니다. 실행 파일이 섞인 것 같습니다:"
+  echo "$BIG" | sed 's|^|     |'
+  echo "   → 멈춥니다"; exit 1
+fi
 
 NFILES=$(find "$HERE/toolkit" -type f | wc -l | tr -d ' ')
 NQUIZ=$(find "$HERE/toolkit/quiz" -type f 2>/dev/null | wc -l | tr -d ' ')
