@@ -11,19 +11,34 @@ AI보드 앱(`claix_aiboard`) 소스에 접근할 수 없는 동안 쓰는 방�
 ## 빌드
 
 Go 1.21 이상이면 됩니다. 윈도우 PC 없이 리눅스·맥에서 그대로 만들 수 있습니다.
+**저장소 루트에서 한 줄이면 됩니다.**
 
 ```bash
-# 1) 저장소 루트의 완성본을 launcher/toolkit/ 으로 복사 (scripts, README 제외)
-rsync -a --exclude scripts --exclude README.md --exclude launcher \
-      --exclude '*.command' ./ launcher/toolkit/
-
-# 2) 윈도우 실행 파일 생성
-cd launcher
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
-  go build -trimpath -ldflags "-s -w -H=windowsgui" -o ../수업도우미.exe .
+bash launcher/build.sh          # 윈도우 exe
+bash launcher/build.sh mac      # 맥 실행파일
+bash launcher/build.sh both     # 둘 다
 ```
 
-`launcher/toolkit/` 는 빌드할 때 만들어지는 복사본이라 저장소에 넣지 않습니다.
+이 스크립트가 하는 일:
+
+1. 저장소의 화면 파일을 `launcher/toolkit/` 으로 모읍니다
+   (`scripts/`, `download/`, 보고서 pdf·docx, 문항집 xlsx·html 은 뺍니다 —
+   손으로 복사하면 이 문서들까지 exe 안에 들어가 2MB 넘게 불어납니다)
+2. **꼭 필요한 파일이 다 들어갔는지 확인하고**, 하나라도 없으면 멈춥니다
+   (특히 `quiz/fonts/HanjaSubset.woff2` — 이게 빠지면 사자성어 한자가 네모로 나옵니다)
+3. PNG 용량을 줄입니다(`pyoxipng` 가 있을 때만)
+4. 실행 파일을 저장소 루트에 만듭니다
+
+`launcher/toolkit/` 는 빌드할 때 만들어지는 복사본이라 저장소에 넣지 않습니다
+(`.gitignore` 에 있습니다). 그래서 **빌드 전에 이 스크립트를 꼭 돌려야 합니다.**
+
+### 알아둘 점
+
+- 지금 exe 는 약 **22MB** 입니다. 담긴 PNG 가 7.7MB 라 더 줄이기 어렵습니다.
+- `instruments/assets/piano_bear_mascot.png` 는 **확장자만 .png 이고 실제로는 JPEG** 입니다.
+  어느 화면에서도 쓰지 않는 파일이라 그대로 두었습니다(548KB).
+- 어느 화면에서도 부르지 않는 그림이 7개(약 1MB) 있습니다. 지워도 되지만
+  개발사 원본이라 손대지 않았습니다.
 
 
 ### 용량 줄이기(선택)
