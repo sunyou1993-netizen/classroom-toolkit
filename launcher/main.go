@@ -87,7 +87,12 @@ func handler(root fs.FS) http.Handler {
 		}
 		// 이 프로그램 안에서는 오프라인 캐시가 필요 없습니다(이미 전부 내장).
 		// 예전에 등록된 캐시가 남아 있으면 화면이 어긋나므로 스스로 지우게 합니다.
-		if p == "/sw.js" {
+		//
+		// 퀴즈 폴더에도 따로 sw.js 가 있습니다(/quiz/sw.js). 이것까지 꺼야 합니다.
+		// 안 그러면 교가.txt 를 고쳐도 브라우저가 캐시에 담아 둔 예전 교가를
+		// 계속 보여 줍니다 — exe 는 그대로여서 브라우저 프로필도 그대로라
+		// 캐시가 저절로 비워지지 않기 때문입니다.
+		if p == "/sw.js" || strings.HasSuffix(p, "/sw.js") {
 			w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
 			w.Header().Set("Cache-Control", "no-store")
 			w.Write([]byte(killSwitchSW))
@@ -109,6 +114,11 @@ func handler(root fs.FS) http.Handler {
 			http.NotFound(w, r)
 			return
 		}
+		// 교가는 학교마다 달라서 exe 안에 넣지 않습니다.
+		// exe 옆의 교가.txt 를 보고, 내보내는 순간에만 갈아 끼웁니다.
+		// (schoolsong.go 참고. 교가.txt 가 없으면 교가 퀴즈를 통째로 숨깁니다.)
+		data = applySchoolSong(name, data)
+
 		if ct, ok := mimeByExt[strings.ToLower(filepath.Ext(name))]; ok {
 			w.Header().Set("Content-Type", ct)
 		}
@@ -188,6 +198,9 @@ func main() {
 	}
 
 	// ── 여기부터가 실제 서버 ─────────────────────────────────────
+	// exe 옆의 교가.txt 를 읽습니다. 없으면 교가 퀴즈를 숨깁니다.
+	loadSchoolSong()
+
 	root, err := fs.Sub(embedded, "toolkit")
 	if err != nil {
 		os.Exit(1)

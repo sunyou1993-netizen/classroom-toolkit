@@ -64,8 +64,23 @@ if (!고른학교) {
   process.exit(0);
 }
 
-/* '없음' 이면 자리표시자를 넣고 카드를 끕니다 */
-const 끄기 = (고른학교 === '없음' || 고른학교 === 'off');
+/* 세 가지 모드
+ *   ○○초등학교 : 그 학교 교가를 넣고 카드도 켭니다 (한 학교만 쓰는 경우)
+ *   없음        : 자리표시자를 넣고 카드도 끕니다 (저장소의 기본 상태)
+ *   런처        : 자리표시자 + 문지기는 달되 **카드는 켠 채로** 둡니다.
+ *                 exe 를 만들 때만 씁니다(build.sh 가 부릅니다).
+ *
+ * 왜 '런처' 모드가 따로 있나:
+ *   exe 는 켜질 때 옆의 교가.txt 를 보고 교가를 넣습니다(launcher/schoolsong.go).
+ *   런처는 카드를 **빼는 것만** 할 수 있고 없는 카드를 새로 만들지는 못합니다.
+ *   (카드 코드에 압축된 변수 이름이 섞여 있어, 바깥에서 지어 넣으면 깨집니다.)
+ *   그래서 exe 안에는 카드를 켠 채로 넣어 두고,
+ *     · 교가.txt 있음 → 런처가 문지기만 뗍니다        → 교가 나옴
+ *     · 교가.txt 없음 → 런처가 카드를 뺍니다          → 교가 안 보임
+ *   가사는 어느 쪽이든 자리표시자라, 남의 학교 교가가 exe 에 담기지 않습니다.
+ */
+const 런처모드 = (고른학교 === '런처' || 고른학교 === 'launcher');
+const 끄기 = (고른학교 === '없음' || 고른학교 === 'off' || 런처모드);
 let 설정;
 if (끄기) {
   설정 = {
@@ -174,13 +189,15 @@ const 카드 = '{id:"school",title:"교가",desc:"우리 학교 노래를 불러
 const 목록파일 = fs.readdirSync(path.join(ROOT, 'assets')).filter((n) => n.endsWith('.js'))
   .map((n) => path.join(ROOT, 'assets', n));
 const 켜기 = !끄기;
+// '런처' 모드에서는 카드를 켠 채로 둡니다 (위 설명 참고).
+const 카드켜기 = 켜기 || 런처모드;
 for (const f of 목록파일) {
   const s = fs.readFileSync(f, 'utf8');
   const 있음 = s.includes('id:"school"');
-  if (켜기 && !있음 && s.includes('y=[{id:"sokdam"')) {
+  if (카드켜기 && !있음 && s.includes('y=[{id:"sokdam"')) {
     fs.writeFileSync(f, s.replace('y=[{id:"sokdam"', 'y=[' + 카드 + '{id:"sokdam"'));
     console.log('  ✓ 목록에 교가 카드를 켰습니다');
-  } else if (!켜기 && 있음) {
+  } else if (!카드켜기 && 있음) {
     fs.writeFileSync(f, s.replace(카드, ''));
     console.log('  ✓ 목록에서 교가 카드를 껐습니다');
   }
@@ -230,7 +247,11 @@ for (const 이름 of ['index.html', 'app.html']) {
 }
 
 console.log(`\n${설정.schoolName} 교가로 바꿨습니다 · ${verses.length}절 · ${verses.reduce((n,v)=>n+v.lines.length,0)}줄`);
-if (!켜기) {
+if (런처모드) {
+  console.log('※ 런처 모드입니다 (exe 용).');
+  console.log('   가사는 자리표시자, 문지기는 달림, 카드는 켜 둔 상태입니다.');
+  console.log('   나머지는 exe 가 켜질 때 옆의 교가.txt 를 보고 정합니다.');
+} else if (!켜기) {
   console.log('※ 지금은 꺼진 상태입니다. 목록에 교가 카드가 보이지 않고,');
   console.log('   주소로 직접 들어가도 목록으로 돌려보냅니다.');
 } else if (설정._허락) {

@@ -13,6 +13,11 @@
   #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
            transform-origin:top left; border:0; display:block; background:transparent; }
 </style>
+<script id="song-guard">
+  /* 교가가 아직 설정되지 않았습니다. 주소로 직접 들어와도 목록으로 돌려보냅니다.
+     scripts/set-school-song.mjs 를 실행하면 이 줄이 저절로 빠집니다. */
+  location.replace('../');
+</script>
 </head>
 <body>
 <iframe id="stage" src="./app.html" title="교가 맞추기"

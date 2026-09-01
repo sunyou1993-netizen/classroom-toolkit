@@ -54,6 +54,38 @@ if [ "$MISSING" = "1" ]; then echo "   → 빠진 파일이 있어 멈춥니다"
 echo "   ✓ 꼭 필요한 파일 모두 있음 (한자 글꼴 포함)"
 
 echo
+echo "■ 1-2) 교가를 exe 밖으로 빼기"
+# 교가는 학교마다 다르고 가사에 저작권이 있어, exe 안에 넣지 않습니다.
+# exe 옆의 '교가.txt' 를 켜질 때 읽습니다(launcher/schoolsong.go 참고).
+# 여기서는 exe 에 들어갈 사본만 자리표시자로 바꿉니다. 저장소 원본은 그대로입니다.
+QUIZ="$HERE/toolkit/quiz"
+[ -d "$QUIZ" ] || QUIZ="$HERE/toolkit"          # 퀴즈가 루트에 바로 있는 구성도 대비
+SETSONG="$ROOT/quiz/scripts/set-school-song.mjs"
+[ -f "$SETSONG" ] || SETSONG="$ROOT/scripts/set-school-song.mjs"
+if [ ! -f "$SETSONG" ]; then
+  echo "   ✗ set-school-song.mjs 를 찾지 못했습니다"; exit 1
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "   ✗ node 가 없어 교가를 뺄 수 없습니다."
+  echo "     이대로 만들면 남의 학교 교가가 exe 에 담길 수 있어 멈춥니다."
+  echo "     https://nodejs.org 에서 node 를 설치한 뒤 다시 실행해 주세요."
+  exit 1
+fi
+( cd "$QUIZ" && node "$SETSONG" 런처 ) | sed 's/^/   /'
+
+# 정말 빠졌는지 확인합니다. 학교 이름이 남아 있으면 멈춥니다.
+LEFT=$(grep -ao 'schoolName:"[^"]*"' "$QUIZ"/song/assets/*.js 2>/dev/null | head -1)
+case "$LEFT" in
+  *'"우리 학교"'*) echo "   ✓ exe 안에는 어느 학교 교가도 들어가지 않습니다" ;;
+  *) echo "   ✗ 교가가 남아 있습니다: $LEFT"; echo "   → 멈춥니다"; exit 1 ;;
+esac
+if grep -qa 'id:"school"' "$QUIZ"/assets/*.js 2>/dev/null; then
+  echo "   ✓ 교가 카드는 켜 둠 (교가.txt 가 없으면 프로그램이 알아서 뺍니다)"
+else
+  echo "   ✗ 교가 카드가 없습니다. 이러면 교가.txt 를 넣어도 안 보입니다"; exit 1
+fi
+
+echo
 echo "■ 2) 그림 파일 용량 줄이기 (pyoxipng 가 있을 때만)"
 if python3 -c "import oxipng" 2>/dev/null; then
   python3 - "$HERE/toolkit" <<'PY'
