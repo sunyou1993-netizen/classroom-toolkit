@@ -1,6 +1,6 @@
 /* 수업도우미 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-5a7cd79dd0f0';
+const CACHE = 'suup-doumi-a934268876f8';
 const ASSETS = [
   "./app.html",
   "./assets/character11-DZuNsAEY.png",

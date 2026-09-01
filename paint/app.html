@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>그림판(판서)</title>
     <script type="module" crossorigin src="./assets/index-BXO7XPyu.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-Dhns_zDJ.css">
@@ -45,6 +45,33 @@
   /* 숫자가 바뀔 때 자리폭이 흔들리지 않게 (타이머·스톱워치) */
   body { font-variant-numeric: tabular-nums; }
 </style>
+<script id="paint-share-trim">
+/* 공유 창에서 교실 보드에서 못 쓰는 단추를 감춥니다. (scripts/fix-paint-share.mjs)
+   · "스튜디오 링크 공유 복사" — 127.0.0.1 주소라 남에게 보내도 안 열립니다
+   · "기기 연동 간편 QR 코드"  — 진짜 QR 이 아니라 점무늬 그림입니다
+   PNG 다운로드는 그대로 둡니다. */
+(function () {
+  var 감출말 = ['스튜디오 링크', '링크 주소 복사', 'QR 코드'];
+  function 정리() {
+    var bs = document.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++) {
+      var b = bs[i];
+      if (b.dataset.hiddenByToolkit) continue;
+      var t = (b.textContent || '').trim();
+      for (var j = 0; j < 감출말.length; j++) {
+        if (t.indexOf(감출말[j]) >= 0) {
+          b.dataset.hiddenByToolkit = '1';
+          b.style.display = 'none';
+          break;
+        }
+      }
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', 정리);
+  else 정리();
+  new MutationObserver(정리).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
 </body>
 </html>
 

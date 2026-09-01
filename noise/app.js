@@ -539,6 +539,7 @@ function updateUI() {
       `;
       if (toggleRipple1) toggleRipple1.className = "absolute inset-x-0 inset-y-1 bg-[#0052E0]/30 animate-ripple-1 pointer-events-none";
       if (toggleRipple2) toggleRipple2.className = "absolute inset-x-0 inset-y-1 bg-[#02b3c2]/25 animate-ripple-2 pointer-events-none";
+      syncSampleLabels();
     } else if (!isPlaying && (isCurrentlyPlayingLayout || toggleBtn.getAttribute('data-playing') === null)) {
       toggleBtn.setAttribute('data-playing', 'false');
       toggleBtn.className = "w-full flex items-center justify-center hover:shadow-lg active:scale-[0.98] transition-all duration-300 relative overflow-hidden bg-[#0052E0] text-white shadow-[0_14px_30px_rgba(0,82,224,0.3)] cursor-pointer";
@@ -698,11 +699,37 @@ function drawWavechart() {
 // ── 마이크 상태 안내 ──────────────────────────────────────────
 // 권한이 없으면 화면에는 예시 숫자가 나옵니다. 그걸 실제 측정값으로
 // 오해하지 않도록, 마이크가 안 켜져 있을 때만 안내를 띄웁니다.
+
+/* ── 마이크가 꺼져 있을 때 글자 맞추기 (noise-sample-labels) ──────────────
+   노란 띠는 "예시 숫자"라고 하는데 큰 버튼은 "측정 중"이라고 하면
+   선생님이 예시 숫자를 실제 측정값으로 믿게 됩니다. 글자만 맞춥니다. */
+function syncSampleLabels() {
+  const 진짜 = (typeof isRealMic !== 'undefined' && isRealMic) &&
+               (typeof isPlaying !== 'undefined' && isPlaying);
+
+  // 아래 큰 버튼
+  const btn = document.getElementById('toggle-btn');
+  if (btn && btn.getAttribute('data-playing') === 'true') {
+    const s = btn.querySelector('span');
+    if (s) {
+      const 새글 = 진짜 ? '측정 중' : '예시 보는 중';
+      if (s.textContent !== 새글) s.textContent = 새글;
+    }
+  }
+  // 그래프 제목
+  const t = document.getElementById('wave-title');
+  if (t) {
+    const 새글 = 진짜 ? '실시간 음파' : '예시 음파';
+    if (t.textContent !== 새글) t.textContent = 새글;
+  }
+}
+
 function updateMicNotice() {
   const el = document.getElementById('mic-notice');
   if (!el) return;
   const on = isRealMic && isPlaying;
   el.style.display = on ? 'none' : 'flex';
+  syncSampleLabels();
 }
 
 function requestMicNow() {
