@@ -9,7 +9,9 @@ const ROOT = process.cwd();
 // 하나라도 404가 나면 cache.addAll 전체가 실패하므로 반드시 걸러야 합니다.
 const SKIP_NAMES = new Set(['sw.js', 'README.md', 'LICENSE', '.gitattributes', '.gitignore', '.DS_Store']);
 const SKIP_EXT = new Set(['.map', '.md', '.exe', '.command']);
-const SKIP_DIRS = new Set(['scripts', 'launcher', 'download', '.git', 'node_modules']);
+// test/ 는 검사 도구입니다. 학교 보드에 나갈 이유가 없고, 미리 받아 두면
+// 캐시만 불어납니다. (안 걸렀더니 파일이 150개 → 170개가 됐습니다)
+const SKIP_DIRS = new Set(['scripts', 'launcher', 'download', 'test', '.git', 'node_modules']);
 
 function walk(dir, out = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

@@ -312,5 +312,12 @@
   /* 숫자가 바뀔 때 자리폭이 흔들리지 않게 (타이머·스톱워치) */
   body { font-variant-numeric: tabular-nums; }
 </style>
+<script id="drop-guard">
+/* 파일을 끌어다 놓아도 수업 화면을 벗어나지 않게 합니다 (scripts/fix-drop-guard.mjs).
+   브라우저는 기본으로 끌어다 놓은 파일을 열어 버립니다. */
+['dragenter', 'dragover', 'drop'].forEach(function (종류) {
+  window.addEventListener(종류, function (e) { e.preventDefault(); }, false);
+});
+</script>
 </body>
 </html>
