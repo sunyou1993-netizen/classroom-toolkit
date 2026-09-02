@@ -35,6 +35,20 @@
   }
 }
 </style>
+<style id="star-glow-perf">
+/* 반짝이는 별의 '빛 번짐'만 고정합니다 (scripts/fix-star-glow.mjs).
+   반짝임·크기·회전은 그대로 둡니다. 빛 번짐을 움직이면 매 프레임 화면을
+   다시 그려야 해서, 별 24개 × 2겹이면 보드에서 28프레임까지 떨어집니다.
+   고정하면 60프레임으로 돌아오고, 눈으로는 거의 같습니다. */
+@keyframes twinkleStar {
+  0%, 100% { opacity: .15; transform: scale(.6) rotate(0deg); }
+  50%      { opacity: 1;   transform: scale(1.35) rotate(25deg); }
+}
+.twinkle-star {
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.95))
+          drop-shadow(0 0 20px rgba(147,197,253,.8));
+}
+</style>
 </head>
   <body style="background-color: #FFFFFF; margin: 0; padding: 0; overflow: hidden;">
     <!-- Full-Screen Pure White Initial Loading Overlay with Interaction -->
