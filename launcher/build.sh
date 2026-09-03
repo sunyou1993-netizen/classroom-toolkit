@@ -32,11 +32,35 @@ mkdir -p "$HERE/toolkit"
     --exclude='.git' \
     --exclude='download' \
     --exclude='*.command' \
-    --exclude='README.md' \
+    --exclude='test' \
+    --exclude='*.md' \
+    --exclude='.gitignore' --exclude='.gitattributes' --exclude='.DS_Store' \
     --exclude='./수업도우미' --exclude='./수업도우미.exe' --exclude='*.exe' \
     --exclude='*.xlsx' --exclude='*.docx' --exclude='*.pdf' \
-    --exclude='문항집.html' --exclude='문항근거.html' --exclude='문항근거.md' \
+    --exclude='문항집.html' --exclude='문항근거.html' \
     . ) | ( cd "$HERE/toolkit" && tar xf - )
+
+# 위 --exclude 는 «빼야 할 것» 을 이름으로 적는 방식이라, 새로운 파일이 생기면
+# 그때마다 목록을 고쳐야 하고 빠뜨리기 쉽습니다.
+# 그래서 반대로 «화면에 쓰이는 것으로 아는 종류» 만 통과시킵니다.
+# 모르는 종류가 들어오면 멈추고 사람이 판단하게 합니다.
+#
+# 실제로 이렇게 새어 들어간 적이 있습니다:
+#   QA.md 31KB (검수 문서)  ·  test/ 폴더 (검사 도구)
+# 둘 다 학교 보드까지 따라갈 뻔했습니다.
+#
+# txt 를 허용하는 이유: 글꼴 LICENSE.txt 는 글꼴과 함께 배포해야 합니다.
+KNOWN='html|js|css|svg|png|webp|jpg|jpeg|gif|woff2|woff|ico|webmanifest|txt|json|mp3|wav|m4a'
+STRAY=$(cd "$HERE/toolkit" && find . -type f 2>/dev/null \
+        | grep -Ev "\.($KNOWN)\$" || true)
+if [ -n "$STRAY" ]; then
+  echo "   ✗ 화면에 쓰이는지 모르겠는 파일이 exe 에 들어가려 합니다:"
+  echo "$STRAY" | sed 's|^|     |'
+  echo "   → 멈춥니다."
+  echo "     화면에 필요한 것이면 build.sh 의 KNOWN 목록에 확장자를 넣고,"
+  echo "     아니면 --exclude 에 추가하세요."
+  exit 1
+fi
 
 # 저번에 만든 실행 파일이 다시 담기면 exe 가 두 배로 불어납니다(22MB → 43MB).
 # 위 --exclude 로 막았지만, 이름이 바뀌어도 걸리도록 여기서 한 번 더 확인합니다.
