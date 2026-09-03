@@ -124,6 +124,39 @@
   window.addEventListener(종류, function (e) { e.preventDefault(); }, false);
 });
 </script>
+<script id="card-keyboard">
+/* 퀴즈 카드를 키보드로도 고를 수 있게 합니다 (scripts/fix-card-keyboard.mjs).
+   카드가 그냥 <div> 라서 Tab 으로 갈 수 있는 곳이 0개였습니다.
+   보이는 모습은 그대로이고, 키보드와 화면 읽어주기에서만 달라집니다. */
+(function () {
+  function 손보기() {
+    var 카드 = document.querySelectorAll('.quiz-card');
+    for (var i = 0; i < 카드.length; i++) {
+      var c = 카드[i];
+      if (c.dataset.키보드) continue;
+      c.dataset.키보드 = '1';
+      if (!c.getAttribute('role')) c.setAttribute('role', 'button');
+      if (!c.hasAttribute('tabindex')) c.setAttribute('tabindex', '0');
+      /* 화면 읽어주기가 «무엇을 누르는 것인지» 말할 수 있게 이름을 줍니다 */
+      if (!c.getAttribute('aria-label')) {
+        var 제목 = c.querySelector('.card-title');
+        if (제목 && 제목.innerText) c.setAttribute('aria-label', 제목.innerText.trim() + ' 퀴즈 시작');
+      }
+      c.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          this.click();
+        }
+      });
+    }
+  }
+  손보기();
+  /* 카드가 나중에 그려지는 경우까지 (화면이 다시 그려져도 유지됩니다) */
+  if (window.MutationObserver) {
+    new MutationObserver(손보기).observe(document.documentElement, { childList: true, subtree: true });
+  }
+})();
+</script>
 </body>
 </html>
 
