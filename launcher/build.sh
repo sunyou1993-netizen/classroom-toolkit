@@ -133,6 +133,39 @@ else
 fi
 
 echo
+echo "■ 1-4) 판 번호를 실제 내용에 맞춰 다시 찍기"
+# 왜 이게 필요한가 (실제로 겪은 일입니다):
+#
+#   프로그램은 «지금 떠 있는 것과 내가 같은 판인가» 를 판 번호로 봅니다.
+#   같으면 새로 뜨지 않고 창만 다시 엽니다. 그래야 두 개가 안 뜹니다.
+#
+#   그런데 판 번호를 sw.js 안의 값에서 가져오는데, sw.js 는 사람이
+#   make-sw.mjs 를 따로 돌려야 갱신됩니다. 화면을 고치고 그걸 깜빡하면
+#   **내용은 다른데 판 번호가 같은 exe** 가 만들어집니다.
+#
+#   그러면 학교에서 이런 일이 생깁니다.
+#     · 옛 판이 켜져 있는 채로 선생님이 새 판을 더블클릭
+#     · 새 판이 "어, 같은 판이 이미 떠 있네" 하고 창만 다시 엶
+#     · 화면은 옛 판 그대로. 오류도 안 뜸. 조용히 업데이트가 안 됩니다.
+#
+#   그래서 사람 손을 안 타도록, 여기서 **실제로 담기는 파일들** 로
+#   판 번호를 다시 계산해 찍습니다.
+NEWVER=$( cd "$HERE/toolkit" && find . -type f ! -name 'sw.js' -print0 \
+          | sort -z | xargs -0 cat 2>/dev/null | shasum -a 256 | cut -c1-12 )
+if [ -n "$NEWVER" ]; then
+  for SW in "$HERE/toolkit/sw.js" "$HERE/toolkit/quiz/sw.js"; do
+    [ -f "$SW" ] || continue
+    OLD=$(grep -o 'suup-doumi-[a-f0-9]*' "$SW" | head -1)
+    # 맥과 리눅스에서 다 되도록 sed -i 대신 임시 파일을 씁니다
+    sed "s/suup-doumi-[a-f0-9]*/suup-doumi-$NEWVER/g" "$SW" > "$SW.tmp" && mv "$SW.tmp" "$SW"
+  done
+  echo "   판 번호: suup-doumi-$NEWVER  (담기는 파일 전부를 합쳐 계산)"
+  echo "   ✓ 화면을 고치면 판 번호도 반드시 같이 바뀝니다"
+else
+  echo "   ✗ 판 번호를 계산하지 못했습니다"; exit 1
+fi
+
+echo
 echo "■ 2) 그림 파일 용량 줄이기 (pyoxipng 가 있을 때만)"
 if python3 -c "import oxipng" 2>/dev/null; then
   python3 - "$HERE/toolkit" <<'PY'

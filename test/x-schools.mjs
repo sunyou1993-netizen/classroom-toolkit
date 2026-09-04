@@ -91,7 +91,12 @@ async function 켜고읽기(교가파일) {
       const 속 = await (await fetch(주소 + '/quiz/song/app.html')).text();
       const m = 속.match(/assets\/[A-Za-z0-9_.-]+\.js/);
       if (m) 결과.교가번들 = await (await fetch(주소 + '/quiz/song/' + m[0])).text();
-      결과.목록 = await (await fetch(주소 + '/quiz/app.html')).text();
+      /* 교가 카드는 app.html 안에 글자로 있지 않고 **번들이 그립니다**.
+         app.html 만 보면 교가.txt 가 있든 없든 늘 «없음» 으로 나와서,
+         이 검사가 언제나 통과하는 허수가 됩니다 (처음에 그랬습니다). */
+      const 목록속 = await (await fetch(주소 + '/quiz/app.html')).text();
+      const lm = 목록속.match(/assets\/[A-Za-z0-9_.-]+\.js/);
+      결과.목록 = lm ? await (await fetch(주소 + '/quiz/' + lm[0])).text() : 목록속;
     } catch (e) { 결과.오류 = String(e).slice(0, 70); }
   }
   try { process.kill(-p.pid, 'SIGKILL'); } catch { }
