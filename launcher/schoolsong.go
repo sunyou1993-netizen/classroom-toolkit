@@ -59,6 +59,50 @@ var songNote string
 // 'school-song.txt' 도 같이 받습니다.
 var songFileNames = []string{"교가.txt", "school-song.txt"}
 
+// 교가.txt 를 못 찾았을 때, 이름이 «사실상 교가.txt» 인 파일을 한 번 더 찾습니다.
+//
+// 왜 필요한가 — 학교에서 가장 자주 날 사고입니다:
+//
+//	윈도우 탐색기는 '.txt' 처럼 아는 확장자를 기본으로 숨깁니다.
+//	그래서 선생님이 '교가-예시.txt' 의 이름을 '교가.txt' 로 고치면
+//	진짜 파일 이름은 '교가.txt.txt' 가 됩니다.
+//	탐색기 화면에는 '교가.txt' 로 보이는데 프로그램은 못 찾습니다.
+//	선생님 입장에서는 «이름 맞게 바꿨는데 왜 안 되냐» 가 됩니다.
+//
+//	대문자로 '교가.TXT' 가 되는 경우도 함께 받아 줍니다.
+//	(윈도우는 대소문자를 안 가리지만, 맥·리눅스에서 만든 파일이 섞일 수 있습니다.)
+//
+// '교가-예시.txt' 와 '교가-확인.txt' 는 .txt 를 떼도 '교가-예시' 라서 걸리지 않습니다.
+func findSongFileLoosely(dir string) (name, hint string) {
+	ents, err := os.ReadDir(dir)
+	if err != nil {
+		return "", ""
+	}
+	for _, e := range ents {
+		if e.IsDir() {
+			continue
+		}
+		n := e.Name()
+		base := strings.ToLower(n)
+		for strings.HasSuffix(base, ".txt") { // .txt.txt 도 떼어 냅니다
+			base = strings.TrimSuffix(base, ".txt")
+		}
+		if base != "교가" && base != "school-song" {
+			continue
+		}
+		if n != "교가.txt" && n != "school-song.txt" {
+			hint = "\n\n(참고) 파일 이름이 '" + n + "' 이라 하마터면 못 찾을 뻔했습니다.\n" +
+				"윈도우가 확장자를 숨겨 '.txt' 가 두 번 붙은 것 같습니다.\n" +
+				"이대로도 되지만, 이름을 '교가.txt' 로 맞춰 두면 더 안전합니다."
+		}
+		return n, hint
+	}
+	return "", ""
+}
+
+// 위에서 찾은 «비슷한 이름» 에 대한 안내. 확인 파일 끝에 붙습니다.
+var songNameHint string
+
 func loadSchoolSong() {
 	dir := exeDir()
 	if dir == "" {
@@ -90,6 +134,18 @@ func loadSchoolSong() {
 		}
 	}
 
+	// 정확한 이름으로 못 찾았으면, 확장자가 두 번 붙은 경우를 한 번 더 봅니다.
+	if found == "" {
+		if n, hint := findSongFileLoosely(dir); n != "" {
+			p := filepath.Join(dir, n)
+			if st, err := os.Stat(p); err == nil && st.Size() <= 최대크기 {
+				if b, err := os.ReadFile(p); err == nil {
+					raw, found, songNameHint = b, n, hint
+				}
+			}
+		}
+	}
+
 	// 처음 쓰는 사람을 위해 예시 파일을 옆에 만들어 둡니다.
 	// (USB 처럼 쓰기가 막힌 곳이면 조용히 넘어갑니다.)
 	writeSampleSong(dir)
@@ -97,7 +153,10 @@ func loadSchoolSong() {
 	if found == "" {
 		songNote = "교가.txt 가 없어 교가 퀴즈를 숨겼습니다.\n" +
 			"옆에 만들어 둔 '교가-예시.txt' 를 '교가.txt' 로 이름만 바꾸고\n" +
-			"우리 학교 가사로 고치면 교가 퀴즈가 나타납니다."
+			"우리 학교 가사로 고치면 교가 퀴즈가 나타납니다.\n\n" +
+			"※ 이름을 바꿨는데도 이 글이 보인다면, 윈도우가 확장자를 숨겨서\n" +
+			"   진짜 이름이 '교가.txt.txt' 가 된 것일 수 있습니다.\n" +
+			"   탐색기 → 보기 → '파일 확장명' 을 켜고 이름을 확인해 주세요."
 		writeSongNote(dir)
 		return
 	}
@@ -125,7 +184,7 @@ func loadSchoolSong() {
 		n += len(v)
 	}
 	songNote = fmt.Sprintf("교가를 읽었습니다 — %s · %d절 · %d줄\n파일: %s",
-		s.SchoolName, len(s.Verses), n, found)
+		s.SchoolName, len(s.Verses), n, found) + songNameHint
 	writeSongNote(dir)
 }
 

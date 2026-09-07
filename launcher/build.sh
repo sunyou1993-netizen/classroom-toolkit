@@ -25,7 +25,9 @@ mkdir -p "$HERE/toolkit"
 
 # 화면에 필요한 것만 담습니다. 아래 목록에 없는 것은 exe 에 들어가지 않습니다.
 # (rsync 가 없는 곳에서도 되도록 tar 로 옮깁니다. 맥·리눅스 어디서나 됩니다.)
-( cd "$ROOT" && tar cf - \
+# -h : 폴더를 바로가기(심볼릭 링크)로 걸어 둔 경우 그 «안의 진짜 파일» 을 담습니다.
+#      링크를 그대로 담으면 exe 를 만들 때 그 부분이 통째로 빠집니다(아래 설명).
+( cd "$ROOT" && tar cfh - \
     --exclude='./launcher' \
     --exclude='scripts' \
     --exclude='node_modules' \
@@ -53,6 +55,15 @@ mkdir -p "$HERE/toolkit"
 KNOWN='html|js|css|svg|png|webp|jpg|jpeg|gif|woff2|woff|ico|webmanifest|txt|json|mp3|wav|m4a'
 STRAY=$(cd "$HERE/toolkit" && find . -type f 2>/dev/null \
         | grep -Ev "\.($KNOWN)\$" || true)
+
+# html 중에서 «화면» 은 index.html 과 app.html 뿐입니다.
+# 그 밖의 html 은 사람이 읽는 문서입니다. 위 목록이 html 을 통과시키기 때문에,
+# 새로 만든 문서 html 이 exe 로 딸려 들어갈 수 있습니다.
+# (실제로 '문항집.html' 425KB — 정답이 다 들어 있는 문서 — 이 있었습니다.
+#  지금은 이름으로 빼고 있지만, 이름을 바꾸거나 새로 만들면 그대로 통과합니다)
+STRAYHTML=$(cd "$HERE/toolkit" && find . -name '*.html' -type f 2>/dev/null \
+            | grep -Ev '/(index|app)\.html$' || true)
+STRAY=$(printf '%s\n%s' "$STRAY" "$STRAYHTML" | grep -v '^$' || true)
 if [ -n "$STRAY" ]; then
   echo "   ✗ 화면에 쓰이는지 모르겠는 파일이 exe 에 들어가려 합니다:"
   echo "$STRAY" | sed 's|^|     |'
@@ -75,6 +86,27 @@ NFILES=$(find "$HERE/toolkit" -type f | wc -l | tr -d ' ')
 NQUIZ=$(find "$HERE/toolkit/quiz" -type f 2>/dev/null | wc -l | tr -d ' ')
 SIZE=$(du -sh "$HERE/toolkit" | cut -f1)
 echo "   파일 $NFILES 개 (그중 퀴즈 $NQUIZ 개) · $SIZE"
+
+# 바로가기(심볼릭 링크)가 섞이면 안 됩니다.
+#
+# 실제로 겪은 일입니다:
+#   quiz 폴더를 다른 곳에 두고 바로가기로 걸어 둔 작업 환경에서 exe 를 만들었더니,
+#   exe 안에 퀴즈가 통째로 빠졌습니다. 그런데도 «있는지» 검사는 다 통과했습니다.
+#   바로가기를 따라가서 확인하기 때문입니다.
+#   실행해 보고 나서야 퀴즈 주소가 전부 404 인 것을 알았습니다.
+#   (exe 를 만드는 도구가 바로가기를 말없이 건너뜁니다)
+STRAYLINK=$(find "$HERE/toolkit" -type l 2>/dev/null || true)
+if [ -n "$STRAYLINK" ]; then
+  echo "   ✗ 바로가기(심볼릭 링크)가 섞여 있습니다. 이대로 만들면 그 부분이 exe 에서 빠집니다:"
+  echo "$STRAYLINK" | sed 's|^|     |'
+  echo "   → 멈춥니다"; exit 1
+fi
+
+# 퀴즈가 통째로 빠졌는데 그냥 만들어지는 일이 없도록, 개수로도 한 번 더 봅니다.
+if [ "$NQUIZ" -lt 50 ]; then
+  echo "   ✗ 퀴즈 파일이 $NQUIZ 개뿐입니다. 퀴즈가 제대로 안 담긴 것 같습니다(보통 70개가 넘습니다)."
+  echo "   → 멈춥니다"; exit 1
+fi
 
 # 꼭 있어야 하는 것들이 실제로 들어갔는지 확인합니다.
 MISSING=0

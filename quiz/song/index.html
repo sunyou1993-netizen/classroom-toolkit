@@ -13,11 +13,6 @@
   #stage { position:absolute; top:0; left:0; width:1080px; height:1920px;
            transform-origin:top left; border:0; display:block; background:transparent; }
 </style>
-<script id="song-guard">
-  /* 교가가 아직 설정되지 않았습니다. 주소로 직접 들어와도 목록으로 돌려보냅니다.
-     scripts/set-school-song.mjs 를 실행하면 이 줄이 저절로 빠집니다. */
-  location.replace('../');
-</script>
 <style id="reduced-motion">
 /* 기기에서 '동작 줄이기'를 켠 경우에만 적용됩니다 (scripts/fix-reduced-motion.mjs).
    켜지 않은 사람에게는 아무 변화도 없습니다. */
@@ -30,6 +25,11 @@
   }
 }
 </style>
+<script id="song-guard">
+  /* 교가가 아직 설정되지 않았습니다. 주소로 직접 들어와도 목록으로 돌려보냅니다.
+     scripts/set-school-song.mjs 를 실행하면 이 줄이 저절로 빠집니다. */
+  location.replace('../');
+</script>
 </head>
 <body>
 <iframe id="stage" src="./app.html" title="교가 맞추기"
@@ -100,6 +100,21 @@ if ('serviceWorker' in navigator) {
 ['dragenter', 'dragover', 'drop'].forEach(function (종류) {
   window.addEventListener(종류, function (e) { e.preventDefault(); }, false);
 });
+</script>
+<script id="sw-update-once">
+/* 새 판을 깔았을 때 첫 번째로 열어도 새 화면이 나오게 합니다 (scripts/fix-sw-update.mjs).
+   오프라인 저장본이 자리를 넘겨받는 순간, 화면을 연 지 얼마 안 됐을 때만 한 번 새로고침합니다.
+   (수업 중에 그리던 그림이 날아가지 않도록 8초 제한을 둡니다) */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var 했음 = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (했음) return;
+    했음 = true;
+    if (performance.now() > 8000) return;   // 수업 중이면 건드리지 않습니다
+    location.reload();
+  });
+})();
 </script>
 </body>
 </html>

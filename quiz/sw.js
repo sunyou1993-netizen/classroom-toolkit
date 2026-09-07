@@ -1,6 +1,6 @@
 /* 퀴즈 오프라인 캐시
    scripts/make-sw.mjs 가 자동 생성합니다. 직접 고치지 마세요. */
-const CACHE = 'suup-doumi-c8e7192d6dbe';
+const CACHE = 'suup-doumi-657f3952afa7';
 const ASSETS = [
   "./app.html",
   "./assets/index-BH_A0YdW.css",
@@ -72,11 +72,7 @@ const ASSETS = [
   "./violence/image_o_2.webp",
   "./violence/image_x-1.webp",
   "./violence/image_x_2.webp",
-  "./violence/index.html",
-  "./간단교육_퀴즈_문항집.xlsx",
-  "./문항근거.html",
-  "./문항집.html",
-  "./문항출처검토보고.docx"
+  "./violence/index.html"
 ];
 
 // 우리 파일만 다룹니다. 같은 폴더에 있는 다른 페이지(예: env.html)는

@@ -1494,5 +1494,20 @@
   window.addEventListener(종류, function (e) { e.preventDefault(); }, false);
 });
 </script>
+<script id="sw-update-once">
+/* 새 판을 깔았을 때 첫 번째로 열어도 새 화면이 나오게 합니다 (scripts/fix-sw-update.mjs).
+   오프라인 저장본이 자리를 넘겨받는 순간, 화면을 연 지 얼마 안 됐을 때만 한 번 새로고침합니다.
+   (수업 중에 그리던 그림이 날아가지 않도록 8초 제한을 둡니다) */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var 했음 = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (했음) return;
+    했음 = true;
+    if (performance.now() > 8000) return;   // 수업 중이면 건드리지 않습니다
+    location.reload();
+  });
+})();
+</script>
 </body>
 </html>
