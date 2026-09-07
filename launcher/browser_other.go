@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// 실제로 어떤 브라우저로 열었는지. 확인 파일에 적습니다(schoolsong.go 의 noteBrowser).
+var browserOpened = "화면을 연 브라우저: (리눅스에서는 열지 않습니다 — 검사용)"
+
 // 리눅스에서는 서버 동작만 확인할 용도로 씁니다(테스트 전용).
 func openBrowser(url string) *exec.Cmd { return nil }
 

@@ -22,6 +22,9 @@ var macProfile = "suup-doumi-profile-" + version
 // 권한 팝업이 다시 뜹니다(파일이 바뀌면 다른 앱으로 취급하기 때문).
 // 그래서 open 명령으로 띄워 브라우저가 스스로 권한 주인이 되게 합니다.
 // 크롬에 한 번 허용해 두면 그 뒤로는 팝업이 뜨지 않습니다.
+// 실제로 어떤 브라우저로 열었는지. 확인 파일에 적습니다(schoolsong.go 의 noteBrowser).
+var browserOpened = "화면을 연 브라우저: (아직 열기 전)"
+
 func openBrowser(url string) *exec.Cmd {
 	apps := []string{"Google Chrome", "Microsoft Edge"}
 	profile := os.TempDir() + "/" + macProfile
@@ -60,12 +63,19 @@ func openBrowser(url string) *exec.Cmd {
 		}
 		cmd := exec.Command("open", append([]string{"-na", app, "--args"}, args...)...)
 		if err := cmd.Run(); err == nil {
+			browserOpened = "화면을 연 브라우저: " + app
 			return nil // 창이 닫히는 시점은 waitForClose 가 지켜봅니다
 		}
 	}
 
 	// 크롬도 엣지도 없으면 기본 브라우저로.
-	_ = exec.Command("open", url).Start()
+	if err := exec.Command("open", url).Start(); err == nil {
+		browserOpened = "크롬도 엣지도 못 찾아 «기본 브라우저» 로 열었습니다.\n" +
+			"화면이 안 뜨면 브라우저를 직접 열고 위 주소를 넣어 주세요."
+	} else {
+		browserOpened = "브라우저를 열지 못했습니다: " + err.Error() + "\n" +
+			"프로그램은 켜져 있습니다. 브라우저를 직접 열고 위 주소를 넣어 주세요."
+	}
 	return nil
 }
 

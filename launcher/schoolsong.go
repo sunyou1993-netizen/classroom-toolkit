@@ -203,12 +203,32 @@ func exeDir() string {
 //
 // 버전도 같이 적습니다. 나중에 "○○초 보드가 이상해요" 연락이 왔을 때
 // 그 보드에 어느 판이 깔려 있는지 알 방법이 이것뿐입니다.
+// 화면을 어떤 브라우저로, 어느 주소로 열었는지.
+//
+// 왜 적나 — 학교에서 가장 막막한 연락이 «눌렀는데 아무 일도 안 일어나요» 입니다.
+// 프로그램은 사실 멀쩡히 떠 있는데 브라우저가 안 열린 경우가 그렇습니다.
+// (엣지도 크롬도 없는 보드거나, 기본 브라우저가 정해져 있지 않은 경우)
+// 그때 이 두 줄만 있으면 선생님이 주소를 직접 넣어 바로 쓸 수 있고,
+// 저희도 «브라우저 문제구나» 를 한 번에 알 수 있습니다.
+var browserNote string
+
+func noteBrowser(url, note string) {
+	browserNote = "화면 주소: " + url + "\n" + note
+	if dir := exeDir(); dir != "" {
+		writeSongNote(dir)
+	}
+}
+
 func writeSongNote(dir string) {
+	덧붙임 := ""
+	if browserNote != "" {
+		덧붙임 = "\n\n" + browserNote
+	}
 	_ = os.WriteFile(filepath.Join(dir, "교가-확인.txt"),
 		[]byte("[수업도우미] 확인 파일\n\n"+
 			"버전: "+version+"\n"+
 			"켠 때: "+time.Now().Format("2006-01-02 15:04")+"\n\n"+
-			songNote+"\n\n"+
+			songNote+덧붙임+"\n\n"+
 			"(이 파일은 프로그램이 켜질 때마다 다시 씁니다. 지워도 됩니다.\n"+
 			" 문제가 생기면 이 파일 내용을 그대로 알려 주세요.)\n"), 0o644)
 }

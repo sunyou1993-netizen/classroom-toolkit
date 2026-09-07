@@ -13,6 +13,9 @@ import (
 
 // 크로미움 계열 브라우저를 "앱 모드"로 띄웁니다.
 // 주소창·탭·즐겨찾기가 없는 창이라 교실 화면에서 프로그램처럼 보입니다.
+// 실제로 어떤 브라우저로 열었는지. 확인 파일에 적습니다(schoolsong.go 의 noteBrowser).
+var browserOpened = "화면을 연 브라우저: (아직 열기 전)"
+
 func openBrowser(url string) *exec.Cmd {
 	candidates := []string{}
 	for _, base := range []string{
@@ -63,12 +66,20 @@ func openBrowser(url string) *exec.Cmd {
 		)
 		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		if err := cmd.Start(); err == nil {
+			browserOpened = "화면을 연 브라우저: " + filepath.Base(exe)
 			return cmd
 		}
 	}
 
 	// 엣지도 크롬도 없으면 기본 브라우저로.
-	_ = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	if err := exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start(); err == nil {
+		browserOpened = "엣지도 크롬도 못 찾아 «기본 브라우저» 로 열었습니다.\n" +
+			"화면이 안 뜨면 브라우저를 직접 열고 위 주소를 넣어 주세요.\n" +
+			"(이 경우 소음측정기에서 마이크 허용 창이 한 번 뜰 수 있습니다)"
+	} else {
+		browserOpened = "브라우저를 열지 못했습니다: " + err.Error() + "\n" +
+			"프로그램은 켜져 있습니다. 브라우저를 직접 열고 위 주소를 넣어 주세요."
+	}
 	return nil
 }
 

@@ -347,7 +347,40 @@
   </div>
 
   <!-- Dynamic controller logic linking microphone listener with live visualization -->
-  <script src="./app.js" defer></script>
+  <script id="blank-guard">
+/* 화면 파일을 못 읽었을 때만 안내를 띄웁니다 (scripts/fix-blank-guard.mjs).
+   그냥 두면 하얀 화면만 남아서, 선생님이 원인을 알 방법이 없습니다. */
+(function () {
+  var 띄웠음 = false;
+  window.addEventListener('error', function (e) {
+    var el = e && e.target;
+    if (!el || !el.tagName) return;                 /* 자바스크립트 오류는 여기서 다루지 않습니다 */
+    if (el.tagName.toLowerCase() !== 'script') return;  /* 그림·글꼴이 빠진 것으로는 안 띄웁니다 */
+    if (띄웠음) return;
+    띄웠음 = true;
+    var 파일 = '';
+    try { 파일 = (el.src || '').split('/').pop(); } catch (err) {}
+    var 상자 = document.createElement('div');
+    상자.setAttribute('role', 'alert');
+    상자.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;' +
+      'align-items:center;justify-content:center;background:#fff;color:#1F2937;' +
+      'font-family:Pretendard,system-ui,-apple-system,sans-serif;padding:6vmin;text-align:center;';
+    상자.innerHTML =
+      '<div style="max-width:34em">' +
+      '<div style="font-size:6vmin;margin-bottom:.6em">화면을 불러오지 못했습니다</div>' +
+      '<div style="font-size:3.4vmin;line-height:1.8;color:#4B5563">' +
+      '프로그램을 껐다가 다시 켜 주세요.<br>' +
+      '그래도 같으면 수업도우미 폴더를 다시 복사해 주세요.' +
+      '</div>' +
+      (파일 ? '<div style="margin-top:1.6em;font-size:2.6vmin;color:#9CA3AF">못 읽은 파일: ' +
+        파일.replace(/[<>&]/g, '') + '</div>' : '') +
+      '</div>';
+    if (document.body) document.body.appendChild(상자);
+    else document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(상자); });
+  }, true);
+})();
+</script>
+<script src="./app.js" defer></script>
 <style id="kiosk-guard">
   * { -webkit-tap-highlight-color: transparent; }
   html, body { touch-action: manipulation; overscroll-behavior: none; }

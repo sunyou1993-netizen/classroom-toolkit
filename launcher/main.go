@@ -145,9 +145,41 @@ func listen() (net.Listener, error) {
 // 떠 있는 수업도우미들을 찾습니다.
 //   same   : 나와 같은 버전 (있으면 창만 다시 열면 됩니다)
 //   others : 예전 버전 (종료를 요청합니다)
+// 포트 대역(43110~43130)이 전부 막혀 있으면 아무 빈 포트로 뜹니다.
+// 그 포트는 대역 밖이라 아래 훑기로는 못 찾습니다. 그러면 다시 눌렀을 때
+// «이미 떠 있다» 를 못 알아보고 서버가 하나 더 뜹니다. 누를 때마다 늘어납니다.
+// (실제로 재현했습니다 — 세 번 누르니 서버가 3개)
+// 그래서 대역 밖으로 떴을 때는 그 포트를 임시 폴더에 적어 두고, 여기서 같이 봅니다.
+func portFile() string { return filepath.Join(os.TempDir(), "suup-doumi-port") }
+
+func rememberPort(addr string) {
+	if _, port, err := net.SplitHostPort(addr); err == nil {
+		_ = os.WriteFile(portFile(), []byte(port), 0o644)
+	}
+}
+
+func rememberedPort() int {
+	b, err := os.ReadFile(portFile())
+	if err != nil {
+		return 0
+	}
+	n, err := strconv.Atoi(strings.TrimSpace(string(b)))
+	if err != nil || n < 1 || n > 65535 {
+		return 0
+	}
+	return n
+}
+
 func scanInstances() (same string, others []string) {
 	c := &http.Client{Timeout: 250 * time.Millisecond}
+	ports := []int{}
 	for port := 43110; port <= 43130; port++ {
+		ports = append(ports, port)
+	}
+	if p := rememberedPort(); p != 0 && (p < 43110 || p > 43130) {
+		ports = append(ports, p)
+	}
+	for _, port := range ports {
 		base := "http://127.0.0.1:" + strconv.Itoa(port)
 		res, err := c.Get(base + PING)
 		if err != nil {
@@ -206,6 +238,7 @@ func main() {
 	if err != nil {
 		os.Exit(1) // 이미 다른 인스턴스가 잡고 있는 상황
 	}
+	rememberPort(ln.Addr().String()) // 대역 밖으로 떴을 때도 다음 실행이 찾을 수 있게
 
 	// exe 옆의 교가.txt 를 읽습니다. 없으면 교가 퀴즈를 숨깁니다.
 	//
@@ -228,7 +261,11 @@ func main() {
 	}
 
 	started := time.Now()
-	if cmd := openBrowser(url); cmd != nil {
+	cmd := openBrowser(url)
+	// 어떤 브라우저로 열었는지(또는 못 열었는지)를 옆의 확인 파일에 남깁니다.
+	// «눌렀는데 아무 일도 안 일어나요» 연락이 왔을 때 이것 하나로 갈립니다.
+	noteBrowser(url, browserOpened)
+	if cmd != nil {
 		cmd.Wait() // 창을 닫으면 여기서 빠져나옵니다
 		// 이미 실행 중이던 브라우저에 창만 넘기고 곧바로 끝나는 경우가 있습니다.
 		// 그때 서버까지 꺼지면 화면이 비므로, 그런 경우에는 계속 띄워 둡니다.
