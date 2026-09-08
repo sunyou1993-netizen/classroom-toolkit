@@ -39,6 +39,10 @@ run_one() {
 
 echo "수업도우미 검사를 시작합니다  ($(date '+%Y-%m-%d %H:%M'))"
 
+# 0번으로 두는 이유: 손으로 넣은 고침이 빠져 있으면 아래 검사들이 «통과» 해도
+# 학교에 나가는 것은 고치기 전 화면입니다. 그래서 제일 먼저 봅니다.
+run_one "$ROOT/scripts/check-fixes.mjs" "0. 손으로 넣은 고침이 다 붙어 있는가"
+
 run_one "$HERE/t01-questions.mjs"      "1. 문항 데이터 (원본과 화면이 같은가)"
 run_one "$HERE/t02-hanja-font.mjs"     "2. 한자 글꼴 (빠진 글자가 없는가)"
 run_one "$HERE/t03-proverb-idiom.mjs"  "3. 속담·사자성어 데이터"

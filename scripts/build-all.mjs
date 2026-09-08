@@ -7,7 +7,12 @@
  *   ② 오프라인 패치(scripts/patches/*.patch)를 자동으로 입히고
  *   ③ 각각 빌드해서
  *   ④ 이 폴더(툴킷)에 그대로 갈아끼운 뒤
- *   ⑤ 서비스워커(sw.js)까지 새로 만듭니다.
+ *   ⑤ 손으로 넣은 고침(키오스크 잠금·글꼴·대비·안내 …)을 다시 입히고
+ *   ⑥ 빠진 고침이 없는지 대조한 뒤
+ *   ⑦ 서비스워커(sw.js)까지 새로 만듭니다.
+ *
+ * ⑤⑥ 이 중요합니다. 앱을 새로 빌드하면 «빌드 결과물 위에 덧붙인 고침» 이
+ * 전부 없어지는데, 화면은 멀쩡히 열려서 아무도 모르기 때문입니다.
  *
  * 실행:  node scripts/build-all.mjs
  * 필요:  git, node 18+, 인터넷 연결
@@ -154,8 +159,36 @@ for (const f of PRUNE) fs.rmSync(path.join(ROOT, f), { force: true });
 console.log('\n■ 화면 맞춤 프레임 씌우는 중…');
 execFileSync(process.execPath, [path.join(HERE, 'frame-apps.mjs')], { cwd: ROOT, stdio: 'inherit' });
 
-console.log('\n■ 서비스워커 다시 만드는 중…');
-execFileSync(process.execPath, [path.join(HERE, 'make-sw.mjs')], { cwd: ROOT, stdio: 'inherit' });
+// ── 손으로 넣은 고침을 다시 입힙니다 ─────────────────────────────
+//
+// 여기가 없으면 «다시 가져오기» 가 곧 «고쳤던 것 전부 날리기» 가 됩니다.
+// 위에서 앱을 새로 빌드해 갈아끼웠기 때문에, 빌드 결과물 위에 덧붙였던
+// 것(키오스크 잠금·글꼴·글자 대비·동작 줄이기·파일 끌어놓기 막기·
+// 새 판 반영·하얀 화면 안내 …)이 전부 없어진 상태입니다.
+//
+// 실제로 확인했습니다: 이 줄이 없을 때 타이머 화면 하나에서만
+// 일곱 개가 사라졌고, 화면에는 초록색으로 «전부 완료» 라고 떴습니다.
+//
+// apply-fixes.mjs 가 마지막에 sw.js 까지 다시 만듭니다.
+console.log('\n■ 손으로 넣은 고침 다시 입히는 중…');
+try {
+  execFileSync(process.execPath, [path.join(HERE, 'apply-fixes.mjs')], { cwd: ROOT, stdio: 'inherit' });
+} catch (e) {
+  // 대개 «AI Studio 가 그 부분을 고쳐서, 고침이 붙을 자리를 못 찾은» 경우입니다.
+  // 어느 고침인지는 바로 위에 ✗ 와 함께 이름으로 나옵니다.
+  console.log(RED('\n고침을 다시 입히지 못했습니다. 이대로 올리면 고치기 전 화면이 나갑니다.'));
+  console.log('위 ✗ 표시가 붙은 고침 이름을 그대로 알려 주세요.');
+  process.exit(1);
+}
+
+// 정말 다 붙었는지 대조합니다. 하나라도 빠지면 여기서 걸립니다.
+console.log('\n■ 고침이 다 붙었는지 대조하는 중…');
+try {
+  execFileSync(process.execPath, [path.join(HERE, 'check-fixes.mjs')], { cwd: ROOT, stdio: 'inherit' });
+} catch (e) {
+  console.log(RED('\n고침이 빠진 채로 만들어졌습니다. 이대로 올리면 안 됩니다.'));
+  process.exit(1);
+}
 
 if (failed.length) {
   console.log(RED(`\n일부 실패: ${failed.join(', ')} — 위 메시지를 클로드에게 그대로 보여주세요.`));
