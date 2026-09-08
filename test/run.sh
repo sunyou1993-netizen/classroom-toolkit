@@ -22,19 +22,41 @@ fi
 PASS=0; FAIL=0; SKIP=0
 FAILED=""
 
+FLAKY=""
+
+# 검사 하나를 돌립니다.
+#
+# 실패하면 «한 번만» 다시 돌려 봅니다. 왜냐하면:
+#   브라우저를 여는 검사가 여럿 겹치면 가끔 한 개가 시간 안에 안 열립니다.
+#   실제로 두 번 겪었는데(6번·8번), 따로 돌리면 둘 다 전부 통과했습니다.
+#   이런 «흔들리는 실패» 를 그대로 두면 «또 그거겠지» 하고 진짜 실패까지
+#   흘려보내게 됩니다. 그게 더 위험합니다.
+#
+# 다만 조용히 넘기지는 않습니다. 다시 돌려서 통과하면 «흔들렸다» 고
+# 마무리에 남깁니다. 두 번 다 실패하면 그냥 실패입니다.
 run_one() {
   local file="$1" name="$2"
   echo
   echo "════════════════════════════════════════════════════════════"
   echo "  $name"
   echo "════════════════════════════════════════════════════════════"
-  local out
-  out=$(node "$file" 2>&1)
-  local code=$?
+  local out code
+  out=$(node "$file" 2>&1); code=$?
   echo "$out"
-  if echo "$out" | grep -q "(건너뜀)"; then SKIP=$((SKIP+1));
-  elif [ $code -eq 0 ]; then PASS=$((PASS+1));
-  else FAIL=$((FAIL+1)); FAILED="$FAILED\n   ✗ $name"; fi
+  if echo "$out" | grep -q "(건너뜀)"; then SKIP=$((SKIP+1)); return; fi
+  if [ $code -eq 0 ]; then PASS=$((PASS+1)); return; fi
+
+  echo
+  echo "   … 실패했습니다. 흔들린 것인지 보려고 한 번만 다시 돌립니다."
+  sleep 3
+  out=$(node "$file" 2>&1); code=$?
+  if [ $code -eq 0 ]; then
+    echo "   ⚠ 다시 돌리니 통과했습니다 — 흔들리는 검사입니다(문제는 아닙니다)."
+    PASS=$((PASS+1)); FLAKY="$FLAKY\n   ⚠ $name (처음엔 실패, 다시 돌리니 통과)"
+  else
+    echo "$out"
+    FAIL=$((FAIL+1)); FAILED="$FAILED\n   ✗ $name"
+  fi
 }
 
 echo "수업도우미 검사를 시작합니다  ($(date '+%Y-%m-%d %H:%M'))"
@@ -65,6 +87,21 @@ else
   SKIP=$((SKIP+1))
 fi
 
+# ── 저장소가 너무 무거워지지 않았는지 (조용한 알림) ──────────────
+#
+# 실행 파일(19MB)이 판마다 저장소 기록에 쌓입니다. 지금은 문제가 아닙니다
+# (깃허브 권장 최대는 10GB). 다만 아무도 안 보고 있으면 어느 날 갑자기
+# «올리기가 왜 이렇게 느려요?» 가 되므로, 넘칠 때만 한 줄 알려 줍니다.
+if [ -d "$ROOT/.git" ]; then
+  GITMB=$(du -sm "$ROOT/.git" 2>/dev/null | cut -f1)
+  if [ -n "${GITMB:-}" ] && [ "$GITMB" -ge 2000 ]; then
+    echo
+    echo "  ⚠ 저장소 기록이 ${GITMB}MB 입니다 (깃허브 권장 최대 10GB)."
+    echo "    실행 파일이 판마다 쌓여서 그렇습니다. 올리기가 느려지면"
+    echo "    «실행 파일을 저장소 대신 깃허브 릴리스로 옮기기» 를 클로드에게 물어보세요."
+  fi
+fi
+
 echo
 echo "════════════════════════════════════════════════════════════"
 echo "  마무리"
@@ -75,6 +112,10 @@ if [ $FAIL -gt 0 ]; then
   echo
   echo "  ✗ 고쳐야 할 것이 있습니다. 위에서 ✗ 표시를 찾아보세요."
   exit 1
+fi
+if [ -n "$FLAKY" ]; then
+  echo -e "$FLAKY"
+  echo "     (두 번째에 통과한 것입니다. 화면을 여는 검사가 여럿 겹치면 가끔 이럽니다)"
 fi
 if [ $SKIP -gt 0 ]; then
   echo "  ✓ 돌린 검사는 모두 통과했습니다. (건너뛴 것 $SKIP 개)"
