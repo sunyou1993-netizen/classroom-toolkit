@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>보드 점검</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+  /* 퀴즈가 쓰는 한자 글꼴을 여기서도 똑같이 불러옵니다.
+     안 불러오면 «보드에 원래 있던 글꼴» 로 그려져서, 검사가 아무 의미가 없어집니다. */
+  @font-face { font-family: "HanjaSubset"; src: url("../quiz/fonts/HanjaSubset.woff2") format("woff2"); font-display: swap; }
+  /* 이 화면은 «진짜 보드 앞에서» 쓰는 점검표입니다.
+     수업 화면과 달리 1080×1920 틀에 넣지 않고, 보드 크기 그대로 씁니다.
+     65인치 앞에 서서 손가락으로 누르므로 글씨와 단추를 크게 잡았습니다. */
+  :root {
+    --글자: #1F2937; --흐린글자: #6B7280; --선: #E5E7EB;
+    --바탕: #F8FAFC; --흰: #fff;
+    --좋음: #15803D; --좋음바탕: #DCFCE7;
+    --나쁨: #B91C1C; --나쁨바탕: #FEE2E2;
+    --모름: #92400E; --모름바탕: #FEF3C7;
+    --파랑: #006CFF;
+    --기본: clamp(16px, 1.45vmin, 34px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--바탕); color: var(--글자);
+    font-family: Pretendard, system-ui, -apple-system, sans-serif;
+    font-size: var(--기본); line-height: 1.6; }
+  .감싸기 { max-width: 62em; margin: 0 auto; padding: 2em 1.2em 6em; }
+
+  h1 { font-size: 2.1em; margin: 0 0 .2em; letter-spacing: -.02em; }
+  .머리설명 { color: var(--흐린글자); margin: 0 0 1.6em; }
+
+  .진행 { position: sticky; top: 0; z-index: 5; background: var(--바탕);
+    padding: .7em 0 .9em; border-bottom: 1px solid var(--선); margin-bottom: 1.4em; }
+  .진행칸 { height: .7em; background: var(--선); border-radius: 1em; overflow: hidden; }
+  .진행막대 { height: 100%; width: 0; background: var(--파랑); transition: width .3s; }
+  .진행글 { font-size: .95em; color: var(--흐린글자); margin-top: .5em; }
+
+  h2 { font-size: 1.25em; margin: 2em 0 .8em; }
+  .칸 { background: var(--흰); border: 1px solid var(--선); border-radius: .9em;
+    padding: 1.1em 1.2em; margin-bottom: .8em; }
+  .칸머리 { display: flex; align-items: flex-start; gap: .8em; }
+  .이름 { font-weight: 600; flex: 1; }
+  .설명 { color: var(--흐린글자); font-size: .95em; margin-top: .25em; }
+  .값 { font-variant-numeric: tabular-nums; color: var(--흐린글자);
+    font-size: .95em; margin-top: .45em; word-break: break-all; }
+
+  .표 { display: inline-block; padding: .2em .7em; border-radius: 2em;
+    font-size: .9em; font-weight: 600; white-space: nowrap; }
+  .표.좋음 { background: var(--좋음바탕); color: var(--좋음); }
+  .표.나쁨 { background: var(--나쁨바탕); color: var(--나쁨); }
+  .표.모름 { background: var(--모름바탕); color: var(--모름); }
+
+  .단추줄 { display: flex; flex-wrap: wrap; gap: .6em; margin-top: .9em; }
+  button { font: inherit; font-weight: 600; border-radius: .7em; cursor: pointer;
+    padding: .7em 1.3em; min-height: 2.8em; border: 1px solid var(--선);
+    background: var(--흰); color: var(--글자); }
+  button:active { transform: translateY(1px); }
+  button.주 { background: var(--파랑); color: #fff; border-color: var(--파랑); }
+  button.예 { background: var(--좋음바탕); color: var(--좋음); border-color: #86EFAC; }
+  button.아니오 { background: var(--나쁨바탕); color: var(--나쁨); border-color: #FCA5A5; }
+  button:disabled { opacity: .45; cursor: default; }
+
+  .표적판 { position: relative; height: 34vh; min-height: 14em; margin-top: .9em;
+    background: #F1F5F9; border: 1px dashed #CBD5E1; border-radius: .7em;
+    touch-action: none; overflow: hidden; }
+  .표적 { position: absolute; width: 3.4em; height: 3.4em; margin: -1.7em 0 0 -1.7em;
+    border-radius: 50%; border: .28em solid var(--파랑); }
+  .표적::after { content: ''; position: absolute; inset: 40%; border-radius: 50%; background: var(--파랑); }
+  .자국 { position: absolute; width: .8em; height: .8em; margin: -.4em 0 0 -.4em;
+    border-radius: 50%; background: #EF4444; }
+
+  .막대칸 { height: 2.2em; background: #F1F5F9; border-radius: .5em; overflow: hidden; margin-top: .9em; }
+  .막대 { height: 100%; width: 0; background: linear-gradient(90deg, #22C55E, #EAB308, #EF4444); }
+
+  .견본 { font-size: 3em; letter-spacing: .06em; margin-top: .4em; }
+  .작은견본 { font-size: 1em; color: #64748B; }
+
+  .결과칸 { background: #0F172A; color: #E2E8F0; border-radius: .9em; padding: 1.2em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em;
+    white-space: pre-wrap; line-height: 1.7; margin-top: .8em; }
+  .안내 { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E3A8A;
+    border-radius: .7em; padding: .9em 1.1em; margin: 1em 0; }
+  .손으로 { background: #FFFBEB; border-color: #FDE68A; color: #78350F; }
+</style>
+<style id="reduced-motion">
+/* 기기에서 '동작 줄이기'를 켠 경우에만 적용됩니다 (scripts/fix-reduced-motion.mjs).
+   켜지 않은 사람에게는 아무 변화도 없습니다. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="감싸기">
+
+  <h1>보드 점검</h1>
+  <p class="머리설명">
+    수업도우미를 학교에 내보내기 전에, <b>진짜 AI보드 앞에서</b> 한 번 확인하는 화면입니다.
+    컴퓨터로 흉내 낼 수 없는 것만 모았습니다. 10분이면 끝납니다.<br>
+    위에서부터 차례로 눌러 주세요. 다 끝나면 맨 아래에 결과가 정리됩니다.
+  </p>
+
+  <div class="진행">
+    <div class="진행칸"><div class="진행막대" id="진행막대"></div></div>
+    <div class="진행글" id="진행글">준비 중…</div>
+  </div>
+
+  <h2>1. 저절로 알 수 있는 것</h2>
+  <div id="자동"></div>
+
+  <h2>2. 눌러서 확인할 것</h2>
+  <div id="수동"></div>
+
+  <h2>3. 결과</h2>
+  <div class="안내">
+    아래 글을 <b>사진으로 찍거나 복사해서</b> 알려 주시면 됩니다.
+  </div>
+  <div class="단추줄">
+    <button class="주" id="복사">결과 복사하기</button>
+    <button id="다시">처음부터 다시</button>
+  </div>
+  <div class="결과칸" id="결과">…</div>
+
+  <div class="안내 손으로">
+    <b>이 화면으로는 확인할 수 없는 것</b> — 윈도우에서 실행 파일을 처음 켤 때 나오는 것들입니다.
+    보드에 프로그램을 깔 때 같이 봐 주세요.<br>
+    ① 파란 «Windows의 PC 보호» 창이 뜨는가 &nbsp;②
+    백신이 «위험한 파일»이라고 막는가 &nbsp;③ 방화벽 허용 창이 뜨는가
+  </div>
+
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   점검 항목을 한 곳에 모아 두고, 화면은 그것을 그리기만 합니다.
+   상태는 '좋음' / '나쁨' / '모름' 셋뿐입니다.
+   ───────────────────────────────────────────────────────────── */
+const 항목들 = [];
+const 만들기 = (o) => { 항목들.push(Object.assign({ 상태: '모름', 값: '' }, o)); };
+
+/* ── 도우미 ── */
+const $ = (s) => document.querySelector(s);
+const 잠깐 = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* 글자가 «네모(□)»로 나오는지 봅니다.
+ *
+ * 처음에는 «폭이 같으면 네모» 로 재려 했는데 틀렸습니다.
+ * 한자는 글꼴이 제대로 있어도 전부 같은 폭(1em)이고, 못 그린 네모도 1em 이라
+ * 폭만 봐서는 구분이 안 됩니다. 실제로 이 검사가 멀쩡한 글꼴을 «네모» 라고 했습니다.
+ *
+ * 그래서 진짜로 그려 보고 그림을 비교합니다.
+ *   · 서로 다른 글자를 그렸는데 그림이 똑같다  → 둘 다 네모입니다
+ *   · 세상에 없는 글자와 그림이 똑같다          → 그것도 네모입니다
+ */
+function 글자그림(글, 글꼴) {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 72;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.fillStyle = '#fff'; c.fillRect(0, 0, 72, 72);
+  c.fillStyle = '#000'; c.font = '56px ' + 글꼴; c.textBaseline = 'top';
+  c.fillText(글, 4, 4);
+  const d = c.getImageData(0, 0, 72, 72).data;
+  let h = 0, 잉크 = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = d[i];
+    if (v < 200) 잉크++;
+    h = (h * 31 + v) >>> 0;
+  }
+  return { 지문: h, 잉크 };
+}
+/* 그림 문자(이모지)가 «색이 있는 그림»으로 나오는지 봅니다.
+   못 그리면 검은 네모라서 색이 하나도 없습니다. */
+function 색이있나(글) {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 64;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.fillStyle = '#fff'; c.fillRect(0, 0, 64, 64);
+  c.font = '48px sans-serif'; c.textBaseline = 'top';
+  c.fillText(글, 4, 4);
+  const d = c.getImageData(0, 0, 64, 64).data;
+  for (let i = 0; i < d.length; i += 4) {
+    const [r, g, b] = [d[i], d[i + 1], d[i + 2]];
+    if (Math.max(r, g, b) - Math.min(r, g, b) > 30) return true;  /* 색이 있습니다 */
+  }
+  return false;
+}
+
+/* ── 1. 저절로 알 수 있는 것 ───────────────────────────────── */
+
+/* 화면 크기 — CLAIX 보드는 2160×3840 세로입니다 */
+(() => {
+  const w = window.screen.width, h = window.screen.height;
+  const 비 = window.devicePixelRatio || 1;
+  const 진짜 = [Math.round(w * 비), Math.round(h * 비)];
+  const 세로 = h > w;
+  const 보드 = (진짜[0] === 2160 && 진짜[1] === 3840) || (w === 2160 && h === 3840);
+  만들기({
+    이름: '화면 크기',
+    설명: 'CLAIX 보드는 2160×3840 세로입니다',
+    값: `${w}×${h} · 픽셀비 ${비} · 실제 ${진짜[0]}×${진짜[1]} · ${세로 ? '세로' : '가로'}`,
+    상태: 보드 ? '좋음' : 세로 ? '모름' : '나쁨',
+    덧말: 보드 ? '' : 세로 ? '보드 크기와 다릅니다. 보드가 아닌 기기에서 열었을 수 있습니다'
+      : '가로 화면입니다. 수업도우미는 세로 화면용입니다',
+  });
+})();
+
+/* 터치 */
+(() => {
+  const n = navigator.maxTouchPoints || 0;
+  만들기({
+    이름: '터치 되는 화면인가',
+    설명: '동시에 몇 손가락까지 받는지',
+    값: `동시 터치 ${n}점 · ${('ontouchstart' in window) ? '터치 이벤트 있음' : '터치 이벤트 없음'}`,
+    상태: n >= 2 ? '좋음' : n === 1 ? '모름' : '나쁨',
+    덧말: n >= 2 ? '' : '터치가 안 잡힙니다. 마우스로 열었다면 정상입니다',
+  });
+})();
+
+/* 브라우저 */
+(() => {
+  const u = navigator.userAgent;
+  const 이름 = /Edg\//.test(u) ? 'Edge' : /Chrome\//.test(u) ? 'Chrome'
+    : /Safari\//.test(u) ? 'Safari' : '알 수 없음';
+  const 판 = (u.match(/(?:Edg|Chrome|Version)\/([\d.]+)/) || [, '?'])[1];
+  만들기({
+    이름: '브라우저',
+    설명: '엣지나 크롬이면 좋습니다',
+    값: `${이름} ${판}`,
+    상태: (이름 === 'Edge' || 이름 === 'Chrome') ? '좋음' : '모름',
+  });
+})();
+
+/* 한글·한자 글꼴 — 글꼴 파일을 실제로 받았는지 브라우저에 직접 묻습니다.
+   («폭이 다른가» 로 재려 했더니 웹글꼴이 준비되기 전이라 둘 다 같은 값이 나와,
+    아무것도 못 보면서 «모름» 만 뱉는 헛검사였습니다. 그래서 방식을 바꿨습니다.) */
+만들기({ 이름: '한글 글꼴', 설명: '보드에 글꼴이 없어도 우리 글꼴 파일로 나와야 합니다', 값: '확인 중…', 열쇠: '한글글꼴' });
+만들기({
+  이름: '한자 글꼴 (사자성어)',
+  설명: '樂 雷 類 龍 鑑 이 네모(□)로 나오면 아이가 못 읽습니다',
+  값: '확인 중…', 큰글씨: '樂 雷 類 龍 鑑', 열쇠: '한자글꼴',
+});
+
+/* 스티커 이모지 — 그림판 스티커 447개가 전부 이모지입니다 */
+(() => {
+  const 것들 = ['🎈', '🐶', '🌟', '🍎', '🚀'];
+  const 되는것 = 것들.filter((e) => 색이있나(e));
+  만들기({
+    이름: '스티커 (그림 문자)',
+    설명: '그림판 스티커 447개가 전부 이 방식입니다',
+    값: 것들.join(' ') + `  → ${되는것.length}/${것들.length} 개가 그림으로 나옴`,
+    큰글씨: 것들.join(' '),
+    상태: 되는것.length === 것들.length ? '좋음' : 되는것.length ? '모름' : '나쁨',
+    덧말: 되는것.length === 것들.length ? '' : '스티커가 검은 네모로 나옵니다',
+  });
+})();
+
+/* 오프라인 저장 */
+만들기({ 이름: '오프라인 저장', 설명: '인터넷이 끊겨도 열리는지', 값: '확인 중…', 열쇠: '오프라인' });
+
+/* 화면이 부드러운가 — 진짜 보드의 성능입니다 */
+만들기({ 이름: '화면이 부드러운가', 설명: '초당 몇 장을 그리는지 (60에 가까울수록 좋습니다)', 값: '재는 중…', 열쇠: '프레임' });
+
+/* ── 2. 눌러서 확인할 것 ───────────────────────────────────── */
+만들기({ 이름: '소리가 나는가', 설명: '타이머 알림음·퀴즈 효과음이 스피커로 나오는지', 손: '소리' });
+만들기({ 이름: '마이크가 잡히는가', 설명: '소음측정기가 쓰는 마이크입니다', 손: '마이크' });
+만들기({ 이름: '누른 자리에 정확히 눌리는가', 설명: '동그라미 다섯 개를 차례로 눌러 주세요', 손: '표적' });
+만들기({ 이름: '두 손가락이 동시에 잡히는가', 설명: '아이 둘이 같이 쓰는 상황입니다', 손: '멀티' });
+만들기({ 이름: '전체화면이 되는가', 설명: '주소창 없이 꽉 차야 수업 화면처럼 보입니다', 손: '전체화면' });
+만들기({ 이름: '교실 뒤에서 글씨가 읽히는가', 설명: '가장 연한 글씨를 뒤에서 봐 주세요', 손: '대비' });
+
+/* ─────────────────────────────────────────────────────────────
+   화면 그리기
+   ───────────────────────────────────────────────────────────── */
+function 표(상태) { return `<span class="표 ${상태}">${상태 === '좋음' ? '✓ 좋음' : 상태 === '나쁨' ? '✗ 문제' : '? 확인 필요'}</span>`; }
+
+function 칸그리기(항목, i) {
+  const el = document.createElement('div');
+  el.className = '칸';
+  el.id = '칸' + i;
+  그리기속(el, 항목, i);
+  return el;
+}
+
+function 그리기속(el, 항목, i) {
+  el.innerHTML = `
+    <div class="칸머리">
+      <div class="이름">${항목.이름}
+        ${항목.설명 ? `<div class="설명">${항목.설명}</div>` : ''}
+      </div>
+      ${표(항목.상태)}
+    </div>
+    ${항목.큰글씨 ? `<div class="견본">${항목.큰글씨}</div>` : ''}
+    ${항목.값 ? `<div class="값">${항목.값}</div>` : ''}
+    ${항목.덧말 ? `<div class="값" style="color:var(--나쁨)">${항목.덧말}</div>` : ''}
+    <div class="붙임" id="붙임${i}"></div>
+  `;
+  if (항목.손) 손항목그리기(el.querySelector('#붙임' + i), 항목, i);
+}
+
+function 새로그리기(i) {
+  const el = document.getElementById('칸' + i);
+  if (el) 그리기속(el, 항목들[i], i);
+  진행갱신();
+}
+
+function 정하기(i, 상태, 값) {
+  항목들[i].상태 = 상태;
+  if (값 !== undefined) 항목들[i].값 = 값;
+  새로그리기(i);
+  결과갱신();
+}
+
+/* ── 사람이 눌러 확인하는 항목들 ── */
+function 손항목그리기(붙임, 항목, i) {
+  const 예아니오 = (물음) => `
+    <div class="단추줄">
+      <button class="예" onclick="정하기(${i},'좋음')">${물음} — 네</button>
+      <button class="아니오" onclick="정하기(${i},'나쁨')">아니요</button>
+    </div>`;
+
+  if (항목.손 === '소리') {
+    붙임.innerHTML = `
+      <div class="단추줄"><button class="주" onclick="소리내기(${i})">🔊 소리 내 보기</button></div>
+      <div id="소리답${i}"></div>`;
+  }
+
+  if (항목.손 === '마이크') {
+    붙임.innerHTML = `
+      <div class="단추줄"><button class="주" onclick="마이크켜기(${i})">🎤 마이크 켜 보기</button></div>
+      <div class="막대칸" style="display:none" id="막대칸${i}"><div class="막대" id="막대${i}"></div></div>
+      <div id="마이크답${i}"></div>`;
+  }
+
+  if (항목.손 === '표적') {
+    붙임.innerHTML = `
+      <div class="표적판" id="표적판${i}"></div>
+      <div class="단추줄"><button onclick="표적시작(${i})">다시 하기</button></div>`;
+    setTimeout(() => 표적시작(i), 60);
+  }
+
+  if (항목.손 === '멀티') {
+    붙임.innerHTML = `
+      <div class="표적판" id="멀티판${i}" style="display:flex;align-items:center;justify-content:center;color:#64748B;font-weight:600">
+        여기에 두 손가락을 동시에 대 주세요
+      </div>`;
+    setTimeout(() => 멀티시작(i), 60);
+  }
+
+  if (항목.손 === '전체화면') {
+    붙임.innerHTML = `
+      <div class="단추줄"><button class="주" onclick="전체화면(${i})">⛶ 전체화면으로 해 보기</button></div>
+      <div id="전체답${i}"></div>`;
+  }
+
+  if (항목.손 === '대비') {
+    붙임.innerHTML = `
+      <div class="작은견본" style="margin-top:.8em">
+        <div style="color:#64748B">이 회색 글씨가 교실 맨 뒤에서 읽히나요?</div>
+        <div style="color:#94A3B8;margin-top:.3em">이것보다 더 연한 글씨입니다 (고치기 전 색)</div>
+      </div>
+      ${예아니오('읽힙니다')}`;
+  }
+}
+
+/* 소리 — 도·미·솔을 짧게 냅니다 */
+window.소리내기 = async function (i) {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    if (ctx.state === 'suspended') await ctx.resume();
+    [523.25, 659.25, 783.99].forEach((hz, n) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = hz; o.type = 'sine';
+      const t = ctx.currentTime + n * 0.32;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.25, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t + 0.32);
+    });
+    document.getElementById('소리답' + i).innerHTML = `
+      <div class="단추줄">
+        <button class="예" onclick="정하기(${i},'좋음','소리 잘 남 (AudioContext ${ctx.state})')">🔊 들렸어요</button>
+        <button class="아니오" onclick="정하기(${i},'나쁨','소리가 안 남')">안 들려요</button>
+      </div>`;
+  } catch (e) {
+    정하기(i, '나쁨', '소리를 낼 수 없습니다: ' + e.message);
+  }
+};
+
+/* 마이크 — 실제 소리 크기를 막대로 보여 줍니다 */
+window.마이크켜기 = async function (i) {
+  const 답 = document.getElementById('마이크답' + i);
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    const src = ctx.createMediaStreamSource(s);
+    const an = ctx.createAnalyser(); an.fftSize = 512;
+    src.connect(an);
+    const buf = new Uint8Array(an.frequencyBinCount);
+    document.getElementById('막대칸' + i).style.display = '';
+    let 최대 = 0;
+    (function 돌기() {
+      an.getByteFrequencyData(buf);
+      let 합 = 0; for (const v of buf) 합 += v;
+      const 크기 = Math.min(100, (합 / buf.length) * 2.2);
+      최대 = Math.max(최대, 크기);
+      const m = document.getElementById('막대' + i);
+      if (m) { m.style.width = 크기 + '%'; requestAnimationFrame(돌기); }
+    })();
+    답.innerHTML = `
+      <div class="설명" style="margin-top:.6em">말을 해 보세요. 막대가 움직이면 마이크가 잡힌 것입니다.</div>
+      <div class="단추줄">
+        <button class="예" onclick="정하기(${i},'좋음','마이크 잡힘 · 막대 움직임')">🎤 움직였어요</button>
+        <button class="아니오" onclick="정하기(${i},'나쁨','마이크는 열렸는데 막대가 안 움직임')">안 움직여요</button>
+      </div>`;
+  } catch (e) {
+    const 왜 = e.name === 'NotAllowedError' ? '사용자가 «차단»을 눌렀거나 권한이 막혀 있습니다'
+      : e.name === 'NotFoundError' ? '이 보드에는 마이크가 없습니다'
+        : e.name;
+    정하기(i, '나쁨', '마이크를 못 켰습니다 — ' + 왜);
+  }
+};
+
+/* 터치 정확도 — 표적 다섯 개를 누르게 하고 «얼마나 빗나갔는지» 를 잽니다 */
+const 표적상태 = {};
+window.표적시작 = function (i) {
+  const 판 = document.getElementById('표적판' + i);
+  if (!판) return;
+  판.innerHTML = '';
+  const 자리 = [[.5, .5], [.15, .18], [.85, .18], [.15, .82], [.85, .82]];
+  표적상태[i] = { 남은: 자리.slice(), 오차: [] };
+  다음표적(i);
+  판.onpointerdown = (e) => {
+    const s = 표적상태[i]; if (!s || !s.지금) return;
+    const r = 판.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const 점 = document.createElement('div');
+    점.className = '자국'; 점.style.left = x + 'px'; 점.style.top = y + 'px';
+    판.appendChild(점);
+    const d = Math.hypot(x - s.지금[0], y - s.지금[1]);
+    s.오차.push(d);
+    다음표적(i);
+  };
+};
+function 다음표적(i) {
+  const 판 = document.getElementById('표적판' + i);
+  const s = 표적상태[i];
+  const 옛 = 판.querySelector('.표적'); if (옛) 옛.remove();
+  if (!s.남은.length) {
+    s.지금 = null;
+    const 평균 = s.오차.reduce((a, b) => a + b, 0) / s.오차.length;
+    const 최대 = Math.max(...s.오차);
+    /* 65인치 보드에서 1픽셀은 약 0.75mm 입니다. 손가락 굵기를 생각하면
+       평균 12px(≈9mm) 안쪽이면 «정확히 눌린다» 고 볼 수 있습니다. */
+    정하기(i, 평균 <= 12 ? '좋음' : 평균 <= 25 ? '모름' : '나쁨',
+      `다섯 곳 평균 ${평균.toFixed(1)}px · 가장 많이 빗나간 곳 ${최대.toFixed(1)}px`);
+    return;
+  }
+  const [px, py] = s.남은.shift();
+  const r = 판.getBoundingClientRect();
+  const x = r.width * px, y = r.height * py;
+  s.지금 = [x, y];
+  const t = document.createElement('div');
+  t.className = '표적'; t.style.left = x + 'px'; t.style.top = y + 'px';
+  판.appendChild(t);
+}
+
+/* 두 손가락 */
+window.멀티시작 = function (i) {
+  const 판 = document.getElementById('멀티판' + i);
+  if (!판) return;
+  let 최대 = 0;
+  const 보기 = (e) => {
+    const n = e.touches ? e.touches.length : 1;
+    최대 = Math.max(최대, n);
+    판.textContent = `지금 ${n}손가락 · 가장 많이 ${최대}손가락`;
+    if (최대 >= 2) 정하기(i, '좋음', `두 손가락이 동시에 잡힙니다 (최대 ${최대}점)`);
+    e.preventDefault();
+  };
+  판.addEventListener('touchstart', 보기, { passive: false });
+  판.addEventListener('touchmove', 보기, { passive: false });
+};
+
+/* 전체화면 */
+window.전체화면 = async function (i) {
+  const 답 = document.getElementById('전체답' + i);
+  try {
+    await (document.documentElement.requestFullscreen
+      ? document.documentElement.requestFullscreen()
+      : document.documentElement.webkitRequestFullscreen());
+    await 잠깐(600);
+    const 됐나 = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    답.innerHTML = `
+      <div class="설명" style="margin-top:.6em">주소창이 사라지고 꽉 찼나요? (ESC 를 누르면 돌아옵니다)</div>
+      <div class="단추줄">
+        <button class="예" onclick="정하기(${i},'좋음','전체화면 됨')">⛶ 꽉 찼어요</button>
+        <button class="아니오" onclick="정하기(${i},'나쁨','전체화면이 안 됨')">안 돼요</button>
+      </div>`;
+    if (!됐나) 정하기(i, '나쁨', '전체화면 요청이 거부됐습니다');
+  } catch (e) {
+    정하기(i, '나쁨', '전체화면을 쓸 수 없습니다: ' + e.message);
+  }
+};
+
+/* ── 저절로 도는 검사 두 가지 ── */
+(async function 오프라인확인() {
+  const i = 항목들.findIndex((x) => x.열쇠 === '오프라인');
+  try {
+    if (!('serviceWorker' in navigator)) return 정하기(i, '나쁨', '이 브라우저는 오프라인 저장을 못 씁니다');
+    const rs = await navigator.serviceWorker.getRegistrations();
+    const ks = window.caches ? await caches.keys() : [];
+    const 우리것 = ks.filter((k) => k.startsWith('suup-doumi'));
+    if (우리것.length) 정하기(i, '좋음', `저장돼 있습니다 — ${우리것.join(', ')}`);
+    else if (rs.length) 정하기(i, '모름', '등록은 됐는데 아직 다 안 받았습니다. 수업도우미 화면을 한 번 열고 다시 오세요');
+    else 정하기(i, '모름', '아직 없습니다. 실행 파일로 켠 경우에는 원래 안 씁니다(화면이 이미 안에 다 들어 있습니다)');
+  } catch (e) { 정하기(i, '모름', '확인 못 함: ' + e.message); }
+})();
+
+(async function 글꼴확인() {
+  const 한글 = 항목들.findIndex((x) => x.열쇠 === '한글글꼴');
+  const 한자 = 항목들.findIndex((x) => x.열쇠 === '한자글꼴');
+  /* 글꼴 받기가 «실패» 하는 것도 우리가 알고 싶은 답입니다.
+     그런데 실패하면 예외가 나서, 그냥 감싸면 «확인 못 함» 이 돼 버립니다.
+     (실제로 그렇게 만들었다가, 일부러 글꼴을 없애 보니 문제를 «?» 로 흘려보냈습니다)
+     그래서 받기 실패는 조용히 넘기고, 그린 결과로 판단합니다. */
+  const 받아보기 = async (설명, 글자) => {
+    try { await document.fonts.load(설명, 글자); return true; } catch (e) { return false; }
+  };
+  try {
+    try { await document.fonts.ready; } catch (e) { /* 하나라도 실패하면 여기로 옵니다 */ }
+    await 받아보기('64px Pretendard', '가나다');
+    await 받아보기('64px HanjaSubset', '樂雷類龍鑑');
+
+    const 프 = document.fonts.check('64px Pretendard', '가나다');
+    정하기(한글, 프 ? '좋음' : '나쁨',
+      프 ? '우리 글꼴(Pretendard) 로 나옵니다' : '글꼴 파일을 못 받았습니다 — 보드 기본 글꼴로 나옵니다');
+
+    /* 한자는 «글꼴이 왔는가» 와 «네모로 나오는가» 를 따로 봅니다.
+       글꼴을 못 받아도 보드에 한자 글꼴이 있으면 잘 나올 수 있고, 그 반대도 있습니다. */
+    const 한 = document.fonts.check('64px HanjaSubset', '樂雷類龍鑑');
+    const 글꼴 = '"HanjaSubset", Pretendard, serif';
+    const 글자 = ['樂', '雷', '類', '龍', '鑑'];
+    const 그림들 = 글자.map((g) => 글자그림(g, 글꼴));
+    const 없는글자 = 글자그림('\uE000', 글꼴);        /* 세상에 없는 글자 = 반드시 네모 */
+    const 서로다름 = new Set(그림들.map((x) => x.지문)).size === 글자.length;
+    const 네모아님 = 그림들.every((x) => x.지문 !== 없는글자.지문 && x.잉크 > 20);
+    const 안깨짐 = 서로다름 && 네모아님;
+    정하기(한자, (한 && 안깨짐) ? '좋음' : 안깨짐 ? '모름' : '나쁨',
+      `글꼴 파일 ${한 ? '받음' : '못 받음'} · 화면에 ${안깨짐 ? '제대로 나옴' : '네모(□)로 나옴'}`
+      + ` (다섯 글자가 서로 ${서로다름 ? '다르게' : '똑같이'} 그려짐) — 위 큰 글씨도 눈으로 봐 주세요`);
+  } catch (e) {
+    정하기(한글, '모름', '확인 못 함: ' + e.message);
+    정하기(한자, '모름', '확인 못 함: ' + e.message);
+  }
+})();
+
+(function 프레임재기() {
+  const i = 항목들.findIndex((x) => x.열쇠 === '프레임');
+  let n = 0; const 시작 = performance.now();
+  (function 한장() {
+    n++;
+    if (performance.now() - 시작 < 2000) requestAnimationFrame(한장);
+    else {
+      const fps = Math.round(n / ((performance.now() - 시작) / 1000));
+      정하기(i, fps >= 50 ? '좋음' : fps >= 30 ? '모름' : '나쁨', `초당 ${fps}장`);
+    }
+  })();
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   진행 상황 · 결과
+   ───────────────────────────────────────────────────────────── */
+function 진행갱신() {
+  /* 진행률은 «사람이 눌러야 끝나는 것» 만 셉니다.
+     저절로 도는 검사까지 세면, 아무리 눌러도 100%가 안 돼서 답답합니다. */
+  const 손것 = 항목들.filter((x) => x.손);
+  const 끝난 = 손것.filter((x) => x.상태 !== '모름').length;
+  $('#진행막대').style.width = (끝난 / 손것.length * 100) + '%';
+  const 문제 = 항목들.filter((x) => x.상태 === '나쁨').length;
+  $('#진행글').textContent = `눌러서 확인할 것 ${손것.length}개 중 ${끝난}개 완료`
+    + (문제 ? ` · 문제 ${문제}개` : '') + (끝난 === 손것.length ? ' — 다 됐습니다!' : '');
+}
+
+function 결과갱신() {
+  const 때 = new Date().toLocaleString('ko-KR');
+  const 줄 = ['[수업도우미] 보드 점검 결과', '때: ' + 때, ''];
+  const 적기 = (x) => {
+    const 표시 = x.상태 === '좋음' ? '✓' : x.상태 === '나쁨' ? '✗' : '?';
+    줄.push(`${표시} ${x.이름}${x.값 ? ' — ' + x.값 : ''}`);
+    if (x.덧말) 줄.push(`    ${x.덧말}`);
+  };
+  줄.push('[저절로 알아낸 것]');
+  항목들.filter((x) => !x.손).forEach(적기);
+  줄.push('');
+  줄.push('[눌러서 확인한 것]');
+  항목들.filter((x) => x.손).forEach(적기);
+  const 문제 = 항목들.filter((x) => x.상태 === '나쁨');
+  const 모름 = 항목들.filter((x) => x.손 && x.상태 === '모름');
+  줄.push('');
+  줄.push(문제.length ? `문제 ${문제.length}개: ${문제.map((x) => x.이름).join(', ')}`
+    : 모름.length ? `아직 안 누른 것 ${모름.length}개: ${모름.map((x) => x.이름).join(', ')}`
+      : '전부 통과했습니다.');
+  $('#결과').textContent = 줄.join('\n');
+}
+
+/* 그리기 */
+const 자동칸 = $('#자동'), 수동칸 = $('#수동');
+항목들.forEach((x, i) => (x.손 ? 수동칸 : 자동칸).appendChild(칸그리기(x, i)));
+진행갱신(); 결과갱신();
+
+$('#복사').onclick = async () => {
+  try {
+    await navigator.clipboard.writeText($('#결과').textContent);
+    $('#복사').textContent = '복사했습니다 ✓';
+    setTimeout(() => ($('#복사').textContent = '결과 복사하기'), 2000);
+  } catch (e) {
+    $('#복사').textContent = '복사가 안 됩니다 — 아래 글을 사진으로 찍어 주세요';
+  }
+};
+$('#다시').onclick = () => location.reload();
+</script>
+<script id="drop-guard">
+/* 파일을 끌어다 놓아도 수업 화면을 벗어나지 않게 합니다 (scripts/fix-drop-guard.mjs).
+   브라우저는 기본으로 끌어다 놓은 파일을 열어 버립니다. */
+['dragenter', 'dragover', 'drop'].forEach(function (종류) {
+  window.addEventListener(종류, function (e) { e.preventDefault(); }, false);
+});
+</script>
+</body>
+</html>
