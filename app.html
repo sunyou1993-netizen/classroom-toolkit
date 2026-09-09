@@ -944,5 +944,101 @@
   });
 })();
 </script>
+<script id="nav-extra-cards">
+/* 첫 화면 목록에 카드를 덧붙입니다 (scripts/add-nav-card.mjs).
+ *
+ * 원본은 한 글자도 안 건드립니다. 이미 있는 카드를 «복제» 해서
+ * 그림·글자·갈 곳만 바꿔 붙이므로, 카드 디자인이 바뀌면 저절로 따라갑니다.
+ * 되돌리려면 이 <script> 덩어리만 지우면 됩니다. */
+(function () {
+  var 카드들 = [
+    {
+      "이름": "퀴즈",
+      "설명": "환경·안전·학교폭력·속담<br>사자성어·교가를 풀어요.",
+      "그림": "✏️",
+      "주소": "./quiz/"
+    }
+  ];
+  if (!카드들.length) return;
+
+  var 붙였음 = false;
+
+  function 붙이기() {
+    if (붙였음) return true;
+    var 담는곳 = document.querySelector('.cards-grid');
+    if (!담는곳) return false;
+    var 본보기 = 담는곳.querySelector('.school-card');
+    if (!본보기) return false;                       /* 카드가 아직 안 그려졌습니다 */
+
+    카드들.forEach(function (것) {
+      /* 같은 카드를 두 번 붙이지 않습니다 */
+      if (담는곳.querySelector('[data-덧붙인카드="' + 것.이름 + '"]')) return;
+
+      var 새것 = 본보기.cloneNode(true);
+      새것.setAttribute('data-덧붙인카드', 것.이름);
+      새것.removeAttribute('onclick');
+      새것.onclick = null;
+
+      /* 그림 — 이미지 주소면 그대로, 아니면 그림 문자로 */
+      var 그림칸 = 새것.querySelector('img');
+      if (그림칸) {
+        if (/[\/.]/.test(것.그림)) {
+          그림칸.setAttribute('src', 것.그림);
+          그림칸.setAttribute('alt', 것.이름);
+        } else {
+          /* 그림 문자는 <img> 로 못 넣으므로, 같은 자리에 글자로 넣습니다.
+             크기는 원래 그림이 차지하던 만큼 그대로 씁니다. */
+          var 상자 = 그림칸.getBoundingClientRect();
+          var 글자 = document.createElement('span');
+          글자.textContent = 것.그림;
+          글자.setAttribute('aria-hidden', 'true');
+          글자.style.cssText = 'display:flex;align-items:center;justify-content:center;'
+            + 'width:' + (상자.width || 138) + 'px;height:' + (상자.height || 138) + 'px;'
+            + 'font-size:' + Math.round((상자.height || 138) * 0.62) + 'px;line-height:1;';
+          그림칸.parentNode.replaceChild(글자, 그림칸);
+        }
+      }
+
+      var 제목 = 새것.querySelector('h3');
+      if (제목) 제목.textContent = 것.이름;
+      var 설명 = 새것.querySelector('p');
+      if (설명) 설명.innerHTML = 것.설명;
+
+      /* 눌렀을 때 — 원본이 쓰는 이동 방법을 그대로 씁니다.
+         (없으면 평범하게 주소를 바꿉니다) */
+      function 가기() {
+        try {
+          if (typeof window.goToService === 'function') { window.goToService(것.주소); return; }
+        } catch (e) {}
+        window.location.href = 것.주소;
+      }
+      새것.addEventListener('click', 가기);
+
+      /* 원본 카드는 그냥 <div> 라 키보드로는 갈 수 없습니다.
+         우리가 붙이는 카드만이라도 키보드·화면읽기로 쓸 수 있게 해 둡니다.
+         (원본은 건드리지 않습니다) */
+      새것.setAttribute('role', 'button');
+      새것.setAttribute('tabindex', '0');
+      새것.setAttribute('aria-label', 것.이름 + ' 열기');
+      새것.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); 가기(); }
+      });
+
+      담는곳.appendChild(새것);
+    });
+
+    붙였음 = true;
+    return true;
+  }
+
+  /* 첫 화면은 자바스크립트로 나중에 그려집니다. 그려질 때까지 기다립니다. */
+  if (!붙이기()) {
+    var 지켜보기 = new MutationObserver(function () { if (붙이기()) 지켜보기.disconnect(); });
+    지켜보기.observe(document.documentElement, { childList: true, subtree: true });
+    /* 혹시 못 찾아도 15초 뒤에는 지켜보기를 그만둡니다(괜히 계속 돌지 않게) */
+    setTimeout(function () { 지켜보기.disconnect(); }, 15000);
+  }
+})();
+</script>
 </body>
 </html>

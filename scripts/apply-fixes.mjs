@@ -56,6 +56,7 @@ const 목록 = [
   { 이름: '소음측정기 문구', 파일: 'fix-noise-labels.mjs', 자리: ROOT },
   { 이름: '그림판 내보내기 이름', 파일: 'fix-paint-share.mjs', 자리: ROOT },
   { 이름: '사다리 공정하게', 파일: 'fix-ladder-fairness.mjs', 자리: ROOT },
+  { 이름: '첫 화면에 퀴즈 카드', 파일: 'add-nav-card.mjs', 자리: ROOT },
 
   // ── 퀴즈 쪽만 ──
   { 이름: '퀴즈 키오스크 잠금', 파일: 'kiosk-guard.mjs', 자리: QUIZ, 퀴즈: true },
