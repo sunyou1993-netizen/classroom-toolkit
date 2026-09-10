@@ -52,6 +52,83 @@ for (const f of ['environment', 'safe', 'violence']) {
   console.log('바깥 접속 확인 ✓\n');
 }
 
+
+/* ── 주소마다 «그 문서라면 반드시 들어 있어야 할 낱말» ───────────────
+ *
+ * 왜 이게 필요한가 (17차에 크게 데었습니다):
+ *   정부 사이트 주소는 **죽지 않고 살아 있으면서 다른 문서를 보여 줍니다.**
+ *   정책브리핑은 그날의 다른 기사를, 국민안전24는 category 를 무시하고 지진 요령을,
+ *   게시판 주소는 세션에 따라 엉뚱한 게시글을 돌려줬습니다. 전부 200 OK 입니다.
+ *   그래서 «열리나?» 만 보면 문항 43개가 잘못된 근거를 달고 있어도 통과합니다.
+ *
+ *   여기 적은 낱말이 받아 온 글에 하나도 없으면 «다른 문서» 로 봅니다.
+ *   새 출처를 넣을 때는 여기에도 한 줄 넣어 주세요. 안 넣으면 «표시어 없음» 으로 나옵니다.
+ */
+const 확인어 = [
+  ['law.go.kr/LSW/admRulInfoP', ['재활용가능자원의 분리수거']],
+  ['csmSeq=1408&ccfNo=1', ['학교폭력']],
+  ['csmSeq=1408&ccfNo=2', ['예방교육']],
+  ['csmSeq=1408&ccfNo=3', ['신고']],
+  ['csmSeq=1408&ccfNo=4', ['조치', '자체해결']],
+  ['csmSeq=1452', ['분리배출']],
+  ['csmSeq=690&ccfNo=1&cciNo=1&cnpClsNo=3', ['보호구역']],
+  ['csmSeq=690&ccfNo=1&cciNo=1&cnpClsNo=1', ['보행']],
+  ['csmSeq=690&ccfNo=1&cciNo=2', ['탑승', '통학버스']],
+  ['csmSeq=690&ccfNo=1&cciNo=3', ['자전거']],
+  ['csmSeq=690&ccfNo=2', ['가정']],
+  ['csmSeq=690&ccfNo=4&cciNo=1', ['물놀이']],
+  ['csmSeq=690&ccfNo=4&cciNo=2', ['놀이시설']],
+  ['csmSeq=690&ccfNo=5', ['화재']],
+  ['csmSeq=293', ['명예훼손']],
+  ['boardId=875840', ['분리배출']],
+  ['boardId=1398800', ['재활용품']],
+  ['BBS_202502140257008950', ['사안처리']],
+  ['4e4fd915-99e8-43d0-b763-3b0bfea0b50b', ['실태조사']],
+  ['cpoint.or.kr', ['탄소중립포인트']],
+  ['emergency_eq2', ['지진']],
+  ['kacpr.org', ['심폐소생술']],
+  ['safety-guide/typhoon', ['태풍']],
+  ['safety-guide/heatwave', ['폭염']],
+  ['safety-guide/coldwave', ['한파']],
+  ['chd/sub/a06/fire_2', ['소화기']],
+  ['chd/sub/a06/fire/', ['화재']],
+  ['chd/sub/a06/summer', ['물놀이']],
+  ['chd/sub/a06/road', ['교통']],
+  ['chd/sub/a06/play_2', ['놀이기구']],
+  ['chd/sub/a06/play/', ['자전거', '놀이']],
+  ['chd/sub/a06/rescue_3', ['심폐소생술']],
+  ['chd/sub/a06/rescue/', ['구급']],
+  ['newsId=148874146', ['식중독']],
+  ['newsId=148959320', ['식중독']],
+  ['newsId=148926855', ['교통안전']],
+  ['newsId=148954485', ['교통안전']],
+  ['newsId=148764941', ['어울림']],
+  ['gonggam.korea.kr', ['디지털 성폭력']],
+  ['dong.daegu.kr/portal/contents.do?mid=0405130200', ['음식물']],
+  ['dong.daegu.kr/portal/contents.do?mid=0405130700', ['페트병']],
+  ['dgs.go.kr/portal/contents.do', ['음식물']],
+  ['buk.daegu.kr', ['음식물']],
+  ['junggu.seoul.kr', ['폐의약품']],
+  ['energy.or.kr/front/board/View3', ['난방']],
+  ['eep.energy.or.kr/more/knowhow4', ['에어컨']],
+  ['eep.energy.or.kr/business_introduction', ['효율등급', '에너지소비효율']],
+  ['ggenergy.or.kr', ['에너지절약', '에너지 절약']],
+  ['gihoo.or.kr/menu.es?mid=a30101010000', ['온실']],
+  ['gihoo.or.kr/menu.es?mid=a30101030000', ['기후변화']],
+  ['gihoo.or.kr/menu.es?mid=a30106000000', ['기후변화']],
+  ['num=1194622', ['이상기후']],
+  ['num=1194641', ['이산화탄소']],
+  ['health.kdca.go.kr/healthinfo/biz/health/ccvdInfo', ['심폐소생술']],
+  ['cntnts_sn=6584', ['화상']],
+  ['wee.go.kr', ['Wee']],
+  ['kmcc.go.kr', ['사이버폭력']],
+  ['btf.or.kr', ['상담']],
+];
+const 있어야할낱말 = (u) => {
+  for (const [조각, 낱말] of 확인어) if (u.includes(조각)) return 낱말;
+  return null;
+};
+
 const 결과 = [];
 for (const [u, v] of 주소들) {
   let 상태 = '?', 비고 = '';
@@ -64,9 +141,15 @@ for (const [u, v] of 주소들) {
     clearTimeout(t);
     상태 = String(r.status);
     if (r.status === 200) {
-      const s = await r.text();
-      if (/페이지를 찾을 수 없|없는 페이지|Not Found|잘못된 접근/.test(s)) { 상태 = '200'; 비고 = '열리지만 "없는 페이지" 문구가 보임'; }
-      else if (s.length < 400) { 비고 = '내용이 너무 짧음'; }
+      const 본문 = await r.text();
+      if (/페이지를 찾을 수 없|없는 페이지|Not Found|잘못된 접근/.test(본문)) { 비고 = '열리지만 "없는 페이지" 문구가 보임'; }
+      else if (본문.length < 400) { 비고 = '내용이 너무 짧음'; }
+      else {
+        const 낱말 = 있어야할낱말(u);
+        if (!낱말) 비고 = '표시어 없음 — check-sources.mjs 의 확인어 표에 한 줄 넣어 주세요';
+        else if (!낱말.some((w) => 본문.includes(w)))
+          비고 = `열리기는 하는데 «${낱말[0]}» 이 안 보입니다 — 다른 문서일 수 있습니다`;
+      }
     }
   } catch (e) {
     상태 = '실패';
