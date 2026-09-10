@@ -53,10 +53,21 @@ const 새층수 = 'const t=[],e=Math.max(6,(l-1)*3);';   // l = 참가자 수
 const 옛높이 = 'level:.15+(n.lvl+1)*.09999999999999999';
 const 새높이 = 'level:.12+(n.lvl+1)*(.76/(e+1))';
 
+/* ── 「이미 고쳐져 있는가」는 «글자 그대로» 로 보면 안 됩니다 ──────────
+ *
+ * 2026-09-10 에 AI Studio 원본(js/main.js)에도 같은 고침을 넣었습니다.
+ * 그러면 앞으로 새로 빌드한 번들에는 이 고침이 «처음부터» 들어 있습니다.
+ * 그런데 압축기가 변수 이름을 매번 같게 지어 준다는 보장이 없습니다.
+ *   const t=[],e=Math.max(6,(l-1)*3);   ← l 이 d 나 c 로 바뀔 수 있습니다
+ * 글자를 그대로 맞대어 보면 그때 «못 찾았다» 며 빌드가 멈춥니다.
+ * 그래서 변수 이름은 아무거나 되게 해 둡니다. */
+const 이미꼴 = /const [A-Za-z_$]+=\[\],[A-Za-z_$]+=Math\.max\(6,\([A-Za-z_$]+-1\)\*3\);/;
+const 이미높이꼴 = /level:\.12\+\([A-Za-z_$]+\.lvl\+1\)\*\(\.76\/\([A-Za-z_$]+\+1\)\)/;
+
 let 고침 = 0, 이미 = 0;
 for (const f of 파일들) {
   let s = fs.readFileSync(f, 'utf8');
-  if (s.includes(새층수)) { 이미++; continue; }
+  if (s.includes(새층수) || (이미꼴.test(s) && 이미높이꼴.test(s))) { 이미++; continue; }
   if (!s.includes(옛층수)) continue;
   if (!s.includes(옛높이)) {
     console.error(`✗ ${path.basename(f)} — 높이 계산 부분을 찾지 못했습니다. 멈춥니다.`);
